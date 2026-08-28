@@ -199,20 +199,20 @@ console.log(turn.agentResponse);`,
             <p className="text-[11.5px] text-text-muted">Agent Orchestration / Memory / Planning</p>
           </div>
 
-          {/* Card 3: Agent Harnesses */}
+          {/* Card 3: Agent Orchestration */}
           <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-900/50 bg-purple-50/40 dark:bg-purple-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-purple-600 dark:text-purple-400 font-semibold text-[13px]">
               <Layers size={15} />
-              <span>Agent Harnesses</span>
+              <span>Agent Orchestration</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">DeepSeek / Pi / Codex Runtime</p>
+            <p className="text-[11.5px] text-text-muted">Subagent Tree • Patch Gate • Plan Tracker</p>
           </div>
 
           {/* Card 4: Scientific Tools & Skills */}
           <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-[13px]">
               <Wrench size={15} />
-              <span>Scientific Tools & Skills</span>
+              <span>Scientific Tools &amp; Skills</span>
             </div>
             <p className="text-[11.5px] text-text-muted">Databases / Python / Domain Skills</p>
           </div>
@@ -221,7 +221,7 @@ console.log(turn.agentResponse);`,
           <div className="p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 dark:bg-cyan-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-cyan-600 dark:text-cyan-400 font-semibold text-[13px]">
               <FileText size={15} />
-              <span>Results & Artifacts</span>
+              <span>Results &amp; Artifacts</span>
             </div>
             <p className="text-[11.5px] text-text-muted">Reports / Figures / Provenance</p>
           </div>
@@ -240,65 +240,65 @@ console.log(turn.agentResponse);`,
 
       {/* 4. THREE-CARD ARCHITECTURE DETAILS GRID (Matching 1.png) */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1: Agent Harnesses */}
+        {/* Card 1: Core Agentic Mechanisms */}
         <div className="p-5 rounded-2xl bg-bg-surface border border-border flex flex-col justify-between shadow-xs">
           <div className="space-y-4">
             <div>
-              <h3 className="text-[16px] font-bold text-text-primary">Agent Harnesses</h3>
-              <p className="text-[12px] text-text-muted">Run JunScience on multiple powerful harnesses.</p>
+              <h3 className="text-[16px] font-bold text-text-primary">Agentic Paradigms</h3>
+              <p className="text-[12px] text-text-muted">3 advanced autonomous discovery mechanisms.</p>
             </div>
 
             <div className="space-y-3 pt-1">
-              {/* DeepSeek */}
+              {/* Mechanism 1: Subagent Hypothesis Tree */}
               <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
                 <div className="p-1.5 rounded-md bg-blue-500/10 text-accent flex-shrink-0 mt-0.5">
                   <Bot size={18} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-bold text-text-primary">DeepSeek Harness</span>
+                    <span className="text-[13px] font-bold text-text-primary">Subagent Hypothesis Tree</span>
                     <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      Available
+                      Integrated
                     </span>
                   </div>
                   <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
-                    Event-driven runtime with parallel hypothesis subagent tree and tool execution.
+                    Parallel hypothesis exploration tree with subagent forking &amp; cross-branch evidence synthesis matrix.
                   </p>
                 </div>
               </div>
 
-              {/* Pi */}
-              <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
-                <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500 flex-shrink-0 mt-0.5">
-                  <Zap size={18} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-bold text-text-primary">Pi Harness</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-slate-500/10 text-text-muted border border-slate-500/20">
-                      Planned
-                    </span>
-                  </div>
-                  <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
-                    Modular agent core with unified LLM API and streaming abstraction.
-                  </p>
-                </div>
-              </div>
-
-              {/* Codex */}
+              {/* Mechanism 2: Pre-Adoption Patch Verification */}
               <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
                 <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500 flex-shrink-0 mt-0.5">
-                  <Code2 size={18} />
+                  <ShieldCheck size={18} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-bold text-text-primary">Codex Harness</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                      Experimental
+                    <span className="text-[13px] font-bold text-text-primary">Patch Verification Gate</span>
+                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      Integrated
                     </span>
                   </div>
                   <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
-                    Code-first agent runtime with terminal, coding, and evidence patch verification.
+                    Strict scientific sanity &amp; boundary gate for computation outputs before EV-xxx evidence adoption.
+                  </p>
+                </div>
+              </div>
+
+              {/* Mechanism 3: Explicit Plan & Stream Orchestration */}
+              <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
+                <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500 flex-shrink-0 mt-0.5">
+                  <CheckCircle2 size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13px] font-bold text-text-primary">Explicit Plan &amp; To-Do Tracker</span>
+                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      Integrated
+                    </span>
+                  </div>
+                  <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
+                    Dynamic multi-stage research planner with live To-Do checklist &amp; EventBus event streaming.
                   </p>
                 </div>
               </div>
@@ -310,7 +310,7 @@ console.log(turn.agentResponse);`,
               onClick={() => setActiveSection('architecture')}
               className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent hover:text-accent-hover"
             >
-              <span>Explore harnesses</span>
+              <span>Explore architecture</span>
               <ArrowRight size={13} />
             </button>
           </div>
