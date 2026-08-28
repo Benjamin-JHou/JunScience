@@ -1,4 +1,4 @@
-import { ModelProfile, ModelRequest, ModelResponse, ModelToolCall } from '../../types/model.js';
+import { ModelProfile, ModelRequest, ModelResponse, ModelToolCall, ModelContentPart } from '../../types/model.js';
 
 export class OpenAIProtocol {
   public static buildUrl(profile: ModelProfile): string {
@@ -20,6 +20,27 @@ export class OpenAIProtocol {
     return headers;
   }
 
+  private static formatContent(content: string | ModelContentPart[]): any {
+    if (typeof content === 'string') {
+      return content;
+    }
+    return content.map((part) => {
+      if (part.type === 'text') {
+        return { type: 'text', text: part.text };
+      }
+      if (part.type === 'image_url') {
+        return {
+          type: 'image_url',
+          image_url: {
+            url: part.image_url.url,
+            detail: part.image_url.detail || 'auto',
+          },
+        };
+      }
+      return part;
+    });
+  }
+
   public static buildPayload(request: ModelRequest, stream: boolean = false): Record<string, any> {
     const payload: Record<string, any> = {
       model: request.model,
@@ -27,13 +48,13 @@ export class OpenAIProtocol {
         if (m.role === 'tool') {
           return {
             role: 'tool',
-            content: m.content,
+            content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
             tool_call_id: m.toolCallId || 'call_default',
           };
         }
         return {
           role: m.role,
-          content: m.content,
+          content: OpenAIProtocol.formatContent(m.content),
         };
       }),
       temperature: request.temperature ?? 0.2,
@@ -132,7 +153,7 @@ export class OpenAIProtocol {
             state.toolCallsMap.set(index, {
               id: tc.id || `call_${Date.now()}_${index}`,
               name: tc.function?.name || '',
-              argsStr: tc.function?.arguments || '',
+              argsStr: '',
             });
           } else {
             const existing = state.toolCallsMap.get(index)!;

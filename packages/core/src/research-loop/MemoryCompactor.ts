@@ -47,8 +47,11 @@ export class MemoryCompactor {
           tool: msg.name,
           snippet: contentStr.slice(0, 150).replace(/\n/g, ' '),
         });
-      } else if (msg.role === 'assistant' && msg.content && !msg.content.startsWith('Called tool')) {
-        reasoningThoughts.push(msg.content.slice(0, 200).replace(/\n/g, ' '));
+      } else if (msg.role === 'assistant' && msg.content) {
+        const text = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+        if (!text.startsWith('Called tool')) {
+          reasoningThoughts.push(text.slice(0, 200).replace(/\n/g, ' '));
+        }
       }
     }
 

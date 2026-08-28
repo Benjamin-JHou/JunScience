@@ -1,4 +1,4 @@
-import { ModelProfile, ModelRequest, ModelResponse, ModelToolCall } from '../../types/model.js';
+import { ModelProfile, ModelRequest, ModelResponse, ModelToolCall, ModelContentPart } from '../../types/model.js';
 
 export class AnthropicProtocol {
   public static buildUrl(profile: ModelProfile): string {
@@ -21,6 +21,39 @@ export class AnthropicProtocol {
     return headers;
   }
 
+  private static formatContent(content: string | ModelContentPart[]): any {
+    if (typeof content === 'string') {
+      return content;
+    }
+    return content.map((part) => {
+      if (part.type === 'text') {
+        return { type: 'text', text: part.text };
+      }
+      if (part.type === 'image_url') {
+        const url = part.image_url.url;
+        if (url.startsWith('data:')) {
+          const parts = url.split(';base64,');
+          const mediaType = parts[0].replace('data:', '') || 'image/jpeg';
+          const data = parts[1] || '';
+          return {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: mediaType,
+              data,
+            },
+          };
+        }
+        // Fallback for http URL (or wrap in text)
+        return {
+          type: 'text',
+          text: `[Image: ${url}]`,
+        };
+      }
+      return part;
+    });
+  }
+
   public static buildPayload(request: ModelRequest, stream: boolean = false): Record<string, any> {
     const systemMessage = request.messages.find((m) => m.role === 'system');
     const nonSystemMessages = request.messages.filter((m) => m.role !== 'system');
@@ -35,14 +68,14 @@ export class AnthropicProtocol {
               {
                 type: 'tool_result',
                 tool_use_id: m.toolCallId || 'call_default',
-                content: m.content,
+                content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
               },
             ],
           };
         }
         return {
           role: m.role,
-          content: m.content,
+          content: AnthropicProtocol.formatContent(m.content),
         };
       }),
       max_tokens: request.maxTokens || 4096,
@@ -51,7 +84,7 @@ export class AnthropicProtocol {
     };
 
     if (systemMessage) {
-      payload.system = systemMessage.content;
+      payload.system = typeof systemMessage.content === 'string' ? systemMessage.content : JSON.stringify(systemMessage.content);
     }
 
     if (request.tools && request.tools.length > 0) {

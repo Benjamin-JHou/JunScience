@@ -1,5 +1,9 @@
 import { globalToolRegistry } from './ToolRegistry.js';
 import { LiteratureSearchTool } from './literature/LiteratureSearchTool.js';
+import { ArXivTool } from './literature/ArXivTool.js';
+import { BioRxivTool } from './literature/BioRxivTool.js';
+import { PapersWithCodeTool } from './literature/PapersWithCodeTool.js';
+import { HuggingFaceHubTool } from './literature/HuggingFaceHubTool.js';
 import { UniProtTool } from './databases/UniProtTool.js';
 import { ChEMBLTool } from './databases/ChEMBLTool.js';
 import { PubChemTool } from './databases/PubChemTool.js';
@@ -12,9 +16,15 @@ import { OpenFDATool } from './medical/OpenFDATool.js';
 import { RxNormTool } from './medical/RxNormTool.js';
 import { DailyMedTool } from './medical/DailyMedTool.js';
 import { MedlinePlusTool } from './medical/MedlinePlusTool.js';
+import { ClinicalNlpTool } from './medical/ClinicalNlpTool.js';
+import { MedicalImagingTool } from './medical/MedicalImagingTool.js';
 
 export function initializeDefaultTools(): void {
   globalToolRegistry.register(LiteratureSearchTool);
+  globalToolRegistry.register(ArXivTool);
+  globalToolRegistry.register(BioRxivTool);
+  globalToolRegistry.register(PapersWithCodeTool);
+  globalToolRegistry.register(HuggingFaceHubTool);
   globalToolRegistry.register(UniProtTool);
   globalToolRegistry.register(ChEMBLTool);
   globalToolRegistry.register(PubChemTool);
@@ -27,6 +37,8 @@ export function initializeDefaultTools(): void {
   globalToolRegistry.register(RxNormTool);
   globalToolRegistry.register(DailyMedTool);
   globalToolRegistry.register(MedlinePlusTool);
+  globalToolRegistry.register(ClinicalNlpTool);
+  globalToolRegistry.register(MedicalImagingTool);
 }
 
 // Auto-initialize default tool registrations
@@ -35,6 +47,10 @@ initializeDefaultTools();
 export {
   globalToolRegistry,
   LiteratureSearchTool,
+  ArXivTool,
+  BioRxivTool,
+  PapersWithCodeTool,
+  HuggingFaceHubTool,
   UniProtTool,
   ChEMBLTool,
   PubChemTool,
@@ -47,4 +63,6 @@ export {
   RxNormTool,
   DailyMedTool,
   MedlinePlusTool,
+  ClinicalNlpTool,
+  MedicalImagingTool,
 };

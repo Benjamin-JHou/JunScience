@@ -40,7 +40,12 @@ export class ScientificMockProvider implements ModelProvider {
 
   private async simulateScientificResponse(request: ModelRequest): Promise<ModelResponse> {
     const lastMessage = request.messages[request.messages.length - 1];
-    const userContent = lastMessage.content.toLowerCase();
+    const rawContent = lastMessage?.content || '';
+    const userContent = (
+      typeof rawContent === 'string'
+        ? rawContent
+        : rawContent.map((p: any) => (p.type === 'text' ? p.text : '')).join(' ')
+    ).toLowerCase();
 
     // Check if previous turn had tool results
     const hasToolResult = request.messages.some((m) => m.role === 'tool');

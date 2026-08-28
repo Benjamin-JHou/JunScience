@@ -18,9 +18,24 @@ export interface ModelProfile {
   updatedAt?: string;
 }
 
+export type TextContentPart = {
+  type: 'text';
+  text: string;
+};
+
+export type ImageContentPart = {
+  type: 'image_url';
+  image_url: {
+    url: string; // http(s) URL or data:image/jpeg;base64,...
+    detail?: 'low' | 'high' | 'auto';
+  };
+};
+
+export type ModelContentPart = TextContentPart | ImageContentPart;
+
 export interface ModelMessage {
   role: 'system' | 'user' | 'assistant' | 'tool';
-  content: string;
+  content: string | ModelContentPart[];
   toolCallId?: string;
   name?: string;
 }

@@ -18,7 +18,8 @@ export type ToolCategory =
   | 'molecule'
   | 'databases'
   | 'execution'
-  | 'artifacts';
+  | 'artifacts'
+  | 'medical';
 
 export interface ToolExecution {
   id: string;

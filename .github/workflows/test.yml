@@ -52,6 +52,12 @@ jobs:
       - name: Run Medical & Clinical Research Suite
         run: npx tsx packages/core/tests/test-medical-connectors.ts
 
+      - name: Run Medical AI & Multimodal Suite
+        run: npx tsx packages/core/tests/test-medical-ai-multimodal.ts
+
+      - name: Run Pure Clinical Research Loop Suite
+        run: npx tsx packages/core/tests/test-clinical-research-loop.ts
+
       - name: Run Memory Compactor Verification Suite
         run: npx tsx packages/core/tests/test-memory-compactor.ts
 
