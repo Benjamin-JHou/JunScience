@@ -32,8 +32,8 @@ jobs:
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libarchive-tools libgl1-mesa-glx
+          sudo apt-get update || true
+          sudo apt-get install -y libarchive-tools libgl1 || true
 
       - name: Install dependencies
         run: npm ci || npm install

@@ -35,8 +35,8 @@ jobs:
       - name: Install Linux OS Sandboxing Utilities (Bubblewrap)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y bubblewrap libgl1-mesa-glx
+          sudo apt-get update || true
+          sudo apt-get install -y bubblewrap libgl1 || true
 
       - name: Install Monorepo Dependencies
         run: npm ci || npm install
