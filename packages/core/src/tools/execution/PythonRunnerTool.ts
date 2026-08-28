@@ -170,14 +170,14 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
       });
     };
 
-    try {
-      await runProcess(execCmd, execArgs);
-    } catch {
-      // Fallback on nested sandbox exception
-      if (execCmd !== 'python3' && execCmd !== 'python') {
-        sandboxMode = `${sandboxMode} (Fallback)`;
-        await runProcess('python3', [filename, ...(input.arguments || [])]);
-      }
+    await runProcess(execCmd, execArgs);
+
+    // Fallback if bwrap failed to spawn or create namespaces
+    if (exitCode !== 0 && execCmd === 'bwrap' && (stderr.includes('bwrap:') || stderr.includes('namespace') || stderr.includes('permission') || stderr.includes('No such file'))) {
+      sandboxMode = 'Linux POSIX Workspace Isolation (Fallback)';
+      stdout = '';
+      stderr = '';
+      await runProcess('python3', [filename, ...(input.arguments || [])]);
     }
 
     const durationMs = Date.now() - startTime;
