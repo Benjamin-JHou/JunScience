@@ -36,7 +36,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update || true
-          sudo apt-get install -y libarchive-tools libgl1 libfuse2t64 libfuse2 fakeroot || true
+          sudo apt-get install -y libarchive-tools libgl1 libfuse2t64 libfuse2 libfuse3-3 fuse3 fakeroot dpkg || true
 
       - name: Install dependencies
         run: npm ci || npm install
@@ -48,12 +48,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+          USE_SYSTEM_FUSER: 'true'
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
             npx --yes electron-builder --mac -c packages/desktop/electron-builder.json --publish never
           elif [ "${{ runner.os }}" = "Windows" ]; then
             npx --yes electron-builder --win -c packages/desktop/electron-builder.json --publish never
           else
+            export APPIMAGE_EXTRACT_AND_RUN=1
             npx --yes electron-builder --linux -c packages/desktop/electron-builder.json --publish never
           fi
         shell: bash
