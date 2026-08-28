@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout repository
