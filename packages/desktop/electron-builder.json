@@ -12,6 +12,7 @@
   ],
   "mac": {
     "category": "public.app-category.education",
+    "identity": null,
     "target": [
       {
         "target": "dmg",

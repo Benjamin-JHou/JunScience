@@ -10,6 +10,8 @@ jobs:
   build-release:
     name: Build Desktop Release (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
@@ -44,6 +46,7 @@ jobs:
       - name: Build Desktop Binaries (macOS DMG / Windows EXE / Linux AppImage)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
             npm --workspace=@junscience/desktop run dist:mac
