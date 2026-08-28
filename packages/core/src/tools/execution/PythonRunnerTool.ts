@@ -87,6 +87,8 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
         execCmd = 'bwrap';
         execArgs = [
           '--ro-bind', '/', '/',
+          '--proc', '/proc',
+          '--dev', '/dev',
           '--bind', sessionDir, sessionDir,
           '--bind', '/tmp', '/tmp',
           '--unshare-net', // Air-gapped network
