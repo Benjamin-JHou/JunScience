@@ -1,49 +1,86 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { NavSection } from '../types/navigation';
+import { PortalSection } from '../types/navigation';
 
 interface NavContextType {
-  activeSection: NavSection;
-  setActiveSection: (section: NavSection) => void;
-  isSidebarCollapsed: boolean;
-  setIsSidebarCollapsed: (collapsed: boolean | ((prev: boolean) => boolean)) => void;
-  isContextPanelOpen: boolean;
-  setIsContextPanelOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-  isSettingsOpen: boolean;
-  setIsSettingsOpen: (open: boolean) => void;
-  isCommandPaletteOpen: boolean;
-  setIsCommandPaletteOpen: (open: boolean) => void;
-  isNewChatModalOpen: boolean;
-  setIsNewChatModalOpen: (open: boolean) => void;
+  activeSection: PortalSection;
+  setActiveSection: (section: PortalSection) => void;
+  isMobileSidebarOpen: boolean;
+  setIsMobileSidebarOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  isSearchOpen: boolean;
+  setIsSearchOpen: (open: boolean) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 const NavContext = createContext<NavContextType | undefined>(undefined);
 
-export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeSection, setActiveSection] = useState<NavSection>('home');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [isContextPanelOpen, setIsContextPanelOpen] = useState<boolean>(true);
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
-  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState<boolean>(false);
+const validSections: PortalSection[] = [
+  'home',
+  'docs',
+  'installation',
+  'quickstart',
+  'userguide',
+  'apireference',
+  'examples',
+  'cli',
+  'architecture',
+  'skills',
+  'usecases',
+  'contributing',
+  'changelog',
+];
 
-  // Global Keyboard shortcuts
+export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const getInitialSection = (): PortalSection => {
+    const hash = window.location.hash.replace('#', '').toLowerCase() as PortalSection;
+    if (validSections.includes(hash)) {
+      return hash;
+    }
+    return 'home';
+  };
+
+  const [activeSection, setActiveSectionState] = useState<PortalSection>(getInitialSection);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const setActiveSection = (section: PortalSection) => {
+    setActiveSectionState(section);
+    if (section === 'home') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else {
+      window.history.replaceState(null, '', `#${section}`);
+    }
+    // Close mobile sidebar on navigate
+    setIsMobileSidebarOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Sync hash changes (e.g. back/forward button)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase() as PortalSection;
+      if (validSections.includes(hash)) {
+        setActiveSectionState(hash);
+      } else if (!window.location.hash) {
+        setActiveSectionState('home');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Keyboard shortcut: ⌘K / Ctrl+K for search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // ⌘K or Ctrl+K -> Command Palette
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setIsCommandPaletteOpen((prev) => !prev);
+        setIsSearchOpen((prev) => !prev);
       }
-      // ⌘N or Ctrl+N -> New Chat
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n') {
-        e.preventDefault();
-        setActiveSection('home');
-      }
-      // Esc -> Close Modals
       if (e.key === 'Escape') {
-        setIsCommandPaletteOpen(false);
-        setIsSettingsOpen(false);
-        setIsNewChatModalOpen(false);
+        setIsSearchOpen(false);
+        setIsMobileSidebarOpen(false);
       }
     };
 
@@ -56,16 +93,12 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         activeSection,
         setActiveSection,
-        isSidebarCollapsed,
-        setIsSidebarCollapsed,
-        isContextPanelOpen,
-        setIsContextPanelOpen,
-        isSettingsOpen,
-        setIsSettingsOpen,
-        isCommandPaletteOpen,
-        setIsCommandPaletteOpen,
-        isNewChatModalOpen,
-        setIsNewChatModalOpen,
+        isMobileSidebarOpen,
+        setIsMobileSidebarOpen,
+        isSearchOpen,
+        setIsSearchOpen,
+        searchQuery,
+        setSearchQuery,
       }}
     >
       {children}

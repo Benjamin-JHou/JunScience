@@ -1,18 +1,22 @@
-export type NavSection =
+export type PortalSection =
   | 'home'
-  | 'literature'
-  | 'data-analysis'
-  | 'experiment-design'
-  | 'code-assistant'
-  | 'molecule-explorer'
-  | 'notebook'
-  | 'knowledge-base'
-  | 'my-projects';
+  | 'docs'
+  | 'installation'
+  | 'quickstart'
+  | 'userguide'
+  | 'apireference'
+  | 'examples'
+  | 'cli'
+  | 'architecture'
+  | 'skills'
+  | 'usecases'
+  | 'contributing'
+  | 'changelog';
 
-export interface NavItem {
-  id: NavSection;
+export interface PortalNavItem {
+  id: PortalSection;
   label: string;
   iconName: string;
   badge?: string;
-  description?: string;
+  category?: 'primary' | 'guide' | 'reference' | 'community';
 }
