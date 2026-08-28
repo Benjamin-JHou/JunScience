@@ -318,7 +318,15 @@ tracker.completeTask(sessionId, 'task-1', ['EV-1'], 'Target resolved');`,
           </div>
 
           <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
-            <h2 className="text-xl font-bold text-text-primary">1. Multi-Platform OS Kernel Sandboxing</h2>
+            <div className="rounded-xl overflow-hidden border border-border shadow-xs bg-bg-surface p-2">
+              <img
+                src="./screenshots/architecture.png"
+                alt="JunScience Core Architecture"
+                className="w-full rounded-lg"
+              />
+            </div>
+
+            <h2 className="text-xl font-bold text-text-primary pt-2">1. Multi-Platform OS Kernel Sandboxing</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-2">
               <div className="p-4 rounded-xl bg-bg-surface border border-border">
                 <span className="font-bold text-[13.5px] text-text-primary block mb-1">macOS Seatbelt</span>

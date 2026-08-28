@@ -52,36 +52,11 @@ When provided with a complex research inquiry (e.g., *"Evaluate the allosteric s
 
 ---
 
-### 🏗️ Architecture Flowchart
+### 🏗️ Architecture Overview
 
-```
-                             JunScience Core
-                                    │
-       ┌────────────────────────────┼────────────────────────────┐
-       ▼                            ▼                            ▼
-【ReAct Inference Engine】    【Cross-Platform Sandbox】   【Bidirectional MCP Bridge】
-AutonomousResearchEngine    PythonRunnerTool             McpServerBridge
-EvidenceTracker (EV-xxx)    ├─ macOS: Seatbelt          (Expose as standard MCP Server)
-EvidenceVerifier (Gate)     ├─ Linux: Bubblewrap        McpClientManager
-PlanTracker (To-Do Tree)    └─ Win: Low Integrity       (Mount external MCP Servers)
-SubagentTree (Hypotheses)
-MemoryCompactor (16 turns)
-CritiqueEngine (PMID/NCT)
-ClinicalDataGate (Privacy)
-       │                            │                            │
-       └────────────────────────────┼────────────────────────────┘
-                                    ▼
-                 【Authoritative 4-Pillar Scientific Connectors】
-       ┌────────────────────┬────────────────────┬────────────────────┬────────────────────┐
-       ▼                    ▼                    ▼                    ▼
-  [Literature & SOTA]   [Molecular & Structure]  [Chemistry & Pharma] [Clinical & Multimodal]
-  • PubMed (NCBI)       • UniProtKB (Swiss-Prot) • ChEMBL (IC50/Ki)   • ClinicalTrials.gov (v2)
-  • OpenAlex / CrossRef • RCSB PDB (Search v2)   • PubChem (PUG REST) • openFDA (FAERS/Labels)
-  • arXiv (Medical AI)  • AlphaFold DB (3D)      • RxNorm / RxNav     • DailyMed (FDA SPL)
-  • bioRxiv / medRxiv                            • MedlinePlus        • Local Clinical NLP
-  • Papers With Code                                                  • Local 3D Radiomics
-  • Hugging Face Hub
-```
+<div align="center">
+  <img src="./docs/assets/architecture.png" alt="JunScience Core Architecture" width="100%" />
+</div>
 
 ---
 
