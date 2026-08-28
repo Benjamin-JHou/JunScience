@@ -1,4 +1,4 @@
-# JunScience (君科) 🧬 🔬
+# JunScience 🧬 🔬
 
 <div align="center">
 
