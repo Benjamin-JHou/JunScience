@@ -81,7 +81,7 @@ export const FunctionalPlaceholders: React.FC<FunctionalViewProps> = ({ section 
       subtitle: 'Real-time mining across PubMed, bioRxiv, medRxiv, Europe PMC, and OpenAlex.',
       icon: BookOpen,
       examples: [
-        'Query 2025 Nature papers on IL-23 receptor crystal structures',
+        'Query 2026 Nature papers on IL-23 receptor crystal structures',
         'Summarize clinical efficacy of deucravacitinib in Phase III trials',
         'Extract kinetic inhibition constants (Ki, IC50) for JAK family kinase inhibitors',
       ],

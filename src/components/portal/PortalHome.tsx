@@ -30,19 +30,10 @@ import { useNav } from '../../context/NavContext';
 
 export const PortalHome: React.FC = () => {
   const { setActiveSection } = useNav();
-  const [copiedCitation, setCopiedCitation] = useState(false);
   const [activeGalleryTab, setActiveGalleryTab] = useState<'desktop-light' | 'desktop-dark' | 'workspace' | 'cli'>('desktop-light');
   const [activeCliColor, setActiveCliColor] = useState<'green' | 'blue' | 'purple' | 'amber'>('green');
   const [activeCodeTab, setActiveCodeTab] = useState<'cli' | 'desktop' | 'sdk'>('cli');
   const [copiedCode, setCopiedCode] = useState(false);
-
-  const citationText = `Hou, B., et al. (2025). JunScience: An Open-Source AI Agent Framework for Scientific Discovery. (Coming soon)`;
-
-  const handleCopyCitation = () => {
-    navigator.clipboard.writeText(citationText);
-    setCopiedCitation(true);
-    setTimeout(() => setCopiedCitation(false), 2000);
-  };
 
   const codeSnippets = {
     cli: `# 1. Clone JunScience repository
@@ -701,26 +692,6 @@ console.log(turn.agentResponse);`,
             <code>{codeSnippets[activeCodeTab]}</code>
           </pre>
         </div>
-      </section>
-
-      {/* 9. ACADEMIC CITATION BANNER (Matching 1.png bottom banner) */}
-      <section className="p-4 sm:p-5 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
-          <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-accent text-white">
-            Cite JunScience
-          </span>
-          <span className="text-[12.5px] text-text-secondary">
-            {citationText}
-          </span>
-        </div>
-
-        <button
-          onClick={handleCopyCitation}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-bg-surface hover:bg-bg-hover text-[12px] font-medium text-text-primary transition-all shadow-2xs"
-        >
-          {copiedCitation ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-          <span>{copiedCitation ? 'Copied' : 'Copy Citation'}</span>
-        </button>
       </section>
     </div>
   );

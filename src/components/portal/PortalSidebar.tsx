@@ -152,13 +152,6 @@ export const PortalSidebar: React.FC = () => {
               <MessageSquare size={14} />
               <span>Discord / Community</span>
             </a>
-            <button
-              onClick={() => setActiveSection('docs')}
-              className="w-full flex items-center gap-2 px-2 py-1 rounded text-left hover:text-text-primary hover:bg-bg-hover transition-colors"
-            >
-              <FileText size={14} />
-              <span>Paper <span className="text-[10px] text-text-muted">(coming soon)</span></span>
-            </button>
           </div>
 
           {/* Light / Dark Toggle Pill */}
@@ -189,7 +182,7 @@ export const PortalSidebar: React.FC = () => {
 
           {/* Copyright */}
           <div className="pt-1 px-1 flex items-center justify-between text-[10.5px] text-text-muted">
-            <span>© 2025 JunScience</span>
+            <span>© 2026 JunScience</span>
             <span className="font-mono">MIT License</span>
           </div>
         </div>
