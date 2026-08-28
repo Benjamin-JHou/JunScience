@@ -1,4 +1,5 @@
 import { Citation, Artifact } from '../types/runtime.js';
+import { EvidenceVerificationResult, globalEvidenceVerifier } from './EvidenceVerifier.js';
 
 export interface EvidenceRecord {
   id: string; // e.g. 'EV-1', 'EV-2'
@@ -11,6 +12,8 @@ export interface EvidenceRecord {
   citations?: Citation[];
   artifacts?: Artifact[];
   rawOutput: any;
+  verificationStatus?: 'verified' | 'flagged' | 'rejected';
+  verificationResult?: EvidenceVerificationResult;
 }
 
 export class EvidenceTracker {
@@ -24,10 +27,29 @@ export class EvidenceTracker {
     summary: string,
     rawOutput: any,
     citations?: Citation[],
-    artifacts?: Artifact[]
+    artifacts?: Artifact[],
+    precomputedVerification?: EvidenceVerificationResult
   ): EvidenceRecord {
     this.counter++;
     const id = `EV-${this.counter}`;
+
+    // Execute verification gate
+    const verification =
+      precomputedVerification ||
+      globalEvidenceVerifier.verify(toolName, category, query, rawOutput, artifacts, citations);
+
+    const verificationStatus =
+      verification.verdict === 'ADOPTED'
+        ? 'verified'
+        : verification.verdict === 'FLAGGED_WITH_WARNING'
+        ? 'flagged'
+        : 'rejected';
+
+    let finalSummary = summary;
+    if (verificationStatus === 'flagged') {
+      finalSummary = `[Flagged: ${verification.reasonSummary}] ${summary}`;
+    }
+
     const evidence: EvidenceRecord = {
       id,
       index: this.counter,
@@ -35,10 +57,12 @@ export class EvidenceTracker {
       category,
       query,
       timestamp: new Date().toISOString(),
-      summary,
+      summary: finalSummary,
       rawOutput,
       citations,
       artifacts,
+      verificationStatus,
+      verificationResult: verification,
     };
 
     this.records.set(id, evidence);
@@ -69,7 +93,8 @@ export class EvidenceTracker {
 
     let out = '### Collected Empirical Evidence Log:\n';
     for (const ev of this.records.values()) {
-      out += `\n- **[Evidence ID: ${ev.id}]** Source Tool: \`${ev.toolName}\` (Query: "${ev.query}")\n`;
+      const vBadge = ev.verificationStatus === 'flagged' ? ' ⚠️ [Verification Warning]' : ' ✔ [Verified]';
+      out += `\n- **[Evidence ID: ${ev.id}]**${vBadge} Source Tool: \`${ev.toolName}\` (Query: "${ev.query}")\n`;
       out += `  Summary: ${ev.summary}\n`;
       if (ev.citations && ev.citations.length > 0) {
         out += `  Primary Citations: ${ev.citations
@@ -85,15 +110,16 @@ export class EvidenceTracker {
       return '';
     }
 
-    let table = `\n\n### 🔬 Evidence Provenance & Traceability Index\n\n`;
-    table += `| Evidence ID | Tool / Source | Query / Target | Key Empirical Findings | Timestamp |\n`;
-    table += `| :--- | :--- | :--- | :--- | :--- |\n`;
+    let table = `\n\n### 🔬 Evidence Provenance & Traceability Index (Verified Anchors)\n\n`;
+    table += `| Evidence ID | Tool / Source | Verification | Query / Target | Key Empirical Findings | Timestamp |\n`;
+    table += `| :--- | :--- | :--- | :--- | :--- | :--- |\n`;
 
     for (const ev of this.records.values()) {
-      const cleanSummary = ev.summary.replace(/\|/g, '-').slice(0, 80);
-      const cleanQuery = ev.query.replace(/\|/g, '-').slice(0, 30);
+      const vBadge = ev.verificationStatus === 'flagged' ? '⚠️ Flagged' : '✔ Verified';
+      const cleanSummary = ev.summary.replace(/\|/g, '-').slice(0, 75);
+      const cleanQuery = ev.query.replace(/\|/g, '-').slice(0, 25);
       const time = new Date(ev.timestamp).toLocaleTimeString();
-      table += `| **${ev.id}** | \`${ev.toolName}\` | ${cleanQuery} | ${cleanSummary}... | ${time} |\n`;
+      table += `| **${ev.id}** | \`${ev.toolName}\` | ${vBadge} | ${cleanQuery} | ${cleanSummary}... | ${time} |\n`;
     }
 
     return table;

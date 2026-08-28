@@ -52,6 +52,15 @@ jobs:
       - name: Run Medical & Clinical Research Suite
         run: npx tsx packages/core/tests/test-medical-connectors.ts
 
+      - name: Run Codex-Style Evidence Verification Gate Suite
+        run: npx tsx packages/core/tests/test-evidence-verifier.ts
+
+      - name: Run DeepSeek Harness Subagent Tree Suite
+        run: npx tsx packages/core/tests/test-subagent-tree.ts
+
+      - name: Run Explicit Plan & To-Do Task Tracker Suite
+        run: npx tsx packages/core/tests/test-plan-tracker.ts
+
       - name: Run Medical AI & Multimodal Suite
         run: npx tsx packages/core/tests/test-medical-ai-multimodal.ts
 

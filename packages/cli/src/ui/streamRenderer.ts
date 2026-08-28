@@ -4,6 +4,31 @@ import { Citation, Artifact } from '@junscience/core';
 export class StreamRenderer {
   private isThinking: boolean = false;
 
+  public renderPlan(tasks: any[]): void {
+    const c = colors;
+    console.log(`\n${c.bold}┌─── 📋 Explicit Scientific Research Plan & To-Do Tracker ────────────────┐${c.reset}`);
+    tasks.forEach((t) => {
+      let icon = `${c.gray}[ ]${c.reset}`;
+      if (t.status === 'completed') icon = `${c.green}[✔]${c.reset}`;
+      else if (t.status === 'in_progress') icon = `${c.yellow}[⏳]${c.reset}`;
+      else if (t.status === 'failed') icon = `${c.red}[✖]${c.reset}`;
+
+      const evBadge = t.evidenceIds && t.evidenceIds.length > 0 ? ` ${c.cyan}(${t.evidenceIds.join(', ')})${c.reset}` : '';
+      console.log(`│  ${icon} ${c.bold}${t.id.toUpperCase()}:${c.reset} ${t.title}${evBadge}`);
+    });
+    console.log(`${c.bold}└────────────────────────────────────────────────────────────────────────┘${c.reset}\n`);
+  }
+
+  public renderTaskUpdate(task: any): void {
+    const c = colors;
+    if (task.status === 'in_progress') {
+      console.log(`\n${c.yellow}▶ [Task Active]: ${task.id.toUpperCase()} - ${task.title}${c.reset}`);
+    } else if (task.status === 'completed') {
+      const evs = task.evidenceIds?.length > 0 ? ` ➔ Verified Anchors: ${task.evidenceIds.join(', ')}` : '';
+      console.log(`${c.green}✔ [Task Completed]: ${task.id.toUpperCase()}${evs}${c.reset}`);
+    }
+  }
+
   public startThought(phase: string, thought: string): void {
     const c = colors;
     this.isThinking = true;

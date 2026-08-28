@@ -20,6 +20,14 @@ export async function handleResearchCommand(inquiry: string): Promise<void> {
     renderer.startThought(e.payload.phase || 'Reasoning', e.payload.thought);
   });
 
+  const unPlanCreated = globalEventBus.on('plan.created', (e) => {
+    renderer.renderPlan(e.payload.tasks);
+  });
+
+  const unPlanTaskUpdated = globalEventBus.on('plan.task.updated', (e) => {
+    renderer.renderTaskUpdate(e.payload.task);
+  });
+
   const unToolStart = globalEventBus.on('tool.started', (e) => {
     renderer.renderToolStart(e.payload.toolName, e.payload.input);
   });
@@ -55,6 +63,8 @@ export async function handleResearchCommand(inquiry: string): Promise<void> {
     console.log(`\n${c.red}${c.bold}✖ Research execution failed:${c.reset} ${err?.message || String(err)}\n`);
   } finally {
     unThinking();
+    unPlanCreated();
+    unPlanTaskUpdated();
     unToolStart();
     unToolProg();
     unToolComp();

@@ -24,7 +24,9 @@
 
 | 核心模块 | 架构与能力实现 |
 | :--- | :--- |
-| **🌐 四大独立生医数据支柱** | • **临床医学证据**：ClinicalTrials.gov API v2（试验分期/纳排标准）、openFDA（说明书/黑框警告/FAERS 信号）、RxNorm（RxCUI/DDI）、DailyMed（官方 SPL 标签）、MedlinePlus Connect<br>• **文献与 AI 方法学基准**：PubMed、OpenAlex、arXiv（医学 AI / 视觉大模型）、medRxiv / bioRxiv（临床预印本）、Papers With Code（SOTA 任务与代码）、Hugging Face Hub（医学模型与数据集）<br>• **分子与结构生物学**：UniProtKB（Swiss-Prot 权威三级回退）、RCSB PDB（Search v2 晶体结构）、AlphaFold DB（3D 预测模型）<br>• **化学与药理活性**：ChEMBL（IC50/Ki 抑制剂活性与靶点选择性）、PubChem（PUG REST 结构与理化性质） |
+| **🔍 Codex 风格证据前置验证门禁** | 拒绝盲目采纳计算结果：Python 脚本计算数值、统计量、生化常数生成后，必须先经过 **EvidenceVerifier** 进行物理极值（$p \in [0,1]$, $IC_{50}>0$, $HU \in [-1024,3071]$）与计算异常（NaN/ZeroDivision）校验，通过后方可打标 `[Evidence: EV-xxx]`；异常时自动拦截并触发 Agent 自我纠错。 |
+| **🌲 DeepSeek Harness 假设子 Agent 树** | 支持对复杂生医课题进行多假说并发分支探索：父 Agent 动态分发隔离的 Subagent 并行验证多靶点/多机制假说，自动完成跨分支证据去重归一化，生成结构化**假说对比矩阵（Comparison Matrix）**。 |
+| **📋 显式 Plan 模式与 To-Do 追踪器** | 告别黑盒生成：在推理之初显式制定 5 阶段科研计划（Plan），通过 EventBus 实时向 CLI 终端与桌面端 UI 广播每一步任务状态（`[✔] 完成` / `[⏳] 进行中` / `[ ] 待执行`）与挂载的证据勋章。 |
 | **🛡️ 临床数据隐私闸门 (Privacy Gate)** | 严格遵循数据出境安全红线：真实的临床病历文本与医学影像数据**默认仅在本地 Python 沙盒内完成 NLP 实体提取与 Radiomics 放射组学特征计算**；未经用户明确授权，绝不静默向外部大模型 API 上传任何原始敏感数据。 |
 | **👁️ 多模态联合推理能力** | 原生兼容文本与图像多模态输入（支持 OpenAI 与 Anthropic 规范的图片块封装）；支持将本地沙盒提取生成的病理/影像切片及结构化特征安全送入多模态大模型进行深度综合研判。 |
 | **🧠 动态自主科研 ReAct 循环** | 摒弃死板阶段流，纯粹由上一步工具返回的实测数据驱动下一轮决策；集成 **MemoryCompactor**，压缩冗余推理并无损锚定 `EV-xxx` 证据链，支持 16+ 轮长链深度探索。 |
@@ -44,8 +46,11 @@
 【ReAct 推理引擎】          【跨平台安全沙盒】          【双向 MCP 桥接层】
 AutonomousResearchEngine    PythonRunnerTool             McpServerBridge
 EvidenceTracker (EV-x)      ├─ macOS: Seatbelt          (暴露为标准 MCP Server)
-MemoryCompactor (16轮)      ├─ Linux: Bubblewrap        McpClientManager
-CritiqueEngine (PMID/NCT)   └─ Win: Low Integrity       (挂载外部 MCP Server)
+EvidenceVerifier (前置门禁) ├─ Linux: Bubblewrap        McpClientManager
+PlanTracker (To-Do 清单)    └─ Win: Low Integrity       (挂载外部 MCP Server)
+SubagentTree (假设树)
+MemoryCompactor (16轮)
+CritiqueEngine (PMID/NCT)
 ClinicalDataGate (隐私闸门)
        │                            │                            │
        └────────────────────────────┼────────────────────────────┘

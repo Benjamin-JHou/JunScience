@@ -87,6 +87,21 @@ export type PermissionRequestedEvent = BaseEvent<
   { permissionId: string; operation: string; target: string; reason: string }
 >;
 
+export type PlanCreatedEvent = BaseEvent<
+  'plan.created',
+  { planId: string; inquiry: string; tasks: any[] }
+>;
+
+export type PlanTaskUpdatedEvent = BaseEvent<
+  'plan.task.updated',
+  { planId: string; taskId: string; status: string; task: any }
+>;
+
+export type PlanTaskCompletedEvent = BaseEvent<
+  'plan.task.completed',
+  { planId: string; taskId: string; evidenceIds: string[]; resultNote?: string }
+>;
+
 export type RuntimeEvent =
   | SessionCreatedEvent
   | SessionResumedEvent
@@ -103,6 +118,9 @@ export type RuntimeEvent =
   | JobCreatedEvent
   | JobProgressEvent
   | JobCompletedEvent
-  | PermissionRequestedEvent;
+  | PermissionRequestedEvent
+  | PlanCreatedEvent
+  | PlanTaskUpdatedEvent
+  | PlanTaskCompletedEvent;
 
 export type EventType = RuntimeEvent['type'];
