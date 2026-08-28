@@ -1,137 +1,183 @@
-# JunScience (君科) 🧬 🔬
+# JunScience 🧬 🔬
 
 <div align="center">
 
-**专注于生物与医学领域的证据溯源型科研 Agent（分子生物 + 临床证据 + 医学多模态）**
+**Open-Source Evidence-Traceable AI Agent Framework for Scientific & Biomedical Discovery**  
+*(Molecular Biology • Clinical Evidence • Medical Multimodal • OS-Level Sandboxing)*
 
 [![Cross-Platform CI](https://github.com/Benjamin-JHou/JunScience/actions/workflows/test.yml/badge.svg)](https://github.com/Benjamin-JHou/JunScience/actions/workflows/test.yml)
 [![Desktop Release](https://github.com/Benjamin-JHou/JunScience/actions/workflows/release.yml/badge.svg)](https://github.com/Benjamin-JHou/JunScience/actions/workflows/release.yml)
+[![GitHub Pages](https://img.shields.io/badge/Documentation-GitHub_Pages-blue.svg)](https://benjamin-jhou.github.io/JunScience/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Model_Context_Protocol-green.svg)](https://modelcontextprotocol.io)
 [![Platform: macOS | Linux | Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-purple.svg)]()
+
+[English](#english) | [中文说明](#chinese) | [Documentation Portal](https://benjamin-jhou.github.io/JunScience/)
 
 </div>
 
 ---
 
-## 📌 一句话定位
+<a name="english"></a>
+## 🌐 English Overview
 
-**JunScience 是一个真正由真实数据与本地沙盒驱动的生物医学科研 Agent**：输入一个复杂生医课题（如 *“探讨 TYK2 变构抑制剂在红斑狼疮中的靶点选择性、真实世界 FAERS 不良反应信号与临床试验终点”* 或 *“医学影像多模态大模型在胸部 X 光肺炎分类中的公开基准与特征提取”*），Agent 自动进行多轮动态规划，跨 **PubMed、arXiv、medRxiv、Papers With Code、Hugging Face Hub、ClinicalTrials.gov、openFDA、RxNorm、DailyMed、MedlinePlus、UniProtKB、ChEMBL、PubChem、RCSB PDB** 实时检索，在**操作系统内核沙盒**内运行 Python 脚本执行本地临床 NLP、影像放射组学特征计算与统计检验，经由 **CritiqueEngine 针对真实文献 PMID 与临床试验 NCT 编号的真实性自核查**，产出带不可伪造证据锚点（`[Evidence: EV-xxx]`）与完整溯源清单的高质量学术报告。
+### 📌 Positioning
+
+**JunScience is an open-source, evidence-anchored scientific research agent powered by real empirical data and OS-level sandboxing.**
+
+When provided with a complex research inquiry (e.g., *"Evaluate the allosteric selectivity of TYK2 JH2 pseudokinase vs ATP catalytic domain across JAK family kinases, screen real-world FAERS safety signals, and verify active Phase III clinical trial endpoints"*), JunScience autonomously:
+1. Formulates an **explicit 5-stage research plan** and live To-Do checklist.
+2. Deploys a **DeepSeek Harness-style Subagent Tree** to explore competing targets or mechanisms in parallel.
+3. Retrieves real-time data across **PubMed, arXiv, bioRxiv, Papers With Code, Hugging Face, UniProtKB, RCSB PDB, ChEMBL, PubChem, ClinicalTrials.gov v2, openFDA, RxNorm, and DailyMed**.
+4. Executes Python statistical scripts, radiomics, and clinical NLP within **air-gapped OS kernel sandboxes** (macOS Seatbelt, Linux Bubblewrap, Windows Low-Integrity Tokens).
+5. Validates all outputs through a **Codex-style EvidenceVerifier** (checking $p \in [0, 1]$, $IC_{50} > 0$, CT $HU \in [-1024, 3071]$, and numerical anomalies).
+6. Runs a **CritiqueEngine gate** to verify PMIDs, NCT numbers, and sequence lengths.
+7. Produces a publication-grade scientific report with tamper-proof **`[Evidence: EV-xxx]`** tags and an immutable **Evidence Traceability Index**.
 
 ---
 
-## ✨ 核心特性
+### ✨ Key Architecture & Features
 
-| 核心模块 | 架构与能力实现 |
+| Architectural Pillar | Technical Implementation |
 | :--- | :--- |
-| **🔍 Codex 风格证据前置验证门禁** | 拒绝盲目采纳计算结果：Python 脚本计算数值、统计量、生化常数生成后，必须先经过 **EvidenceVerifier** 进行物理极值（$p \in [0,1]$, $IC_{50}>0$, $HU \in [-1024,3071]$）与计算异常（NaN/ZeroDivision）校验，通过后方可打标 `[Evidence: EV-xxx]`；异常时自动拦截并触发 Agent 自我纠错。 |
-| **🌲 DeepSeek Harness 假设子 Agent 树** | 支持对复杂生医课题进行多假说并发分支探索：父 Agent 动态分发隔离的 Subagent 并行验证多靶点/多机制假说，自动完成跨分支证据去重归一化，生成结构化**假说对比矩阵（Comparison Matrix）**。 |
-| **📋 显式 Plan 模式与 To-Do 追踪器** | 告别黑盒生成：在推理之初显式制定 5 阶段科研计划（Plan），通过 EventBus 实时向 CLI 终端与桌面端 UI 广播每一步任务状态（`[✔] 完成` / `[⏳] 进行中` / `[ ] 待执行`）与挂载的证据勋章。 |
-| **🛡️ 临床数据隐私闸门 (Privacy Gate)** | 严格遵循数据出境安全红线：真实的临床病历文本与医学影像数据**默认仅在本地 Python 沙盒内完成 NLP 实体提取与 Radiomics 放射组学特征计算**；未经用户明确授权，绝不静默向外部大模型 API 上传任何原始敏感数据。 |
-| **👁️ 多模态联合推理能力** | 原生兼容文本与图像多模态输入（支持 OpenAI 与 Anthropic 规范的图片块封装）；支持将本地沙盒提取生成的病理/影像切片及结构化特征安全送入多模态大模型进行深度综合研判。 |
-| **🧠 动态自主科研 ReAct 循环** | 摒弃死板阶段流，纯粹由上一步工具返回的实测数据驱动下一轮决策；集成 **MemoryCompactor**，压缩冗余推理并无损锚定 `EV-xxx` 证据链，支持 16+ 轮长链深度探索。 |
-| **🔒 操作系统级内核沙盒隔离** | Python 科学计算脚本在操作系统内核安全边界内运行：<br>• **macOS**：Seatbelt 内核沙盒（`sandbox-exec`）+ 物理级网络阻断（Air-gapped）<br>• **Linux**：Bubblewrap / Landlock 非特权 LSM 沙盒（`bwrap --ro-bind / / --proc /proc --dev /dev --unshare-net`）<br>• **Windows**：Mandatory Integrity Control（`Low Integrity Token` + `Workspace ACL`） |
-| **⚖️ 真实性 Critique 严审门禁** | 严防学术幻觉：在生成报告前，强制联网核验所有引用的 **PMID（NCBI PubMed）** 与 **NCT 编号（ClinicalTrials.gov）**；校验蛋白质氨基酸序列长度合理性，拦截虚构试验与未审核截断片段。 |
-| **🔌 MCP 协议双向互通** | 原生兼容 **Model Context Protocol (MCP)**：既能将 JunScience 全部科研工具作为 MCP Server 暴露给 Claude Desktop / Cursor / Codex 复用，也可即插即用挂载外部第三方 MCP 工具。 |
+| **🔍 Codex-Style Patch Verification Gate** | No blind trust in computation: Python calculations, statistics, and constants are verified by `EvidenceVerifier` for physical boundaries ($p \in [0,1]$, $IC_{50}>0$, $HU \in [-1024,3071]$) and NaN/ZeroDivision errors before minting `[Evidence: EV-xxx]`. |
+| **🌲 DeepSeek Harness Subagent Tree** | Concurrent multi-hypothesis exploration: The parent agent dynamically forks isolated subagents to evaluate competing targets/mechanisms in parallel, performing cross-branch deduplication and synthesizing a structured **Hypothesis Comparison Matrix**. |
+| **📋 Explicit Plan Mode & To-Do Tracker** | Transparent execution: Formulates an explicit 5-stage research plan at Turn 1, streaming live task milestones (`[✔] Completed` / `[⏳] In Progress` / `[ ] Pending`) and attached evidence anchors via EventBus to CLI and Desktop UI. |
+| **🛡️ Clinical Data Privacy Gate** | Strict medical ethics: Raw patient EHR texts and DICOM pixel arrays are processed strictly within the local Python sandbox; zero raw patient data is transmitted to external model APIs without explicit user consent. |
+| **👁️ Multimodal AI & Radiomics** | Native multimodal block support for OpenAI and Anthropic protocols; executes 3D CT/MRI radiomics and clinical NER locally for comprehensive multi-modal synthesis. |
+| **🧠 Autonomous ReAct Loop & Memory Compactor** | Dynamic tool-driven decisions with `MemoryCompactor`, enabling 16+ turns of lossless working memory compression without losing `EV-xxx` evidence chains. |
+| **🔒 Kernel-Level OS Sandboxing** | Multi-platform script execution isolation:<br>• **macOS**: Seatbelt kernel sandbox (`sandbox-exec`) + physical network air-gap (`(deny default)`)<br>• **Linux**: Bubblewrap / Landlock unprivileged LSM container (`bwrap --ro-bind / / --proc /proc --dev /dev --unshare-net`)<br>• **Windows**: Mandatory Integrity Control (`Low Integrity Token` + Workspace ACL) |
+| **⚖️ CritiqueEngine Anti-Hallucination Gate** | Live verification of cited **PMIDs (NCBI PubMed)** and **NCT IDs (ClinicalTrials.gov)**; validates canonical sequence lengths and flags suspect fragments. |
+| **🔌 Bidirectional MCP Protocol** | Exposes all 16+ scientific tools as a standard Model Context Protocol (MCP) Server for Claude Desktop / Cursor / Codex, and mounts external third-party MCP servers. |
 
 ---
 
-## 🏗️ 架构全景
+### 🏗️ Architecture Flowchart
 
 ```
                              JunScience Core
                                     │
        ┌────────────────────────────┼────────────────────────────┐
        ▼                            ▼                            ▼
-【ReAct 推理引擎】          【跨平台安全沙盒】          【双向 MCP 桥接层】
+【ReAct Inference Engine】    【Cross-Platform Sandbox】   【Bidirectional MCP Bridge】
 AutonomousResearchEngine    PythonRunnerTool             McpServerBridge
-EvidenceTracker (EV-x)      ├─ macOS: Seatbelt          (暴露为标准 MCP Server)
-EvidenceVerifier (前置门禁) ├─ Linux: Bubblewrap        McpClientManager
-PlanTracker (To-Do 清单)    └─ Win: Low Integrity       (挂载外部 MCP Server)
-SubagentTree (假设树)
-MemoryCompactor (16轮)
+EvidenceTracker (EV-xxx)    ├─ macOS: Seatbelt          (Expose as standard MCP Server)
+EvidenceVerifier (Gate)     ├─ Linux: Bubblewrap        McpClientManager
+PlanTracker (To-Do Tree)    └─ Win: Low Integrity       (Mount external MCP Servers)
+SubagentTree (Hypotheses)
+MemoryCompactor (16 turns)
 CritiqueEngine (PMID/NCT)
-ClinicalDataGate (隐私闸门)
+ClinicalDataGate (Privacy)
        │                            │                            │
        └────────────────────────────┼────────────────────────────┘
                                     ▼
-                         【权威生医数据与多模态连接层】
+                 【Authoritative 4-Pillar Scientific Connectors】
        ┌────────────────────┬────────────────────┬────────────────────┬────────────────────┐
        ▼                    ▼                    ▼                    ▼
-  [文献与基准检索]       [分子与结构生物学]      [化学与药理活性]       [临床医学与多模态]
-  • PubMed (NCBI)       • UniProtKB (Swiss)  • ChEMBL (IC50/Ki)   • ClinicalTrials.gov (v2)
-  • OpenAlex / CrossRef • RCSB PDB (v2)      • PubChem (PUG REST) • openFDA (Labels/FAERS)
-  • arXiv (Medical AI)  • AlphaFold DB (3D)                       • RxNorm / RxNav (NLM)
-  • medRxiv / bioRxiv                                             • DailyMed (FDA SPL)
-  • Papers With Code                                              • MedlinePlus Connect
-  • Hugging Face Hub                                              • 本地临床 NLP (沙盒)
-                                                                  • 本地影像放射组学 (沙盒)
+  [Literature & SOTA]   [Molecular & Structure]  [Chemistry & Pharma] [Clinical & Multimodal]
+  • PubMed (NCBI)       • UniProtKB (Swiss-Prot) • ChEMBL (IC50/Ki)   • ClinicalTrials.gov (v2)
+  • OpenAlex / CrossRef • RCSB PDB (Search v2)   • PubChem (PUG REST) • openFDA (FAERS/Labels)
+  • arXiv (Medical AI)  • AlphaFold DB (3D)      • RxNorm / RxNav     • DailyMed (FDA SPL)
+  • bioRxiv / medRxiv                            • MedlinePlus        • Local Clinical NLP
+  • Papers With Code                                                  • Local 3D Radiomics
+  • Hugging Face Hub
 ```
 
 ---
 
-## 🚀 快速开始
+### 🚀 Quick Start
 
-### 方式一：下载桌面客户端（推荐）
+#### 1. Download Native Desktop Application (macOS / Windows / Linux)
 
-从 [GitHub Releases](https://github.com/Benjamin-JHou/JunScience/releases) 下载对应操作系统的安装包：
-- **macOS**：`JunScience-x.y.z.dmg`（原生适配 Apple Silicon 及 Intel 芯片）
-- **Windows**：`JunScience-Setup-x.y.z.exe`
-- **Linux**：`JunScience-x.y.z.AppImage` / `.deb`
+Download pre-built installers directly from [GitHub Releases](https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0):
+- **macOS**: `JunScience-1.0.0.dmg` (Apple Silicon & Intel)
+- **Windows**: `JunScience.Setup.1.0.0.exe` (NSIS Installer) / `JunScience.1.0.0.exe` (Portable)
+- **Linux**: `JunScience-1.0.0.AppImage` / `JunScience-1.0.0.deb`
 
-> ⚠️ **关于无签名安装包的运行提示（Gatekeeper / SmartScreen）**：  
-> 本项目当前为开源社区版，暂未购买昂贵的商业代码签名证书：
-> - **macOS 用户**：首次打开若提示“无法验证开发者”，请前往 **系统设置 > 隐私与安全性**，点击 **“仍要打开”** 即可正常运行；
-> - **Windows 用户**：若触发 SmartScreen 提示，请点击 **“更多信息” > “仍要运行”**。
-
----
-
-### 方式二：通过 npm 全局安装 CLI
+#### 2. CLI Execution via Monorepo
 
 ```bash
-# 全局安装 JunScience CLI
-npm install -g @junscience/cli
+# Clone the repository
+git clone https://github.com/Benjamin-JHou/JunScience.git
+cd JunScience
 
-# 1. 配置你的模型 API 端点与 Key
-junscience profile add
+# Install dependencies
+npm install
 
-# 2. 激活该配置
-junscience profile switch "MyModel"
-
-# 3. 运行你的科学研究课题
-junscience research "评估德克伐替尼在银屑病中的真实世界不良反应信号（FAERS）与当前临床试验终点"
-```
-
----
-
-## 🧪 自动化测试与持续集成 (CI Matrix)
-
-本项目配置了完整的跨平台 GitHub Actions CI Matrix，已在 **三大操作系统真实虚拟机** 上 100% 验证通过：
-
-```bash
-# 本地运行全量测试套件
+# Build all packages
 npm run build
-npx tsx packages/core/tests/test-hardened-core.ts          # 生物连接器与 MCP 桥接测试
-npx tsx packages/core/tests/test-medical-connectors.ts     # 临床医学连接器与 NCT 严审测试
-npx tsx packages/core/tests/test-medical-ai-multimodal.ts  # 医学 AI 基准、临床 NLP、影像放射组学测试
-npx tsx packages/core/tests/test-clinical-research-loop.ts # 纯临床科研 ReAct 循环实测
-npx tsx packages/core/tests/test-python-sandbox.ts         # 真实跨平台内核沙盒安全测试
-npx tsx packages/core/tests/test-memory-compactor.ts       # 16 轮无损记忆压缩测试
-npx tsx packages/core/tests/test-skill-system.ts            # 科学技能注册表测试
-npx tsx packages/core/tests/test-steering.ts                # 实时插话控制测试
+
+# Run an autonomous scientific inquiry
+npm run cli research "Evaluate the allosteric selectivity of TYK2 JH2 pseudokinase vs ATP catalytic domain across JAK family kinases"
+```
+
+#### 3. TypeScript Core SDK Usage
+
+```typescript
+import { AutonomousResearchEngine, globalToolRegistry } from '@junscience/core';
+
+const engine = new AutonomousResearchEngine({
+  maxTurns: 16,
+  modelProvider: activeModelProvider,
+});
+
+const turn = await engine.run(session, "Screen FAERS adverse event signals for Deucravacitinib");
+console.log(turn.agentResponse);
 ```
 
 ---
 
-## 📋 已知限制与诚实说明
+### 🧪 Automated CI Test Matrix
 
-1. **真实沙盒验证状态**：macOS Seatbelt、Linux Bubblewrap（带 SUID/userns 隔离）以及 Windows Low-Integrity Mandatory Integrity Control（MIC）均已在 GitHub Actions 官方 `macos-latest`、`ubuntu-latest`、`windows-latest` 云端真实机器上跑通并建立 CI 门禁。
-2. **临床数据隐私保障**：原始临床文本与影像文件仅在本地沙盒环境内处理；非结构化原始患者数据向外部模型 API 发送前必须经过用户交互式确认。
-3. **医学术语库范围**：已接入 ClinicalTrials.gov v2、openFDA、RxNorm、DailyMed、MedlinePlus 等公开免授权接口；商业闭源库（如完整商业版 SNOMED CT 授权分发集）未内置。
+JunScience runs full continuous integration tests across **macOS, Ubuntu Linux, and Windows** runners on GitHub Actions:
+
+```bash
+npm run build
+npx tsx packages/core/tests/test-hardened-core.ts          # Biological connectors & MCP bridge
+npx tsx packages/core/tests/test-medical-connectors.ts     # Clinical connectors & NCT verification
+npx tsx packages/core/tests/test-evidence-verifier.ts      # Codex-style numerical sanity & anomaly checks
+npx tsx packages/core/tests/test-subagent-tree.ts          # DeepSeek Harness parallel hypothesis tree
+npx tsx packages/core/tests/test-plan-tracker.ts           # Explicit plan mode & To-Do tracker
+npx tsx packages/core/tests/test-medical-ai-multimodal.ts  # Medical AI benchmarks, clinical NLP & radiomics
+npx tsx packages/core/tests/test-clinical-research-loop.ts # Pure clinical ReAct research loop
+npx tsx packages/core/tests/test-python-sandbox.ts         # Real OS kernel sandbox security tests
+npx tsx packages/core/tests/test-memory-compactor.ts       # 16-turn lossless memory compaction
+npx tsx packages/core/tests/test-skill-system.ts            # Scientific skill SOP registry
+npx tsx packages/core/tests/test-steering.ts                # Real-time mid-run steering
+```
 
 ---
 
-## 📄 License & 致谢
+<a name="chinese"></a>
+## 🇨🇳 中文说明
 
-- 本项目采用 [MIT License](LICENSE) 开源协议。
-- 本项目借鉴与参考的优秀开源项目（OpenScience、DeepSeek Harness、Pi、Codex）版权声明与条款详见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+### 📌 一句话定位
+
+**JunScience 是一个专注于生物与医学领域的开源证据溯源型科研 Agent 框架**。
+
+输入一个复杂的科学课题（例如 *“探讨 TYK2 变构抑制剂在红斑狼疮中的靶点选择性、真实世界 FAERS 不良反应信号与临床试验终点”*），JunScience 能够：
+1. **显式制定 5 阶段调研计划** 与可交互 To-Do 看板。
+2. 启动 **DeepSeek 风格假设子 Agent 树** 并发探索多候选靶点与机制假说。
+3. 跨 **PubMed、arXiv、bioRxiv、UniProtKB、RCSB PDB、ChEMBL、PubChem、ClinicalTrials.gov v2、openFDA、DailyMed** 等权威数据库实时检索。
+4. 在 **操作系统内核安全沙盒**（macOS Seatbelt / Linux Bubblewrap / Windows Low-Integrity）内运行 Python 脚本执行本地临床 NLP 与 3D CT 放射组学特征提取。
+5. 经由 **Codex 风格 EvidenceVerifier** 执行数值物理边界与异常检测，确保计算真实有效。
+6. 经由 **CritiqueEngine** 核验引用文献 PMID 与临床试验 NCT 编号的真实性。
+7. 产出包含不可伪造证据锚点（`[Evidence: EV-xxx]`）与完整溯源清单的学术调研报告。
+
+---
+
+### ✨ 核心特性
+
+- **🔍 Codex 风格前置证据严审门禁 (`EvidenceVerifier`)**：拒绝盲目采纳计算结果，入库前强制校验物理极值（$p \in [0,1]$, $IC_{50}>0$, $HU \in [-1024,3071]$）与 NaN 异常，异常时触发自主纠错。
+- **🌲 DeepSeek Harness 假设子 Agent 树 (`SubagentTreeEngine`)**：多假说并发分支探索，自动完成跨分支证据去重与对比矩阵合成。
+- **📋 显式 Plan 模式与 To-Do 任务追踪器 (`PlanTracker`)**：全双工广播每一步任务流转（`[✔] 完成` / `[⏳] 进行中` / `[ ] 待执行`）与挂载的证据勋章。
+- **🛡️ 临床数据隐私闸门 (`ClinicalDataGate`)**：原始患者文本与医学影像数据仅在本地沙盒环境内处理，未经用户交互式确认绝不向外部模型发送。
+- **🔒 跨平台操作系统级内核沙盒**：macOS `sandbox-exec` 物理断网隔离、Linux `bwrap` LSM 容器化、Windows Low-Integrity MIC 访问控制，全量通过 GitHub Actions CI 验证。
+- **🔌 双向 MCP 协议支持**：所有科研工具原生暴露为标准 Model Context Protocol (MCP) Server，亦可自由挂载第三方 MCP 工具。
+
+---
+
+## 📄 License & Acknowledgements
+
+- Licensed under the [MIT License](LICENSE).
+- For third-party notices and acknowledgements of architectural inspirations, see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
