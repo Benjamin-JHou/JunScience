@@ -50,11 +50,11 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
-            npm --workspace=@junscience/desktop run dist:mac
+            npx --yes electron-builder --mac -c packages/desktop/electron-builder.json --publish never
           elif [ "${{ runner.os }}" = "Windows" ]; then
-            npm --workspace=@junscience/desktop run dist:win
+            npx --yes electron-builder --win -c packages/desktop/electron-builder.json --publish never
           else
-            npm --workspace=@junscience/desktop run dist:linux
+            npx --yes electron-builder --linux -c packages/desktop/electron-builder.json --publish never
           fi
         shell: bash
 

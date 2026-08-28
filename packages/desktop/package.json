@@ -9,10 +9,10 @@
     "build:renderer": "tsc && vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build": "npm run build:renderer && npm run build:electron",
-    "dist": "npm run build && npx --yes electron-builder -c electron-builder.json",
-    "dist:mac": "npm run build && npx --yes electron-builder -c electron-builder.json --mac",
-    "dist:win": "npm run build && npx --yes electron-builder -c electron-builder.json --win",
-    "dist:linux": "npm run build && npx --yes electron-builder -c electron-builder.json --linux"
+    "dist": "npm run build && npx --yes electron-builder -c electron-builder.json --publish never",
+    "dist:mac": "npm run build && npx --yes electron-builder -c electron-builder.json --mac --publish never",
+    "dist:win": "npm run build && npx --yes electron-builder -c electron-builder.json --win --publish never",
+    "dist:linux": "npm run build && npx --yes electron-builder -c electron-builder.json --linux --publish never"
   },
   "dependencies": {
     "@junscience/core": "*",

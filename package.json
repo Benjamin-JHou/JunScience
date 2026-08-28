@@ -2,6 +2,7 @@
   "name": "junscience-monorepo",
   "private": true,
   "version": "1.0.0",
+  "main": "packages/desktop/dist-electron/main.js",
   "type": "module",
   "workspaces": [
     "packages/*"

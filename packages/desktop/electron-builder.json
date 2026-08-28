@@ -2,8 +2,8 @@
   "appId": "com.junscience.desktop",
   "productName": "JunScience",
   "directories": {
-    "output": "release",
-    "buildResources": "build"
+    "app": "packages/desktop",
+    "output": "packages/desktop/release"
   },
   "files": [
     "dist/**/*",
