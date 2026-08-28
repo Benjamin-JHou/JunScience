@@ -28,56 +28,86 @@ export const MedicalImagingTool: ToolDefinition<MedicalImagingInput> = {
     const pythonScript = `
 import json
 import math
-import numpy as np
+import random
+import statistics
 
-# 1. Simulate or load local imaging voxel matrix
-np.random.seed(42)
-# Create a 3D ROI volume (e.g. 32x32x16 slice volume representing a lung nodule / lesion ROI)
-roi_volume = np.random.normal(loc=45.0, scale=12.0, size=(16, 32, 32))
-# Add hyperdense core
-roi_volume[6:10, 12:20, 12:20] += 35.0
+random.seed(42)
+
+# 1. Generate 3D voxel volume (16 slices x 32 rows x 32 cols) using pure standard library
+slices, rows, cols = 16, 32, 32
+volume = []
+flat_voxels = []
+
+for s in range(slices):
+    slice_2d = []
+    for r in range(rows):
+        row = []
+        for c in range(cols):
+            # Base Hounsfield Unit
+            hu = random.gauss(45.0, 12.0)
+            # Add hyperdense lesion core
+            if 6 <= s <= 10 and 12 <= r <= 20 and 12 <= c <= 20:
+                hu += 35.0
+            row.append(hu)
+            flat_voxels.append(hu)
+        slice_2d.append(row)
+    volume.append(slice_2d)
 
 # 2. First-Order Intensity Statistics
-mean_val = float(np.mean(roi_volume))
-std_val = float(np.std(roi_volume))
-variance_val = float(np.var(roi_volume))
-min_val = float(np.min(roi_volume))
-max_val = float(np.max(roi_volume))
-p10 = float(np.percentile(roi_volume, 10))
-p90 = float(np.percentile(roi_volume, 90))
-skewness_val = float(np.mean(((roi_volume - mean_val) / std_val) ** 3))
-kurtosis_val = float(np.mean(((roi_volume - mean_val) / std_val) ** 4) - 3.0)
+sorted_voxels = sorted(flat_voxels)
+n = len(flat_voxels)
+mean_val = statistics.mean(flat_voxels)
+variance_val = statistics.variance(flat_voxels)
+std_val = math.sqrt(variance_val)
+min_val = sorted_voxels[0]
+max_val = sorted_voxels[-1]
+p10 = sorted_voxels[int(n * 0.10)]
+p90 = sorted_voxels[int(n * 0.90)]
+
+# Skewness & Kurtosis
+skewness_val = sum(((x - mean_val) / std_val) ** 3 for x in flat_voxels) / n
+kurtosis_val = (sum(((x - mean_val) / std_val) ** 4 for x in flat_voxels) / n) - 3.0
 
 # 3. Morphological & Shape Features
 voxel_spacing = (1.5, 0.8, 0.8) # mm (z, y, x)
-total_voxels = int(roi_volume.size)
+total_voxels = n
 volume_mm3 = float(total_voxels * voxel_spacing[0] * voxel_spacing[1] * voxel_spacing[2])
 surface_area_approx = float(2 * (32*0.8 * 32*0.8 + 32*0.8 * 16*1.5 + 32*0.8 * 16*1.5))
 sphericity = float((math.pi ** (1/3) * (6 * volume_mm3) ** (2/3)) / surface_area_approx)
 
-# 4. GLCM Texture Statistics (2D axial slice center)
-center_slice = roi_volume[8, :, :]
-# Discretize to 16 gray levels
-gray_levels = np.digitize(center_slice, bins=np.linspace(min_val, max_val, 17)) - 1
-glcm = np.zeros((16, 16), dtype=np.float64)
-for r in range(32):
-    for c in range(31):
-        i = gray_levels[r, c]
-        j = gray_levels[r, c + 1]
-        glcm[i, j] += 1.0
-glcm_norm = glcm / np.sum(glcm)
+# 4. GLCM Texture Statistics (Center axial slice)
+center_slice = volume[8]
+num_bins = 16
+bin_step = (max_val - min_val) / num_bins if max_val > min_val else 1.0
 
-# GLCM Contrast & Energy & Homogeneity
-contrast = float(np.sum(np.outer(np.arange(16), np.arange(16)) * glcm_norm))
-energy = float(np.sum(glcm_norm ** 2))
+def get_bin(val):
+    b = int((val - min_val) / bin_step)
+    return max(0, min(num_bins - 1, b))
+
+glcm = [[0.0] * num_bins for _ in range(num_bins)]
+total_pairs = 0
+for r in range(rows):
+    for c in range(cols - 1):
+        i = get_bin(center_slice[r][c])
+        j = get_bin(center_slice[r][c + 1])
+        glcm[i][j] += 1.0
+        total_pairs += 1
+
+contrast = 0.0
+energy = 0.0
 homogeneity = 0.0
-for i in range(16):
-    for j in range(16):
-        homogeneity += glcm_norm[i, j] / (1.0 + abs(i - j))
+
+if total_pairs > 0:
+    for i in range(num_bins):
+        for j in range(num_bins):
+            p_ij = glcm[i][j] / total_pairs
+            contrast += ((i - j) ** 2) * p_ij
+            energy += p_ij ** 2
+            homogeneity += p_ij / (1.0 + abs(i - j))
 
 radiomics_result = {
     "modality": "${modality}",
-    "voxelDimensions": [16, 32, 32],
+    "voxelDimensions": [slices, rows, cols],
     "voxelSpacingMm": voxel_spacing,
     "firstOrderStatistics": {
         "mean": round(mean_val, 2),
