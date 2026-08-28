@@ -36,7 +36,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update || true
-          sudo apt-get install -y libarchive-tools libgl1 || true
+          sudo apt-get install -y libarchive-tools libgl1 libfuse2t64 libfuse2 fakeroot || true
 
       - name: Install dependencies
         run: npm ci || npm install
@@ -67,6 +67,7 @@ jobs:
             packages/desktop/release/*.zip
             packages/desktop/release/*.exe
             packages/desktop/release/*.AppImage
+            packages/desktop/release/*.tar.gz
             packages/desktop/release/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

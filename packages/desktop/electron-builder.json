@@ -47,7 +47,7 @@
   "linux": {
     "target": [
       "AppImage",
-      "deb"
+      "tar.gz"
     ],
     "category": "Science"
   }
