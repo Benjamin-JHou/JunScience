@@ -84,7 +84,12 @@ async function testHardenedCore() {
 
   // Test 6: Hardened PubMed Literature Search (Rate-limited & Deduplicated)
   console.log('\n[Test 6/6] Hardened LiteratureSearchTool (Rate-limited & Deduplicated)');
-  const litRes = await LiteratureSearchTool.execute({ query: 'STAT4 phosphorylation lupus nephritis', limit: 3 }, dummyContext);
+  let litRes = await LiteratureSearchTool.execute({ query: 'STAT4 phosphorylation lupus nephritis', limit: 3 }, dummyContext);
+  if (!litRes.success) {
+    // Retry once on transient network/rate-limit
+    await new Promise((r) => setTimeout(r, 1500));
+    litRes = await LiteratureSearchTool.execute({ query: 'STAT4 phosphorylation lupus nephritis', limit: 3 }, dummyContext);
+  }
   if (!litRes.success || !litRes.citations || litRes.citations.length === 0) {
     throw new Error(`LiteratureSearchTool failed: ${JSON.stringify(litRes)}`);
   }
