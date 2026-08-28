@@ -1,0 +1,1 @@
+{"version":3,"file":"LiteratureSearchTool.d.ts","sourceRoot":"","sources":["LiteratureSearchTool.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAoC,MAAM,mBAAmB,CAAC;AAGrF,MAAM,WAAW,qBAAqB;IACpC,KAAK,EAAE,MAAM,CAAC;IACd,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,OAAO,CAAC,EAAE,CAAC,QAAQ,GAAG,SAAS,GAAG,UAAU,CAAC,EAAE,CAAC;CACjD;AAED,eAAO,MAAM,oBAAoB,EAAE,cAAc,CAAC,qBAAqB,CA4FtE,CAAC"}

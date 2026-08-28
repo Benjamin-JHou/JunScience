@@ -1,0 +1,39 @@
+/* Terminal-specific styling for CLI themes */
+
+.terminal-font {
+  font-family: 'JetBrains Mono', 'SF Mono', 'ui-monospace', 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 9px;
+  height: 1.15em;
+  vertical-align: -2px;
+  background-color: var(--term-cursor);
+  animation: term-blink 1s step-end infinite;
+  box-shadow: 0 0 6px var(--term-cursor);
+}
+
+@keyframes term-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-window {
+  background-color: var(--term-bg);
+  border: 1px solid var(--term-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px var(--term-glow);
+}
+
+.terminal-box {
+  border: 1px solid var(--term-border-box);
+  background-color: var(--term-surface);
+}
+
+.terminal-accent-glow {
+  text-shadow: 0 0 8px var(--term-glow);
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@junscience/cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "junscience": "./bin/junscience.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx tests/test-cli.ts"
+  },
+  "dependencies": {
+    "@junscience/core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3",
+    "tsx": "^4.19.2"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@junscience/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build:renderer": "tsc && vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:renderer && npm run build:electron",
+    "dist": "npm run build && electron-builder -c electron-builder.json",
+    "dist:mac": "npm run build && electron-builder -c electron-builder.json --mac",
+    "dist:win": "npm run build && electron-builder -c electron-builder.json --win",
+    "dist:linux": "npm run build && electron-builder -c electron-builder.json --linux"
+  },
+  "dependencies": {
+    "@junscience/core": "*",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}

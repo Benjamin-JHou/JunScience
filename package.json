@@ -1,0 +1,27 @@
+{
+  "name": "junscience-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:core": "npm --workspace=@junscience/core run build",
+    "build:desktop": "npm --workspace=@junscience/desktop run build",
+    "build:cli": "npm --workspace=@junscience/cli run build",
+    "build": "npm run build:core && npm run build:cli && npm run build:desktop",
+    "test:core": "npm --workspace=@junscience/core test",
+    "test:cli": "npm --workspace=@junscience/cli test",
+    "test": "npm run test:core && npm run test:cli",
+    "cli": "node packages/cli/bin/junscience.js",
+    "desktop": "npx electron packages/desktop/dist-electron/main.js",
+    "desktop:dev": "npm --workspace=@junscience/desktop run dev"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "electron": "^28.3.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

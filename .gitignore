@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build Outputs
+dist/
+dist-electron/
+release/
+build/
+*.tsbuildinfo
+
+# Upstream Reference Repositories
+upstream/
+
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Runtime & Sandboxes
+.junscience/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo

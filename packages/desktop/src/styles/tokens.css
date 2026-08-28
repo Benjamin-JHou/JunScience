@@ -1,0 +1,135 @@
+/* JunScience Design Token System */
+
+:root {
+  /* Default Desktop Dark */
+  --bg-primary: #090D16;
+  --bg-surface: #0E1524;
+  --bg-elevated: #141D30;
+  --bg-hover: #18233A;
+  
+  --border-color: #1A263D;
+  --border-subtle: #141E30;
+  --border-focus: #38BDF8;
+  
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  
+  --accent-color: #38BDF8;
+  --accent-hover: #0EA5E9;
+  --accent-soft: rgba(56, 189, 248, 0.12);
+  --accent-secondary: #818CF8;
+  --accent-glow: rgba(56, 189, 248, 0.35);
+  
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-error: #EF4444;
+  
+  --code-bg: #070A10;
+  
+  /* Shared CLI Tokens default (Green) */
+  --term-bg: #020603;
+  --term-window-bar: #0B140D;
+  --term-surface: #050E07;
+  --term-border: #14532D;
+  --term-border-box: #166534;
+  --term-text: #4ADE80;
+  --term-text-dim: #22C55E;
+  --term-muted: #15803D;
+  --term-accent: #22C55E;
+  --term-accent-bright: #86EFAC;
+  --term-cursor: #22C55E;
+  --term-glow: rgba(34, 197, 94, 0.25);
+}
+
+/* Desktop Light Theme */
+[data-theme="light"] {
+  --bg-primary: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-hover: #E2E8F0;
+  
+  --border-color: #E2E8F0;
+  --border-subtle: #EDF2F7;
+  --border-focus: #2563EB;
+  
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  
+  --accent-color: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --accent-secondary: #0284C7;
+  --accent-glow: rgba(37, 99, 235, 0.2);
+  
+  --status-success: #16A34A;
+  --status-warning: #D97706;
+  --status-error: #DC2626;
+  
+  --code-bg: #F8FAFC;
+}
+
+/* CLI Theme 1: Green (Matrix / Classic Science) */
+[data-cli-theme="green"] {
+  --term-bg: #020603;
+  --term-window-bar: #08120A;
+  --term-surface: #040D06;
+  --term-border: #14532D;
+  --term-border-box: #166534;
+  --term-text: #4ADE80;
+  --term-text-dim: #22C55E;
+  --term-muted: #166534;
+  --term-accent: #22C55E;
+  --term-accent-bright: #86EFAC;
+  --term-cursor: #4ADE80;
+  --term-glow: rgba(74, 222, 128, 0.2);
+}
+
+/* CLI Theme 2: Blue (Cyberpunk / Modern Developer) */
+[data-cli-theme="blue"] {
+  --term-bg: #030814;
+  --term-window-bar: #071124;
+  --term-surface: #050E20;
+  --term-border: #0C4A6E;
+  --term-border-box: #0284C7;
+  --term-text: #38BDF8;
+  --term-text-dim: #0284C7;
+  --term-muted: #0369A1;
+  --term-accent: #38BDF8;
+  --term-accent-bright: #BAE6FD;
+  --term-cursor: #38BDF8;
+  --term-glow: rgba(56, 189, 248, 0.2);
+}
+
+/* CLI Theme 3: Purple (Neon AI / Futuristic) */
+[data-cli-theme="purple"] {
+  --term-bg: #070312;
+  --term-window-bar: #100624;
+  --term-surface: #0C041C;
+  --term-border: #581C87;
+  --term-border-box: #7E22CE;
+  --term-text: #D946EF;
+  --term-text-dim: #A855F7;
+  --term-muted: #7E22CE;
+  --term-accent: #C084FC;
+  --term-accent-bright: #F0ABFC;
+  --term-cursor: #E879F9;
+  --term-glow: rgba(217, 70, 239, 0.2);
+}
+
+/* CLI Theme 4: Amber (Retro Phosphor Terminal) */
+[data-cli-theme="amber"] {
+  --term-bg: #0A0501;
+  --term-window-bar: #160B02;
+  --term-surface: #100802;
+  --term-border: #78350F;
+  --term-border-box: #92400E;
+  --term-text: #FBBF24;
+  --term-text-dim: #D97706;
+  --term-muted: #92400E;
+  --term-accent: #F59E0B;
+  --term-accent-bright: #FDE68A;
+  --term-cursor: #F59E0B;
+  --term-glow: rgba(245, 158, 11, 0.2);
+}

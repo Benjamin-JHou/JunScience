@@ -1,0 +1,69 @@
+name: JunScience Cross-Platform CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Linux OS Sandboxing Utilities (Bubblewrap)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap libgl1-mesa-glx
+
+      - name: Install Monorepo Dependencies
+        run: npm ci || npm install
+
+      - name: Build All Monorepo Workspaces (Core, CLI, Desktop)
+        run: npm run build
+
+      - name: Run Core Verification Suite
+        run: npx tsx packages/core/tests/test-hardened-core.ts
+
+      - name: Run Medical & Clinical Research Suite
+        run: npx tsx packages/core/tests/test-medical-connectors.ts
+
+      - name: Run Memory Compactor Verification Suite
+        run: npx tsx packages/core/tests/test-memory-compactor.ts
+
+      - name: Run Scientific Skill System Suite
+        run: npx tsx packages/core/tests/test-skill-system.ts
+
+      - name: Run Mid-Run Steering Suite
+        run: npx tsx packages/core/tests/test-steering.ts
+
+      - name: Run Real OS Python Sandbox Security Suite (Kernel Isolation)
+        run: npx tsx packages/core/tests/test-python-sandbox.ts
+
+      - name: Verify CLI Command Execution
+        run: node packages/cli/bin/junscience.js --help || npm --workspace=@junscience/cli test
+
+      - name: Verify Electron Desktop Native Compilation
+        run: npm --workspace=@junscience/desktop run build
