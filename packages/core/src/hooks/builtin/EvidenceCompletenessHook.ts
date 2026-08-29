@@ -14,19 +14,18 @@ export class EvidenceCompletenessHook {
         const issues: string[] = [];
 
         // Match all EV references like [Evidence: EV-1], [EV-2], EV-3
-        const evMatches = finalContent.match(/\[Evidence:\s*(EV-\d+)\]|\[(EV-\d+)\]|\b(EV-\d+)\b/g) || [];
+        const evMatches = finalContent.matchAll(/(?:\[Evidence:\s*|\[|\b)(EV-\d+)(?:\]|\b)/gi);
         const citedEvIds = new Set<string>();
 
         for (const match of evMatches) {
-          const cleaned = match.replace(/[\[\]Evidence:\s]/g, '');
-          if (cleaned.startsWith('EV-')) {
-            citedEvIds.add(cleaned);
+          if (match[1]) {
+            citedEvIds.add(match[1].toUpperCase());
           }
         }
 
         // Cross-reference with EvidenceTracker records
         const recordedList = evidenceTracker.list();
-        const recordedIds = new Set(recordedList.map((e) => e.id));
+        const recordedIds = new Set(recordedList.map((e) => e.id.toUpperCase()));
 
         for (const citedId of citedEvIds) {
           if (!recordedIds.has(citedId)) {

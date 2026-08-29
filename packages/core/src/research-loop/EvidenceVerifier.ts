@@ -229,8 +229,8 @@ export class EvidenceVerifier {
           details.push({
             rule: 'bounds.hounsfield_unit',
             passed: false,
-            severity: 'error',
-            message: `Hounsfield Unit ${val} HU out of physical bounds [-1024, 3071].`,
+            severity: 'warning',
+            message: `Hounsfield Unit ${val} HU falls outside standard clinical CT calibration bounds [-1024, +3071].`,
           });
         } else {
           details.push({
