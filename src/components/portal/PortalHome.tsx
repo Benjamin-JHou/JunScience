@@ -594,7 +594,7 @@ console.log(turn.agentResponse);`,
           {activeGalleryTab === 'desktop-light' && (
             <div className="space-y-3">
               <img
-                src="./screenshots/screenshot_desktop_light.png"
+                src={`${import.meta.env.BASE_URL}screenshots/screenshot_desktop_light.png`}
                 alt="JunScience Desktop Light Theme"
                 className="w-full rounded-xl border border-border/80 shadow-sm"
               />
@@ -607,7 +607,7 @@ console.log(turn.agentResponse);`,
           {activeGalleryTab === 'desktop-dark' && (
             <div className="space-y-3">
               <img
-                src="./screenshots/screenshot_desktop_dark.png"
+                src={`${import.meta.env.BASE_URL}screenshots/screenshot_desktop_dark.png`}
                 alt="JunScience Desktop Dark Theme"
                 className="w-full rounded-xl border border-border/80 shadow-sm"
               />
@@ -620,7 +620,7 @@ console.log(turn.agentResponse);`,
           {activeGalleryTab === 'workspace' && (
             <div className="space-y-3">
               <img
-                src="./screenshots/screenshot_m2_workspace.png"
+                src={`${import.meta.env.BASE_URL}screenshots/screenshot_m2_workspace.png`}
                 alt="JunScience Workspace Active Research Loop"
                 className="w-full rounded-xl border border-border/80 shadow-sm"
               />
@@ -649,7 +649,7 @@ console.log(turn.agentResponse);`,
                 ))}
               </div>
               <img
-                src={`./screenshots/screenshot_cli_${activeCliColor}.png`}
+                src={`${import.meta.env.BASE_URL}screenshots/screenshot_cli_${activeCliColor}.png`}
                 alt={`JunScience CLI ${activeCliColor} theme`}
                 className="w-full max-w-4xl mx-auto rounded-xl border border-border/80 shadow-sm"
               />

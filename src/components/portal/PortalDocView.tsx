@@ -729,7 +729,7 @@ const { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParal
           <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
             <div className="rounded-xl overflow-hidden border border-border shadow-xs bg-bg-surface p-2">
               <img
-                src="./screenshots/architecture.png"
+                src={`${import.meta.env.BASE_URL}screenshots/architecture.png`}
                 alt="JunScience Core Architecture"
                 className="w-full rounded-lg"
               />
