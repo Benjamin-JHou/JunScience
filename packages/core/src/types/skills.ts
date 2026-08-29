@@ -2,9 +2,16 @@ export type SkillCategory =
   | 'literature'
   | 'genomics'
   | 'proteomics'
+  | 'molecular-biology'
   | 'chemistry'
+  | 'cheminformatics'
   | 'statistics'
+  | 'bioinformatics'
+  | 'clinical'
+  | 'imaging'
   | 'pathways'
+  | 'writing'
+  | 'reproducibility'
   | 'visualization';
 
 export interface SkillDefinition {
