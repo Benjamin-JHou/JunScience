@@ -24,6 +24,10 @@ import {
   Database,
   Pill,
   Sparkles,
+  Sliders,
+  DollarSign,
+  Boxes,
+  HelpCircle,
 } from 'lucide-react';
 import { PortalHeroVisual } from './PortalHeroVisual';
 import { useNav } from '../../context/NavContext';
@@ -32,11 +36,30 @@ export const PortalHome: React.FC = () => {
   const { setActiveSection } = useNav();
   const [activeGalleryTab, setActiveGalleryTab] = useState<'desktop-light' | 'desktop-dark' | 'workspace' | 'cli'>('desktop-light');
   const [activeCliColor, setActiveCliColor] = useState<'green' | 'blue' | 'purple' | 'amber'>('green');
-  const [activeCodeTab, setActiveCodeTab] = useState<'cli' | 'desktop' | 'sdk'>('cli');
+  const [activeCodeTab, setActiveCodeTab] = useState<'cli-curl' | 'cli-npm' | 'cli-npx' | 'git' | 'desktop' | 'sdk'>('cli-curl');
   const [copiedCode, setCopiedCode] = useState(false);
+  const [activeModeDemo, setActiveModeDemo] = useState<'plan' | 'act'>('plan');
 
   const codeSnippets = {
-    cli: `# 1. Clone JunScience repository
+    'cli-curl': `# Install JunScience CLI via one-line installer (macOS & Linux)
+curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash
+
+# Launch interactive scientific agent
+junscience`,
+    'cli-npm': `# Install JunScience CLI globally via npm
+npm install -g @junscience/cli
+
+# Start interactive research REPL
+junscience
+
+# Or run one-shot scientific research task
+junscience research "Analyze TYK2 JH2 pseudokinase binding"`,
+    'cli-npx': `# Run instantly without installation via npx
+npx @junscience/cli
+
+# Run one-shot research directly
+npx @junscience/cli research "Screen FAERS adverse events for Deucravacitinib"`,
+    git: `# 1. Clone JunScience repository
 git clone https://github.com/Benjamin-JHou/JunScience.git
 cd JunScience
 
@@ -44,7 +67,7 @@ cd JunScience
 npm install
 
 # 3. Launch autonomous research inquiry in CLI
-npm run cli research "Investigate TYK2 JH2 allosteric domain vs ATP orthosteric binding selectivity"`,
+npm run cli`,
     desktop: `# Launch the JunScience Desktop Electron interface
 npm run desktop:dev
 
@@ -71,10 +94,14 @@ console.log(turn.agentResponse);`,
 
   return (
     <div className="space-y-14 sm:space-y-20 py-4 sm:py-8 px-4 sm:px-8 max-w-[1240px] mx-auto">
-      {/* 1. HERO SECTION (Matching 1.png) */}
+      {/* 1. HERO SECTION */}
       <section className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 pt-2 sm:pt-6">
         <div className="flex-1 max-w-2xl text-left space-y-4 sm:space-y-6">
           <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent text-[12px] font-medium">
+              <Sparkles size={14} />
+              <span>Evidence-First AI Agent Workstation</span>
+            </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-text-primary leading-[1.15]">
               <span className="text-text-primary">JunScience</span>
               <br />
@@ -85,28 +112,60 @@ console.log(turn.agentResponse);`,
             </h1>
             <p className="text-[14.5px] sm:text-[16px] text-text-secondary leading-relaxed pt-1">
               JunScience is an open-source AI agent framework for scientific research.
-              It understands, explores, analyzes, and generates — accelerating
-              research across biology, chemistry, materials, physics, and beyond.
+              It explores literature, queries biological databases, executes Python workflows,
+              and generates reproducible research artifacts with full evidence traceability.
             </p>
           </div>
 
+          {/* Quick One-Liner Install Banner (Claude Code style) */}
+          <div className="p-3.5 rounded-xl border border-border bg-[#070A10] text-[#E2E8F0] shadow-sm space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span className="flex items-center gap-1.5 text-accent font-semibold">
+                <Terminal size={13} />
+                <span>QUICK INSTALL (CLI AGENT)</span>
+              </span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash');
+                  setCopiedCode(true);
+                  setTimeout(() => setCopiedCode(false), 2000);
+                }}
+                className="flex items-center gap-1 hover:text-white transition-colors"
+              >
+                {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                <span>{copiedCode ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+            <div className="flex items-center gap-2 font-mono text-[13px] text-emerald-400 select-all overflow-x-auto py-0.5">
+              <span className="text-slate-500 select-none">$</span>
+              <span>curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash</span>
+            </div>
+          </div>
+
           {/* Call to Actions */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
-              onClick={() => setActiveSection('quickstart')}
+              onClick={() => setActiveSection('cli')}
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-medium text-[13.5px] shadow-sm transition-all active:scale-98"
             >
-              <span>Quick Start</span>
+              <Terminal size={16} />
+              <span>Explore CLI Agent</span>
               <ArrowRight size={15} />
+            </button>
+            <button
+              onClick={() => setActiveSection('installation')}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-bg-surface hover:bg-bg-hover text-text-primary font-medium text-[13.5px] transition-all shadow-2xs"
+            >
+              <span>Download Desktop App</span>
             </button>
             <a
               href="https://github.com/Benjamin-JHou/JunScience"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-bg-surface hover:bg-bg-hover text-text-primary font-medium text-[13.5px] transition-all shadow-2xs"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-bg-surface hover:bg-bg-hover text-text-secondary hover:text-text-primary font-medium text-[13.5px] transition-all shadow-2xs"
             >
               <Github size={16} />
-              <span>GitHub Repo</span>
+              <span>GitHub</span>
             </a>
           </div>
         </div>
@@ -126,7 +185,7 @@ console.log(turn.agentResponse);`,
           <div>
             <h3 className="text-[14px] font-bold text-text-primary mb-1">AI-Powered Agents</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              Autonomous agents collaborate to complete complex scientific research.
+              Plan Mode &amp; Act Mode orchestration with multi-hypothesis exploration.
             </p>
           </div>
         </div>
@@ -138,7 +197,7 @@ console.log(turn.agentResponse);`,
           <div>
             <h3 className="text-[14px] font-bold text-text-primary mb-1">Scientific Tools</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              16+ built-in tools for literature, molecules, clinical data, and more.
+              PubMed, UniProt, ChEMBL, PDB, and sandboxed Python data compute.
             </p>
           </div>
         </div>
@@ -150,7 +209,7 @@ console.log(turn.agentResponse);`,
           <div>
             <h3 className="text-[14px] font-bold text-text-primary mb-1">Reproducible Research</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              Provenance tracking, citations, EV anchors, and environment capture.
+              Immutable EV-xxx evidence anchors, provenance logs, and critique gating.
             </p>
           </div>
         </div>
@@ -162,13 +221,191 @@ console.log(turn.agentResponse);`,
           <div>
             <h3 className="text-[14px] font-bold text-text-primary mb-1">Open Source</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              Built for researchers. Open for everyone under MIT License.
+              MIT License. Built for researchers, bioinformaticians, and developers.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 3. ARCHITECTURE OVERVIEW & FLOWCHART (Matching 1.png) */}
+      {/* 3. CLI AGENT WORKFLOW & COMMANDS SHOWCASE */}
+      <section className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div className="text-left space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-accent">
+              <Terminal size={14} />
+              <span>Interactive CLI Agent</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
+              Powerful Terminal Agent. Claude Code Inspired.
+            </h2>
+            <p className="text-[14px] text-text-secondary">
+              Seamlessly switch between deliberative <strong>Plan Mode</strong> and autonomous <strong>Act Mode</strong>, configure models with <code>/model</code>, and track scientific evidence in real time.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setActiveSection('cli')}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent hover:underline"
+          >
+            <span>View Full CLI Manual</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+
+        {/* Dual Mode Switcher & Terminal Simulator */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column: Command & Mode Highlights */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Plan vs Act Mode Card */}
+            <div className="p-4 rounded-xl border border-border bg-bg-surface space-y-3">
+              <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
+                <Sliders size={16} className="text-accent" />
+                <span>Agent Execution Modes</span>
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setActiveModeDemo('plan')}
+                  className={`p-3 rounded-lg text-left border transition-all ${
+                    activeModeDemo === 'plan'
+                      ? 'border-purple-500/50 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold'
+                      : 'border-border bg-bg-elevated/40 text-text-muted hover:text-text-primary'
+                  }`}
+                >
+                  <div className="text-[13px] font-mono font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                    /plan Mode
+                  </div>
+                  <p className="text-[11px] text-text-secondary mt-1">
+                    Structured planning, literature review, and hypothesis formulation without tool side effects.
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => setActiveModeDemo('act')}
+                  className={`p-3 rounded-lg text-left border transition-all ${
+                    activeModeDemo === 'act'
+                      ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold'
+                      : 'border-border bg-bg-elevated/40 text-text-muted hover:text-text-primary'
+                  }`}
+                >
+                  <div className="text-[13px] font-mono font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    /act Mode
+                  </div>
+                  <p className="text-[11px] text-text-secondary mt-1">
+                    Autonomous tool execution (PubMed, UniProt, ChEMBL, Python) &amp; artifact generation.
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            {/* Essential Commands Cheat Sheet */}
+            <div className="p-4 rounded-xl border border-border bg-bg-surface space-y-2.5 text-[12.5px]">
+              <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
+                <Code2 size={16} className="text-accent" />
+                <span>Essential Slash Commands</span>
+              </h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
+                  <span className="text-accent font-bold">/model</span>
+                  <span className="text-text-secondary">Switch LLM or configure API key</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
+                  <span className="text-purple-500 font-bold">/plan | /act</span>
+                  <span className="text-text-secondary">Toggle Planning vs Execution mode</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
+                  <span className="text-emerald-500 font-bold">/tools</span>
+                  <span className="text-text-secondary">List registered scientific database tools</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
+                  <span className="text-amber-500 font-bold">/cost | /tokens</span>
+                  <span className="text-text-secondary">Track session token usage &amp; API costs</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
+                  <span className="text-cyan-500 font-bold">/compact</span>
+                  <span className="text-text-secondary">Compress context memory with EV anchors</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Simulated Terminal View */}
+          <div className="lg:col-span-7 rounded-2xl border border-border bg-[#070A10] text-[#E2E8F0] overflow-hidden shadow-lg flex flex-col">
+            {/* Terminal Header */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-white/5 border-b border-white/10 text-[11px] font-mono text-slate-400">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                </div>
+                <span className="text-slate-300 ml-2 font-semibold">junscience — interactive scientific repl</span>
+              </div>
+              <span className="text-slate-500 font-mono">v1.0.0</span>
+            </div>
+
+            {/* Terminal Body */}
+            <div className="p-4 sm:p-5 font-mono text-[12.5px] leading-relaxed space-y-3 flex-1 overflow-x-auto text-left">
+              {activeModeDemo === 'plan' ? (
+                <>
+                  <div className="text-cyan-400">
+                    junscience config set --model deepseek-chat --api-key sk-***
+                  </div>
+                  <div className="text-emerald-400">✔ Active model profile set: DeepSeek Chat (deepseek-chat)</div>
+                  <div className="text-purple-400">
+                    junscience &gt; /plan
+                  </div>
+                  <div className="text-purple-300">✔ Switched to PLAN MODE. Formulating 5-stage research strategy...</div>
+                  <div className="text-slate-400 pt-1">
+                    <span className="text-purple-400 font-bold">[PLAN] junscience &gt;</span> Evaluate TYK2 JH2 pseudokinase allosteric selectivity
+                  </div>
+                  <div className="p-3 rounded-lg bg-purple-950/30 border border-purple-800/40 text-purple-200 text-[12px] space-y-1">
+                    <div className="font-bold text-purple-300">📋 Proposed 5-Stage Scientific Research Plan:</div>
+                    <div>1. Query UniProt (P29597) for JH2 pseudokinase domain vs JH1 catalytic domain</div>
+                    <div>2. Retrieve ChEMBL IC50 / Kd values for allosteric inhibitors (Deucravacitinib)</div>
+                    <div>3. Cross-reference RCSB PDB structure 6NZP (JH2 complex) with JAK1/2/3 selectivity</div>
+                    <div>4. Run Python PythonRunnerTool for sub-nanomolar selectivity fold ratio computation</div>
+                    <div>5. Verify mathematical anomalies via EvidenceVerifier &amp; anchor EV-001..EV-004</div>
+                  </div>
+                  <div className="text-slate-500 text-[11px] italic">
+                    Type /act to start autonomous tool execution and artifact synthesis.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-slate-400">
+                    <span className="text-emerald-400 font-bold">[ACT] junscience &gt;</span> Execute TYK2 JH2 selectivity workflow
+                  </div>
+                  <div className="text-amber-400 flex items-center gap-2">
+                    <span className="animate-pulse">⚡</span>
+                    <span>Calling UniProtTool [query: P29597, domain: JH2]...</span>
+                  </div>
+                  <div className="text-slate-300 pl-4 border-l-2 border-emerald-500/50">
+                    Found TYK2 (P29597): JH2 domain residues 590-880, JH1 kinase domain residues 881-1187.
+                  </div>
+                  <div className="text-amber-400 flex items-center gap-2">
+                    <span className="animate-pulse">⚡</span>
+                    <span>Calling ChEMBLTool [target: CHEMBL4630, type: IC50]...</span>
+                  </div>
+                  <div className="text-slate-300 pl-4 border-l-2 border-emerald-500/50">
+                    Deucravacitinib (CHEMBL4297893): JH2 IC50 = 0.2 nM vs JAK1/2/3 IC50 &gt; 10,000 nM (&gt;1000x selective).
+                  </div>
+                  <div className="text-emerald-400 font-bold">
+                    ✔ EvidenceVerifier: Verdict = ADOPTED (Confidence: 1.0, Evidence: EV-001)
+                  </div>
+                  <div className="text-cyan-300">
+                    📄 Artifact generated: Figure_1_Selectivity_Radar.png &amp; TYK2_Selectivity_Report.md
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. ARCHITECTURE OVERVIEW & FLOWCHART */}
       <section className="space-y-6">
         <div className="text-left space-y-1">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
@@ -181,344 +418,128 @@ console.log(turn.agentResponse);`,
 
         {/* Horizontal Flowchart Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-2 items-center">
-          {/* Card 1: User Interface */}
           <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-accent font-semibold text-[13px]">
               <Eye size={15} />
               <span>User Interface</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">Desktop / CLI / Web</p>
+            <p className="text-[11.5px] text-text-muted">CLI Agent / Desktop App</p>
           </div>
 
-          {/* Card 2: JunScience Core */}
           <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold text-[13px]">
               <Cpu size={15} />
               <span>JunScience Core</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">Agent Orchestration / Memory / Planning</p>
+            <p className="text-[11.5px] text-text-muted">Plan Mode / To-Do Tracker / Memory</p>
           </div>
 
-          {/* Card 3: Agent Orchestration */}
           <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-900/50 bg-purple-50/40 dark:bg-purple-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-purple-600 dark:text-purple-400 font-semibold text-[13px]">
-              <Layers size={15} />
-              <span>Agent Orchestration</span>
+              <Bot size={15} />
+              <span>Agent Harness</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">Subagent Tree • Patch Gate • Plan Tracker</p>
+            <p className="text-[11.5px] text-text-muted">DeepSeek Subagent Tree</p>
           </div>
 
-          {/* Card 4: Scientific Tools & Skills */}
           <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-[13px]">
               <Wrench size={15} />
-              <span>Scientific Tools &amp; Skills</span>
+              <span>Scientific Tools</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">Databases / Python / Domain Skills</p>
+            <p className="text-[11.5px] text-text-muted">PubMed / UniProt / ChEMBL / PDB</p>
           </div>
 
-          {/* Card 5: Results & Artifacts */}
           <div className="p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 dark:bg-cyan-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-cyan-600 dark:text-cyan-400 font-semibold text-[13px]">
               <FileText size={15} />
-              <span>Results &amp; Artifacts</span>
+              <span>Verified Results</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">Reports / Figures / Provenance</p>
-          </div>
-        </div>
-
-        <div className="text-center pt-1">
-          <button
-            onClick={() => setActiveSection('architecture')}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent hover:text-accent-hover hover:underline"
-          >
-            <span>Learn more about architecture</span>
-            <ArrowRight size={14} />
-          </button>
-        </div>
-      </section>
-
-      {/* 4. THREE-CARD ARCHITECTURE DETAILS GRID (Matching 1.png) */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1: Core Agentic Mechanisms */}
-        <div className="p-5 rounded-2xl bg-bg-surface border border-border flex flex-col justify-between shadow-xs">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-[16px] font-bold text-text-primary">Agentic Paradigms</h3>
-              <p className="text-[12px] text-text-muted">3 advanced autonomous discovery mechanisms.</p>
-            </div>
-
-            <div className="space-y-3 pt-1">
-              {/* Mechanism 1: Subagent Hypothesis Tree */}
-              <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
-                <div className="p-1.5 rounded-md bg-blue-500/10 text-accent flex-shrink-0 mt-0.5">
-                  <Bot size={18} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-bold text-text-primary">Subagent Hypothesis Tree</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      Integrated
-                    </span>
-                  </div>
-                  <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
-                    Parallel hypothesis exploration tree with subagent forking &amp; cross-branch evidence synthesis matrix.
-                  </p>
-                </div>
-              </div>
-
-              {/* Mechanism 2: Pre-Adoption Patch Verification */}
-              <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
-                <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500 flex-shrink-0 mt-0.5">
-                  <ShieldCheck size={18} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-bold text-text-primary">Patch Verification Gate</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      Integrated
-                    </span>
-                  </div>
-                  <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
-                    Strict scientific sanity &amp; boundary gate for computation outputs before EV-xxx evidence adoption.
-                  </p>
-                </div>
-              </div>
-
-              {/* Mechanism 3: Explicit Plan & Stream Orchestration */}
-              <div className="flex items-start gap-3 p-2 rounded-lg bg-bg-elevated/60 border border-border-subtle">
-                <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500 flex-shrink-0 mt-0.5">
-                  <CheckCircle2 size={18} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-bold text-text-primary">Explicit Plan &amp; To-Do Tracker</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      Integrated
-                    </span>
-                  </div>
-                  <p className="text-[11.5px] text-text-muted mt-0.5 leading-snug">
-                    Dynamic multi-stage research planner with live To-Do checklist &amp; EventBus event streaming.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-border/60 mt-4">
-            <button
-              onClick={() => setActiveSection('architecture')}
-              className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent hover:text-accent-hover"
-            >
-              <span>Explore architecture</span>
-              <ArrowRight size={13} />
-            </button>
-          </div>
-        </div>
-
-        {/* Card 2: Key Capabilities */}
-        <div className="p-5 rounded-2xl bg-bg-surface border border-border flex flex-col justify-between shadow-xs">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-[16px] font-bold text-text-primary">Key Capabilities</h3>
-              <p className="text-[12px] text-text-muted">Repository-backed scientific functions.</p>
-            </div>
-
-            <div className="space-y-2.5 pt-1 text-[12.5px]">
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Search size={15} className="text-accent flex-shrink-0" />
-                <span>Literature search &amp; knowledge mining</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Dna size={15} className="text-accent-secondary flex-shrink-0" />
-                <span>Molecular &amp; biological data analysis</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Sparkles size={15} className="text-purple-500 flex-shrink-0" />
-                <span>Experiment design &amp; hypothesis generation</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Terminal size={15} className="text-emerald-500 flex-shrink-0" />
-                <span>Python execution &amp; data visualization</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <ShieldCheck size={15} className="text-cyan-500 flex-shrink-0" />
-                <span>Critique, revision &amp; reproducible reporting</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <CheckCircle2 size={15} className="text-accent flex-shrink-0" />
-                <span>Citations, provenance &amp; evidence tracking</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-border/60 mt-4">
-            <button
-              onClick={() => setActiveSection('docs')}
-              className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent hover:text-accent-hover"
-            >
-              <span>View all features</span>
-              <ArrowRight size={13} />
-            </button>
-          </div>
-        </div>
-
-        {/* Card 3: Use Cases */}
-        <div className="p-5 rounded-2xl bg-bg-surface border border-border flex flex-col justify-between shadow-xs">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-[16px] font-bold text-text-primary">Use Cases</h3>
-              <p className="text-[12px] text-text-muted">Real-world research applications.</p>
-            </div>
-
-            <div className="space-y-2.5 pt-1 text-[12.5px]">
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Pill size={15} className="text-purple-500 flex-shrink-0" />
-                <span>Drug discovery &amp; repurposing</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Dna size={15} className="text-blue-500 flex-shrink-0" />
-                <span>Single-cell / multi-omics analysis</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Layers size={15} className="text-cyan-500 flex-shrink-0" />
-                <span>Materials design &amp; simulation</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <FileText size={15} className="text-emerald-500 flex-shrink-0" />
-                <span>Scientific writing &amp; literature review</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Activity size={15} className="text-amber-500 flex-shrink-0" />
-                <span>Data analysis &amp; visualization</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-text-secondary">
-                <Bot size={15} className="text-accent flex-shrink-0" />
-                <span>Education &amp; research assistance</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-border/60 mt-4">
-            <button
-              onClick={() => setActiveSection('usecases')}
-              className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent hover:text-accent-hover"
-            >
-              <span>See more use cases</span>
-              <ArrowRight size={13} />
-            </button>
+            <p className="text-[11.5px] text-text-muted">EV Anchors &amp; Citations</p>
           </div>
         </div>
       </section>
 
-      {/* 5. SCIENTIFIC RESEARCH WORKFLOW (Section 9 in MD) */}
-      <section className="space-y-6">
+      {/* 5. QUICK START CODE SNIPPETS (Multi-Tab Installer) */}
+      <section className="space-y-4">
         <div className="text-left space-y-1">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-            Scientific Research Workflow
+            Installation &amp; Quick Start
           </h2>
           <p className="text-[14px] text-text-secondary">
-            From natural language inquiry to verified, reproducible scientific report.
+            Get started with JunScience CLI or Desktop in seconds.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-center">
-          {[
-            { step: '1. Ask', desc: 'Define scientific hypothesis', icon: Bot, color: 'text-blue-500' },
-            { step: '2. Plan', desc: 'Explicit To-Do task checklist', icon: CheckCircle2, color: 'text-cyan-500' },
-            { step: '3. Search', desc: 'Query 4-pillar data sources', icon: Search, color: 'text-purple-500' },
-            { step: '4. Verify', desc: 'Codex-style EvidenceVerifier', icon: ShieldCheck, color: 'text-emerald-500' },
-            { step: '5. Compute', desc: 'Python sandbox radiomics', icon: Terminal, color: 'text-amber-500' },
-            { step: '6. Critique', desc: 'PMID/NCT authenticity gate', icon: Activity, color: 'text-red-500' },
-            { step: '7. Report', desc: 'EV-xxx Traceability Index', icon: FileText, color: 'text-accent' },
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div key={idx} className="p-3.5 rounded-xl bg-bg-surface border border-border flex flex-col items-center space-y-2 shadow-2xs">
-                <div className={`p-2 rounded-lg bg-bg-elevated ${item.color}`}>
-                  <Icon size={16} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-bold text-text-primary block">{item.step}</span>
-                  <span className="text-[11px] text-text-muted leading-tight block mt-0.5">{item.desc}</span>
-                </div>
-              </div>
-            );
-          })}
+        <div className="rounded-xl border border-border bg-bg-surface overflow-hidden shadow-xs">
+          <div className="flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-border bg-bg-elevated/50 gap-2">
+            <div className="flex flex-wrap items-center gap-1 text-[12px]">
+              <button
+                onClick={() => setActiveCodeTab('cli-curl')}
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
+                  activeCodeTab === 'cli-curl' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                curl (macOS/Linux)
+              </button>
+              <button
+                onClick={() => setActiveCodeTab('cli-npm')}
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
+                  activeCodeTab === 'cli-npm' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                npm install -g
+              </button>
+              <button
+                onClick={() => setActiveCodeTab('cli-npx')}
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
+                  activeCodeTab === 'cli-npx' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                npx (Zero-Install)
+              </button>
+              <button
+                onClick={() => setActiveCodeTab('git')}
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
+                  activeCodeTab === 'git' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                Git Clone
+              </button>
+              <button
+                onClick={() => setActiveCodeTab('desktop')}
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
+                  activeCodeTab === 'desktop' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                Desktop App
+              </button>
+              <button
+                onClick={() => setActiveCodeTab('sdk')}
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
+                  activeCodeTab === 'sdk' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                TypeScript SDK
+              </button>
+            </div>
+
+            <button
+              onClick={handleCopyCode}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11.5px] font-medium text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
+            >
+              {copiedCode ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
+              <span>{copiedCode ? 'Copied' : 'Copy'}</span>
+            </button>
+          </div>
+
+          <pre className="p-4 text-[12.5px] font-mono text-text-primary overflow-x-auto bg-[#070A10] text-[#E2E8F0] leading-relaxed text-left">
+            <code>{codeSnippets[activeCodeTab]}</code>
+          </pre>
         </div>
       </section>
 
-      {/* 6. FOUR DATA PILLARS GRID */}
-      <section className="space-y-6">
-        <div className="text-left space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-            Authoritative Biomedical &amp; Scientific Data Pillars
-          </h2>
-          <p className="text-[14px] text-text-secondary">
-            Pure empirical connections to official databases and open research repositories.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Pillar 1 */}
-          <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2.5">
-            <div className="flex items-center gap-2 text-accent font-bold text-[14px]">
-              <Search size={16} />
-              <span>Literature &amp; Benchmarks</span>
-            </div>
-            <ul className="text-[12px] text-text-secondary space-y-1.5">
-              <li>• <strong>PubMed (NCBI)</strong>: 36M+ peer-reviewed papers</li>
-              <li>• <strong>arXiv &amp; bioRxiv</strong>: Preprints &amp; medical AI</li>
-              <li>• <strong>OpenAlex / CrossRef</strong>: Citation graph &amp; DOIs</li>
-              <li>• <strong>Papers With Code / HF Hub</strong>: SOTA code &amp; models</li>
-            </ul>
-          </div>
-
-          {/* Pillar 2 */}
-          <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2.5">
-            <div className="flex items-center gap-2 text-emerald-500 font-bold text-[14px]">
-              <Dna size={16} />
-              <span>Molecular &amp; Structure</span>
-            </div>
-            <ul className="text-[12px] text-text-secondary space-y-1.5">
-              <li>• <strong>UniProtKB</strong>: Swiss-Prot curated sequences</li>
-              <li>• <strong>RCSB PDB</strong>: Search v2 3D crystal structures</li>
-              <li>• <strong>AlphaFold DB</strong>: 3D structure predictions &amp; pLDDT</li>
-              <li>• <strong>InterPro</strong>: Domain topologies &amp; motifs</li>
-            </ul>
-          </div>
-
-          {/* Pillar 3 */}
-          <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2.5">
-            <div className="flex items-center gap-2 text-purple-500 font-bold text-[14px]">
-              <FlaskConical size={16} />
-              <span>Chemistry &amp; Pharmacology</span>
-            </div>
-            <ul className="text-[12px] text-text-secondary space-y-1.5">
-              <li>• <strong>ChEMBL</strong>: Bioactivities (IC50/Ki) &amp; SAR assays</li>
-              <li>• <strong>PubChem</strong>: PUG REST chemical structures</li>
-              <li>• <strong>RxNorm / RxNav</strong>: RxCUI, NLM Drug-Drug Interactions</li>
-              <li>• <strong>DailyMed</strong>: Official FDA package labels</li>
-            </ul>
-          </div>
-
-          {/* Pillar 4 */}
-          <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2.5">
-            <div className="flex items-center gap-2 text-cyan-500 font-bold text-[14px]">
-              <Activity size={16} />
-              <span>Clinical &amp; Multimodal AI</span>
-            </div>
-            <ul className="text-[12px] text-text-secondary space-y-1.5">
-              <li>• <strong>ClinicalTrials.gov v2</strong>: Study phases &amp; criteria</li>
-              <li>• <strong>openFDA</strong>: FAERS adverse events &amp; safety signals</li>
-              <li>• <strong>Local Radiomics</strong>: 3D CT/MRI feature extraction</li>
-              <li>• <strong>ClinicalDataGate</strong>: Patient privacy protection</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. REAL INTERFACE SHOWCASE (Real Screenshots Gallery) */}
+      {/* 6. REAL INTERFACE SHOWCASE (Real Screenshots Gallery) */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
           <div className="text-left space-y-1">
@@ -636,61 +657,6 @@ console.log(turn.agentResponse);`,
               </p>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* 8. QUICK START CODE SNIPPETS (Section 13 in MD) */}
-      <section className="space-y-4">
-        <div className="text-left space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-            Quick Start
-          </h2>
-          <p className="text-[14px] text-text-secondary">
-            Get started with JunScience in under two minutes.
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-border bg-bg-surface overflow-hidden shadow-xs">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-bg-elevated/50">
-            <div className="flex items-center gap-1.5 text-[12px]">
-              <button
-                onClick={() => setActiveCodeTab('cli')}
-                className={`px-3 py-1 rounded-md font-medium transition-all ${
-                  activeCodeTab === 'cli' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
-                }`}
-              >
-                CLI Agent
-              </button>
-              <button
-                onClick={() => setActiveCodeTab('desktop')}
-                className={`px-3 py-1 rounded-md font-medium transition-all ${
-                  activeCodeTab === 'desktop' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
-                }`}
-              >
-                Desktop App
-              </button>
-              <button
-                onClick={() => setActiveCodeTab('sdk')}
-                className={`px-3 py-1 rounded-md font-medium transition-all ${
-                  activeCodeTab === 'sdk' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
-                }`}
-              >
-                TypeScript Core SDK
-              </button>
-            </div>
-
-            <button
-              onClick={handleCopyCode}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11.5px] font-medium text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
-            >
-              {copiedCode ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-              <span>{copiedCode ? 'Copied' : 'Copy'}</span>
-            </button>
-          </div>
-
-          <pre className="p-4 text-[12.5px] font-mono text-text-primary overflow-x-auto bg-[#070A10] text-[#E2E8F0] leading-relaxed">
-            <code>{codeSnippets[activeCodeTab]}</code>
-          </pre>
         </div>
       </section>
     </div>

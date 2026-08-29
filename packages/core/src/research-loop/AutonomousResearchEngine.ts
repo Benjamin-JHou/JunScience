@@ -12,6 +12,8 @@ import { EvidenceVerifier, globalEvidenceVerifier } from './EvidenceVerifier.js'
 import { PlanTracker, globalPlanTracker } from './PlanTracker.js';
 import { SubagentTreeEngine, globalSubagentTreeEngine } from './SubagentTreeEngine.js';
 import { HypothesisNode } from './HypothesisTree.js';
+import { HookRegistry, globalHookRegistry } from '../hooks/HookRegistry.js';
+import { HookContext } from '../hooks/types.js';
 import { RuntimeSession, Turn, ToolCall, ToolResult, Artifact, Citation } from '../types/runtime.js';
 
 export interface AutonomousResearchEngineOptions {
@@ -27,6 +29,7 @@ export interface AutonomousResearchEngineOptions {
   evidenceVerifier?: EvidenceVerifier;
   planTracker?: PlanTracker;
   subagentTreeEngine?: SubagentTreeEngine;
+  hookRegistry?: HookRegistry;
 }
 
 export class AutonomousResearchEngine {
@@ -42,6 +45,7 @@ export class AutonomousResearchEngine {
   private evidenceVerifier: EvidenceVerifier;
   private planTracker: PlanTracker;
   private subagentTreeEngine: SubagentTreeEngine;
+  private hookRegistry: HookRegistry;
 
   constructor(options: AutonomousResearchEngineOptions) {
     this.maxTurns = options.maxTurns || 16;
@@ -56,6 +60,7 @@ export class AutonomousResearchEngine {
     this.evidenceVerifier = options.evidenceVerifier || globalEvidenceVerifier;
     this.planTracker = options.planTracker || globalPlanTracker;
     this.subagentTreeEngine = options.subagentTreeEngine || globalSubagentTreeEngine;
+    this.hookRegistry = options.hookRegistry || globalHookRegistry;
   }
 
   public setModelProvider(provider: ModelProvider): void {
@@ -76,6 +81,10 @@ export class AutonomousResearchEngine {
 
   public getSubagentTreeEngine(): SubagentTreeEngine {
     return this.subagentTreeEngine;
+  }
+
+  public getHookRegistry(): HookRegistry {
+    return this.hookRegistry;
   }
 
   /**
@@ -103,6 +112,21 @@ export class AutonomousResearchEngine {
     const sessionId = session.id;
     const turnIndex = session.turns.length + 1;
     const evidenceTracker = new EvidenceTracker();
+
+    const hookContext: HookContext = {
+      sessionId,
+      turnIndex,
+      agentId: session.activeAgent || 'research',
+      event: 'SessionStart',
+      timestamp: new Date().toISOString(),
+    };
+
+    // 0. Trigger SessionStart Hooks
+    await this.hookRegistry.triggerSessionStart(hookContext, {
+      session,
+      userInquiry,
+      skillRegistry: this.skillRegistry,
+    });
 
     // 1. Initialize Explicit Research Plan & To-Do Tracker
     let plan = this.planTracker.getPlan(sessionId);
@@ -240,6 +264,28 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           }
           this.planTracker.startTask(sessionId, activeTaskId);
 
+          // 1. Trigger PreToolUse Hooks (Secret Redaction, Clinical Data Gate)
+          const preHookRes = await this.hookRegistry.triggerPreToolUse(
+            { ...hookContext, event: 'PreToolUse' },
+            { toolName: call.name, toolArguments: call.arguments }
+          );
+
+          if (!preHookRes.proceed) {
+            this.planTracker.failTask(sessionId, activeTaskId, preHookRes.message || 'Blocked by PreToolUse security hook');
+            messages.push({
+              role: 'assistant',
+              content: `Called tool ${call.name}`,
+              toolCallId: call.id,
+            });
+            messages.push({
+              role: 'tool',
+              name: call.name,
+              content: preHookRes.message || 'Execution blocked by security hook.',
+              toolCallId: call.id,
+            });
+            continue;
+          }
+
           // Execute real tool
           const result = await this.toolRegistry.execute(
             call.name,
@@ -258,21 +304,30 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           };
           accumulatedToolResults.push(toolResult);
 
-          // 2. Pre-adoption Evidence Verification Gate (Codex-style)
-          const queryStr = call.arguments?.query || call.arguments?.accessionOrGene || call.arguments?.targetOrCompound || call.arguments?.compoundNameOrCID || call.arguments?.pdbIdOrUniProt || call.arguments?.scriptName || JSON.stringify(call.arguments);
-          const verification = this.evidenceVerifier.verify(
-            call.name,
-            result.execution?.category || 'databases',
-            String(queryStr),
-            result.output,
-            result.artifacts,
-            result.citations
+          // 2. Trigger PostToolUse Hooks (Evidence Verifier Gate)
+          const postHookRes = await this.hookRegistry.triggerPostToolUse(
+            { ...hookContext, event: 'PostToolUse' },
+            {
+              toolName: call.name,
+              toolArguments: call.arguments,
+              result: toolResult,
+              artifacts: result.artifacts,
+              citations: result.citations,
+            }
           );
 
-          let evId = '';
-          if (verification.verdict === 'REJECTED') {
+          const queryStr =
+            call.arguments?.query ||
+            call.arguments?.accessionOrGene ||
+            call.arguments?.targetOrCompound ||
+            call.arguments?.compoundNameOrCID ||
+            call.arguments?.pdbIdOrUniProt ||
+            call.arguments?.scriptName ||
+            JSON.stringify(call.arguments);
+
+          if (!postHookRes.proceed || postHookRes.verdict === 'REJECTED') {
             // Reject from evidence tracker, warn model
-            this.planTracker.failTask(sessionId, activeTaskId, verification.reasonSummary);
+            this.planTracker.failTask(sessionId, activeTaskId, postHookRes.message || 'Evidence verification failed');
             messages.push({
               role: 'assistant',
               content: `Called tool ${call.name}`,
@@ -281,7 +336,7 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
             messages.push({
               role: 'tool',
               name: call.name,
-              content: `[Evidence Verification REJECTED]: ${verification.reasonSummary}. ${verification.suggestedCorrection}`,
+              content: postHookRes.message || '[Evidence Verification REJECTED]',
               toolCallId: call.id,
             });
             continue;
@@ -295,9 +350,9 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
               result.output,
               result.citations,
               result.artifacts,
-              verification
+              postHookRes.evidenceVerification
             );
-            evId = recordedEv.id;
+            const evId = recordedEv.id;
             this.planTracker.completeTask(sessionId, activeTaskId, [evId], recordedEv.summary);
           }
 
@@ -327,7 +382,7 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
         continue;
       }
 
-      // If model generated final draft: Run Critique Gate
+      // If model generated final draft: Run Critique Gate & Stop Hooks
       if (response.finishReason === 'stop' || !response.toolCalls || response.toolCalls.length === 0) {
         this.planTracker.startTask(sessionId, 'task-5');
         const critique = await this.critiqueEngine.evaluate(userInquiry, evidenceTracker, finalContent);
@@ -340,6 +395,19 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           const planTable = this.planTracker.formatPlanChecklist(sessionId);
           const evidenceTable = evidenceTracker.formatTraceabilityTable();
           finalContent = `${finalContent}\n\n${planTable}\n\n${evidenceTable}`;
+
+          // Trigger Stop Hooks (Evidence Completeness Check)
+          await this.hookRegistry.triggerStop(
+            { ...hookContext, event: 'Stop' },
+            {
+              session,
+              turnIndex,
+              userInquiry,
+              finalContent,
+              evidenceTracker,
+              planTracker: this.planTracker,
+            }
+          );
           break;
         } else {
           critiqueFeedback = `[Critique Engine Feedback]: Your synthesis draft requires revision. Reasons: ${critique.issues.join('; ')}. Please call relevant tools to verify missing evidence or correct unverified claims before finishing.`;

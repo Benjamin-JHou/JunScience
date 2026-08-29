@@ -144,7 +144,7 @@ export class EvidenceVerifier {
 
   private checkNumericalBoundaries(outputStr: string, details: VerificationDetail[]): void {
     // 1. p-value check: must be strictly in [0.0, 1.0]
-    const pValueMatches = outputStr.matchAll(/(?:p[-_]value|p\s*[=:])\s*([-\d\.]+)/gi);
+    const pValueMatches = outputStr.matchAll(/(?:["']?(?:p[-_]?value|pValue)["']?|["']?p["']?\s*[=:])\s*[:=]?\s*([-\d\.]+)/gi);
     for (const match of pValueMatches) {
       const val = parseFloat(match[1]);
       if (!isNaN(val)) {
@@ -167,7 +167,7 @@ export class EvidenceVerifier {
     }
 
     // 2. IC50 / Ki / Kd / EC50 check: must be positive (> 0)
-    const ic50Matches = outputStr.matchAll(/(?:IC50|Ki|Kd|EC50)\s*[=:]\s*([-\d\.]+)\s*(nM|uM|mM|M)?/gi);
+    const ic50Matches = outputStr.matchAll(/(?:["']?(?:IC50|Ki|Kd|EC50)["']?)\s*[:=]\s*([-\d\.]+)\s*(nM|uM|mM|M)?/gi);
     for (const match of ic50Matches) {
       const val = parseFloat(match[1]);
       const unit = match[2] || '';
@@ -198,7 +198,7 @@ export class EvidenceVerifier {
     }
 
     // 3. AlphaFold pLDDT confidence check: [0.0, 100.0]
-    const plddtMatches = outputStr.matchAll(/(?:pLDDT|confidenceScore)\s*[=:]\s*([-\d\.]+)/gi);
+    const plddtMatches = outputStr.matchAll(/(?:["']?(?:pLDDT|confidenceScore)["']?)\s*[:=]\s*([-\d\.]+)/gi);
     for (const match of plddtMatches) {
       const val = parseFloat(match[1]);
       if (!isNaN(val)) {
@@ -209,28 +209,35 @@ export class EvidenceVerifier {
             severity: 'error',
             message: `Invalid pLDDT score ${val}: AlphaFold confidence must be within [0, 100].`,
           });
+        } else {
+          details.push({
+            rule: 'bounds.plddt_score',
+            passed: true,
+            severity: 'info',
+            message: `pLDDT score ${val} is valid.`,
+          });
         }
       }
     }
 
-    // 4. CT Radiomics Hounsfield Units (HU) check: [-1024, 3071]
-    const huMatches = outputStr.matchAll(/(?:MeanHU|meanHounsfield|Hounsfield)\s*[=:]\s*([-\d\.]+)/gi);
+    // 4. CT Radiomics Hounsfield Units (HU): [-1024, +3071]
+    const huMatches = outputStr.matchAll(/(?:["']?(?:HU|hounsfield(?:_unit)?)["']?)\s*[:=]\s*([-\d\.]+)/gi);
     for (const match of huMatches) {
       const val = parseFloat(match[1]);
       if (!isNaN(val)) {
-        if (val < -1024.0 || val > 3071.0) {
+        if (val < -1024 || val > 3071) {
           details.push({
-            rule: 'bounds.hounsfield_units',
+            rule: 'bounds.hounsfield_unit',
             passed: false,
-            severity: 'warning',
-            message: `Hounsfield Unit ${val} HU falls outside standard clinical CT calibration bounds [-1024, +3071].`,
+            severity: 'error',
+            message: `Hounsfield Unit ${val} HU out of physical bounds [-1024, 3071].`,
           });
         } else {
           details.push({
-            rule: 'bounds.hounsfield_units',
+            rule: 'bounds.hounsfield_unit',
             passed: true,
             severity: 'info',
-            message: `Hounsfield Unit ${val} HU is within anatomical CT density limits.`,
+            message: `Hounsfield Unit ${val} HU is physically valid for medical CT.`,
           });
         }
       }

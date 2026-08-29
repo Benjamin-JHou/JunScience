@@ -42,4 +42,5 @@ export * from './mcp/McpTypes.js';
 export * from './mcp/McpServerBridge.js';
 export * from './mcp/McpClientManager.js';
 export * from './privacy/ClinicalDataGate.js';
+export * from './hooks/index.js';
 export * from './utils/httpClient.js';

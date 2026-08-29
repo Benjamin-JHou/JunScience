@@ -1,5 +1,6 @@
 import { handleConfigCommand } from './commands/config.js';
 import { handleResearchCommand } from './commands/research.js';
+import { handleHooksCommand } from './commands/hooks.js';
 import { startInteractiveRepl } from './ui/repl.js';
 
 export async function main() {
@@ -15,6 +16,11 @@ export async function main() {
   switch (command) {
     case 'config':
       await handleConfigCommand(args.slice(1));
+      break;
+
+    case 'hooks':
+    case 'hook':
+      await handleHooksCommand(args.slice(1));
       break;
 
     case 'research':

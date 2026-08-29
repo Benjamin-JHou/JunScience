@@ -4,14 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'index.html'
-      - 'vite.config.ts'
-      - 'tailwind.config.js'
-      - 'package.json'
-      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -42,8 +34,10 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
-      - name: Build GitHub Pages static site
-        run: npx vite build
+      - name: Build packages and static site
+        run: |
+          npm run build:core
+          npx vite build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
