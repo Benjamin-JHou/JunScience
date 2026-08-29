@@ -9,6 +9,7 @@ import { ChEMBLTool } from './databases/ChEMBLTool.js';
 import { PubChemTool } from './databases/PubChemTool.js';
 import { PDBTool } from './databases/PDBTool.js';
 import { PythonRunnerTool } from './execution/PythonRunnerTool.js';
+import { FileEditorTool } from './execution/FileEditorTool.js';
 import { DataAnalysisTool } from './execution/DataAnalysisTool.js';
 import { FigureGeneratorTool } from './artifacts/FigureGeneratorTool.js';
 import { ClinicalTrialsTool } from './medical/ClinicalTrialsTool.js';
@@ -30,6 +31,7 @@ export function initializeDefaultTools(): void {
   globalToolRegistry.register(PubChemTool);
   globalToolRegistry.register(PDBTool);
   globalToolRegistry.register(PythonRunnerTool);
+  globalToolRegistry.register(FileEditorTool);
   globalToolRegistry.register(DataAnalysisTool);
   globalToolRegistry.register(FigureGeneratorTool);
   globalToolRegistry.register(ClinicalTrialsTool);
@@ -56,6 +58,7 @@ export {
   PubChemTool,
   PDBTool,
   PythonRunnerTool,
+  FileEditorTool,
   DataAnalysisTool,
   FigureGeneratorTool,
   ClinicalTrialsTool,

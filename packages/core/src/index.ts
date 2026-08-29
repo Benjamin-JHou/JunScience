@@ -26,6 +26,7 @@ export * from './core/AgentLoop.js';
 export * from './agents/BaseAgent.js';
 export * from './agents/AgentRegistry.js';
 export * from './skills/SkillRegistry.js';
+export * from './skills/SkillInstaller.js';
 export * from './tools/ToolRegistry.js';
 export * from './tools/index.js';
 export * from './sandbox/PermissionManager.js';
