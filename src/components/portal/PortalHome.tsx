@@ -535,8 +535,8 @@ console.log(turn.agentResponse);`,
             </button>
           </div>
 
-          <pre className="p-4 text-[12.5px] font-mono text-text-primary overflow-x-auto bg-[#070A10] text-[#E2E8F0] leading-relaxed text-left">
-            <code>{codeSnippets[activeCodeTab]}</code>
+          <pre className="p-4 text-[12.5px] font-mono overflow-x-auto bg-[#070A10] text-[#E2E8F0] leading-relaxed text-left">
+            <code className="text-[#E2E8F0]">{codeSnippets[activeCodeTab]}</code>
           </pre>
         </div>
       </section>
