@@ -45,7 +45,7 @@ const navItems: NavItemConfig[] = [
   { id: 'skills', label: 'Agent Skills', icon: Cpu },
   { id: 'usecases', label: 'Use Cases', icon: CheckCircle2 },
   { id: 'contributing', label: 'Contributing', icon: GitPullRequest },
-  { id: 'changelog', label: 'Changelog', icon: History, badge: 'v0.1.0' },
+  { id: 'changelog', label: 'Changelog', icon: History, badge: 'v1.1.0' },
 ];
 
 export const PortalSidebar: React.FC = () => {

@@ -403,46 +403,59 @@ junscience research "Extract FAERS adverse event signals for GLP-1 agonists" --e
           <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
             {/* 1. Desktop App (First) */}
             <div>
-              <h2 className="text-xl font-bold text-text-primary">1. Download Desktop App</h2>
+              <h2 className="text-xl font-bold text-text-primary">1. Download Desktop App (v1.1.0)</h2>
               <p className="text-[13px] text-text-muted mt-1">
-                Official prebuilt binaries with native research GUI, real-time Plan &amp; To-Do tracker, and interactive visual canvases:
+                Official native scientific workstations with integrated multi-agent tree engine, real-time Plan &amp; To-Do tracker, and interactive evidence cards:
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-3">
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0-arm64.dmg"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
                 >
                   <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">macOS (.dmg)</span>
-                    <span className="text-[11px] text-text-muted">Apple Silicon &amp; Intel</span>
+                    <span className="font-bold text-[13.5px] text-text-primary block">macOS Apple Silicon</span>
+                    <span className="text-[11px] text-text-muted">M1/M2/M3/M4 (.dmg, 93.2 MB)</span>
                   </div>
                   <Download size={16} className="text-text-muted group-hover:text-accent" />
                 </a>
 
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0.dmg"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
                 >
                   <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">Windows (.exe)</span>
-                    <span className="text-[11px] text-text-muted">NSIS Installer &amp; Portable</span>
+                    <span className="font-bold text-[13.5px] text-text-primary block">macOS Intel</span>
+                    <span className="text-[11px] text-text-muted">x86_64 (.dmg, 98.0 MB)</span>
                   </div>
                   <Download size={16} className="text-text-muted group-hover:text-accent" />
                 </a>
 
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.Setup.1.1.0.exe"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
                 >
                   <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">Linux (.AppImage)</span>
-                    <span className="text-[11px] text-text-muted">Ubuntu / Debian / Fedora</span>
+                    <span className="font-bold text-[13.5px] text-text-primary block">Windows Setup</span>
+                    <span className="text-[11px] text-text-muted">NSIS Installer (73.9 MB)</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.1.1.0.exe"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">Windows Portable</span>
+                    <span className="text-[11px] text-text-muted">Standalone (.exe, 73.7 MB)</span>
                   </div>
                   <Download size={16} className="text-text-muted group-hover:text-accent" />
                 </a>
@@ -766,43 +779,165 @@ const { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParal
       {section === 'skills' && (
         <article className="space-y-6">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Built-In Scientific Skills</h1>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Scientific Skills &amp; SOP Library (19 Total)</h1>
             <p className="text-[15px] text-text-secondary">
-              Standard Operating Procedures (SOPs) packaged as executable skill definitions.
+              Standard Operating Procedures (SOPs) packaged as domain-specific skills with sandboxed execution scripts and empirical evidence verification.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-accent font-bold">Bundled Skill</span>
-              <h3 className="font-bold text-[15px] text-text-primary">Pathway Enrichment Skill</h3>
-              <p className="text-[12px] text-text-muted">
-                Executes hypergeometric pathway enrichment tests across KEGG and Reactome datasets.
-              </p>
+          {/* Skill Management CLI */}
+          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20 space-y-2">
+            <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
+              <Cpu size={16} className="text-accent" />
+              <span>Skill Security Installer (OpenScience-Compatible)</span>
+            </h3>
+            <p className="text-[13px] text-text-secondary">
+              Install verified third-party scientific skills with pre-adoption static security auditing (RCE, path traversal, and gate tampering detection):
+            </p>
+            {renderCodeBlock(
+              `# List all 19 bundled core skills and user-installed skills
+junscience skill list
+
+# Install third-party skill from Git or local directory with security check
+junscience skill install https://github.com/OpenScience/custom-crispr-screening.git
+
+# Remove user-installed skill
+junscience skill remove custom-crispr-screening`,
+              'bash',
+              'skill-cli'
+            )}
+          </div>
+
+          {/* 6 Categories Grid */}
+          <div className="space-y-6 pt-2">
+            {/* Category 1 */}
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
+                <span>🧬 1. Molecular &amp; Structural Biology</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">sequence-alignment</h3>
+                  <p className="text-[12px] text-text-muted">Pairwise &amp; multiple sequence alignment with conserved catalytic/allosteric motif scoring (e.g. TYK2 vs JAK1 JH2 pocket).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">structure-superposition</h3>
+                  <p className="text-[12px] text-text-muted">Kabsch 3D coordinate superposition and C-alpha RMSD calculation across PDB crystal structures (PDB 8Q4O).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">protein-domain-architect</h3>
+                  <p className="text-[12px] text-text-muted">Deconstructs multidomain protein topological architecture and active site residue annotations from Swiss-Prot.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">pathway-enrichment</h3>
+                  <p className="text-[12px] text-text-muted">Hypergeometric over-representation and FDR-adjusted pathway enrichment across KEGG and Reactome datasets.</p>
+                </div>
+              </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-500 font-bold">Bundled Skill</span>
-              <h3 className="font-bold text-[15px] text-text-primary">Bibliometric Analysis Skill</h3>
-              <p className="text-[12px] text-text-muted">
-                Performs co-citation clustering, year-by-year publication velocity, and key author analysis.
-              </p>
+            {/* Category 2 */}
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
+                <span>🧪 2. Cheminformatics</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">admet-prediction</h3>
+                  <p className="text-[12px] text-text-muted">Lipinski Rule of 5, Veber bioavailability rules, TPSA, and QED drug-likeness scoring.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">chemical-similarity-search</h3>
+                  <p className="text-[12px] text-text-muted">Morgan / ECFP4 fingerprint hashing and Tanimoto similarity distance matrix calculation.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">sar-pharmacophore-mapping</h3>
+                  <p className="text-[12px] text-text-muted">Correlates chemical substituent modifications with bioactivity and identifies activity cliffs.</p>
+                </div>
+              </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-purple-500/10 text-purple-500 font-bold">Bundled Skill</span>
-              <h3 className="font-bold text-[15px] text-text-primary">SAR Pharmacophore Mapping Skill</h3>
-              <p className="text-[12px] text-text-muted">
-                Extracts Substructure-Activity Relationships and plots IC50 distribution histograms.
-              </p>
+            {/* Category 3 */}
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
+                <span>📊 3. Statistics &amp; Bioinformatics</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">differential-expression-analysis</h3>
+                  <p className="text-[12px] text-text-muted">Two-group bulk/single-cell RNA-seq differential gene expression with volcano plot thresholds (MASLD hepatic transcriptome).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">survival-analysis</h3>
+                  <p className="text-[12px] text-text-muted">Non-parametric Kaplan-Meier survival curves, Log-Rank hypothesis testing, and hazard ratios.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">meta-analysis-forest-plot</h3>
+                  <p className="text-[12px] text-text-muted">Fixed and random-effects clinical trial meta-analysis with Cochran Q and I² heterogeneity statistics.</p>
+                </div>
+              </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-500 font-bold">Bundled Skill</span>
-              <h3 className="font-bold text-[15px] text-text-primary">Protein Domain Architect Skill</h3>
-              <p className="text-[12px] text-text-muted">
-                Resolves full-length domain boundaries, pseudokinase vs catalytic topologies from UniProt &amp; InterPro.
-              </p>
+            {/* Category 4 */}
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
+                <span>🏥 4. Clinical &amp; Pharmacovigilance</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">adverse-event-signal-detection</h3>
+                  <p className="text-[12px] text-text-muted">openFDA FAERS reporting disproportionality (ROR / PRR) with 95% confidence intervals.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">clinical-trial-eligibility-matching</h3>
+                  <p className="text-[12px] text-text-muted">Matches patient clinical parameters against ClinicalTrials.gov Protocol Section criteria (e.g. MAESTRO-NASH NCT03900429).</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Category 5 */}
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
+                <span>📚 5. Literature &amp; Systematic Review</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">systematic-review-prisma</h3>
+                  <p className="text-[12px] text-text-muted">PRISMA 2020 4-phase systematic review flow tracking: Identification, Deduplication, Screening, and Inclusion.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">citation-network-mapping</h3>
+                  <p className="text-[12px] text-text-muted">Directed citation/co-citation graphs and in-degree hub authority identification.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">bibliometric-analysis</h3>
+                  <p className="text-[12px] text-text-muted">Publication velocity trends, journal impact distributions, and collaborative author clusters.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Category 6 */}
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
+                <span>🔬 6. Imaging, Writing &amp; Reproducibility</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">radiomics-feature-extraction</h3>
+                  <p className="text-[12px] text-text-muted">Quantitative abdominal CT hepatic attenuation (HU) and GLCM texture features.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">manuscript-formatting</h3>
+                  <p className="text-[12px] text-text-muted">Structures trial results into publication-ready manuscripts (e.g. Journal of Hepatology).</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">figure-generation</h3>
+                  <p className="text-[12px] text-text-muted">300 DPI publication-grade vector graphics with Okabe-Ito colorblind palettes.</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
+                  <h3 className="font-bold text-[14px] text-text-primary">reproducibility-packaging</h3>
+                  <p className="text-[12px] text-text-muted">Deterministic reproducibility bundles with SHA-256 digests and environment manifests.</p>
+                </div>
+              </div>
             </div>
           </div>
         </article>
@@ -844,26 +979,44 @@ npm test`,
       {section === 'changelog' && (
         <article className="space-y-6">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Changelog &amp; Roadmap</h1>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Changelog &amp; Releases</h1>
             <p className="text-[15px] text-text-secondary">
               Official releases, verifiable improvements, and roadmap milestones.
             </p>
           </div>
 
           <div className="space-y-6 text-[14px]">
+            {/* Release v1.1.0 */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-accent/30 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-accent text-white">v1.1.0</span>
+                  <span className="font-bold text-[15px] text-text-primary">Expanded Scientific Skills &amp; Security Guardrail Release</span>
+                </div>
+                <span className="text-[12px] text-text-muted font-mono">August 2026</span>
+              </div>
+              <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
+                <li><strong>Confined Workspace File Editor (<code>FileEditorTool</code>)</strong>: Dedicated workspace text editor with view, str_replace, line insertion, and append with zero host escape.</li>
+                <li><strong>Skill Security Installer (<code>SkillInstaller</code>)</strong>: Automated static security audit against RCE, path traversal, hook bypass, and token snooping with capability cards.</li>
+                <li><strong>19 Domain-Specific Scientific Skills</strong>: Expanded from 4 to 19 skills across Molecular Biology, Cheminformatics, Statistics, Clinical, Literature, and Imaging with 100% real-data verification.</li>
+                <li><strong>Formal Lifecycle Guardrail Hooks (<code>HookRegistry</code>)</strong>: PreToolUse secret redaction, EvidenceVerifier gate, ClinicalDataGate, and evidence completeness checking.</li>
+                <li><strong>Subagent Hypothesis Tree &amp; Explicit Plan Tracker</strong>: Parallel hypothesis exploration with empirical confidence differentiation and 5-stage milestone tracking.</li>
+                <li><strong>Real-World Clinical Grounding</strong>: Direct integration with ClinicalTrials.gov v2 (MAESTRO-NASH NCT03900429), openFDA FAERS, RxNorm, and DailyMed.</li>
+              </ul>
+            </div>
+
+            {/* Release v0.1.0 */}
             <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
               <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-emerald-500 text-white">v0.1.0</span>
-                  <span className="font-bold text-[15px] text-text-primary">JunScience Initial Scientific Release</span>
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-slate-500 text-white">v0.1.0</span>
+                  <span className="font-bold text-[15px] text-text-primary">JunScience Initial Architecture Release</span>
                 </div>
                 <span className="text-[12px] text-text-muted font-mono">August 2026</span>
               </div>
               <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
                 <li><strong>Interactive CLI Agent with Dual-Mode Execution</strong>: Interactive REPL with <code>/model</code>, <code>/plan</code>, <code>/act</code>, <code>/cost</code>, and streaming tool progress.</li>
-                <li><strong>Codex-Style EvidenceVerifier Gate</strong>: Sanity bounds, numerical limits (p ∈ [0,1], IC50 &gt; 0, HU ∈ [-1024,3071]) and anomaly prevention.</li>
-                <li><strong>DeepSeek Harness Subagent Tree</strong>: Parallel hypothesis forking across competing targets/mechanisms with consolidated comparison matrix.</li>
-                <li><strong>4 Authoritative Biomedical Data Pillars</strong>: PubMed, arXiv, UniProtKB, RCSB PDB, ChEMBL, PubChem, ClinicalTrials.gov v2, openFDA, RxNorm, DailyMed.</li>
+                <li><strong>EvidenceVerifier Gate</strong>: Sanity bounds, numerical limits (p ∈ [0,1], IC50 &gt; 0, HU ∈ [-1024,3071]) and anomaly prevention.</li>
                 <li><strong>Cross-Platform OS Sandboxes</strong>: macOS Seatbelt, Linux Bubblewrap, Windows Low-Integrity verified on GitHub Actions CI.</li>
               </ul>
             </div>

@@ -100,7 +100,7 @@ console.log(turn.agentResponse);`,
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent text-[12px] font-medium">
               <Sparkles size={14} />
-              <span>Evidence-First AI Agent Workstation</span>
+              <span>v1.1.0 Released — Evidence-First Scientific Agent Workstation</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-text-primary leading-[1.15]">
               <span className="text-text-primary">JunScience</span>
@@ -112,8 +112,8 @@ console.log(turn.agentResponse);`,
             </h1>
             <p className="text-[14.5px] sm:text-[16px] text-text-secondary leading-relaxed pt-1">
               JunScience is an open-source AI agent framework for scientific research.
-              It explores literature, queries biological databases, executes Python workflows,
-              and generates reproducible research artifacts with full evidence traceability.
+              It features 19 domain skills, 4 non-bypassable guardrail hooks, a confined workspace file editor,
+              and cryptographic evidence verification for reproducible scientific discoveries.
             </p>
           </div>
 
@@ -149,7 +149,7 @@ console.log(turn.agentResponse);`,
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold text-[13.5px] shadow-sm transition-all active:scale-98"
             >
               <Download size={16} />
-              <span>Download Desktop App</span>
+              <span>Download Desktop App v1.1.0</span>
             </button>
             <button
               onClick={() => setActiveSection('cli')}
@@ -184,9 +184,9 @@ console.log(turn.agentResponse);`,
             <Bot size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">AI-Powered Agents</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">Subagent Hypothesis Tree</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              Plan Mode &amp; Act Mode orchestration with multi-hypothesis exploration.
+              Parallel competing hypothesis branches with empirical multi-factor confidence scoring.
             </p>
           </div>
         </div>
@@ -196,9 +196,9 @@ console.log(turn.agentResponse);`,
             <Wrench size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">Scientific Tools</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">19 Scientific Skills & Tools</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              PubMed, UniProt, ChEMBL, PDB, and sandboxed Python data compute.
+              From SAR mapping and MASLD RNA-seq to FAERS disproportionality and PRISMA reviews.
             </p>
           </div>
         </div>
@@ -208,9 +208,9 @@ console.log(turn.agentResponse);`,
             <Layers size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">Reproducible Research</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">Formal Guardrail Hooks</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              Immutable EV-xxx evidence anchors, provenance logs, and critique gating.
+              PreToolUse secret redaction, EvidenceVerifier gate, ClinicalDataGate, and provenance check.
             </p>
           </div>
         </div>
@@ -220,9 +220,9 @@ console.log(turn.agentResponse);`,
             <Users size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">Open Source</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">Confined Workspace Editor</h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              MIT License. Built for researchers, bioinformaticians, and developers.
+              In-workspace text &amp; script modification with zero host escape for iterative research.
             </p>
           </div>
         </div>
@@ -240,7 +240,7 @@ console.log(turn.agentResponse);`,
               Powerful Terminal Agent. Fast, Hypothesis-Driven Discovery.
             </h2>
             <p className="text-[14px] text-text-secondary">
-              Seamlessly switch between deliberative <strong>Plan Mode</strong> and autonomous <strong>Act Mode</strong>, configure models with <code>/model</code>, and track scientific evidence in real time.
+              Seamlessly switch between deliberative <strong>Plan Mode</strong> and autonomous <strong>Act Mode</strong>, inspect guardrails with <code>junscience hooks list</code>, manage skills, and track evidence.
             </p>
           </div>
 
@@ -278,7 +278,7 @@ console.log(turn.agentResponse);`,
                     /plan Mode
                   </div>
                   <p className="text-[11px] text-text-secondary mt-1">
-                    Structured planning, literature review, and hypothesis formulation without tool side effects.
+                    Structured 5-stage planning, literature synthesis, and hypothesis tree formulation.
                   </p>
                 </button>
 
@@ -295,7 +295,7 @@ console.log(turn.agentResponse);`,
                     /act Mode
                   </div>
                   <p className="text-[11px] text-text-secondary mt-1">
-                    Autonomous tool execution (PubMed, UniProt, ChEMBL, Python) &amp; artifact generation.
+                    Autonomous tool execution (PubMed, UniProt, ChEMBL, FileEditor) &amp; artifact generation.
                   </p>
                 </button>
               </div>
@@ -305,28 +305,28 @@ console.log(turn.agentResponse);`,
             <div className="p-4 rounded-xl border border-border bg-bg-surface space-y-2.5 text-[12.5px]">
               <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
                 <Code2 size={16} className="text-accent" />
-                <span>Essential Slash Commands</span>
+                <span>Essential CLI &amp; REPL Commands</span>
               </h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
-                  <span className="text-accent font-bold">/model</span>
-                  <span className="text-text-secondary">Switch LLM or configure API key</span>
+                  <span className="text-accent font-bold">junscience hooks list</span>
+                  <span className="text-text-secondary">Inspect active guardrail hooks</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
+                  <span className="text-emerald-500 font-bold">junscience skill install</span>
+                  <span className="text-text-secondary">Securely install third-party skill</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-purple-500 font-bold">/plan | /act</span>
                   <span className="text-text-secondary">Toggle Planning vs Execution mode</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
-                  <span className="text-emerald-500 font-bold">/tools</span>
-                  <span className="text-text-secondary">List registered scientific database tools</span>
-                </div>
-                <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
-                  <span className="text-amber-500 font-bold">/cost | /tokens</span>
-                  <span className="text-text-secondary">Track session token usage &amp; API costs</span>
+                  <span className="text-amber-500 font-bold">/model</span>
+                  <span className="text-text-secondary">Switch LLM or configure API key</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-cyan-500 font-bold">/compact</span>
-                  <span className="text-text-secondary">Compress context memory with EV anchors</span>
+                  <span className="text-text-secondary">Compress context with EV anchors</span>
                 </div>
               </div>
             </div>
@@ -344,7 +344,7 @@ console.log(turn.agentResponse);`,
                 </div>
                 <span className="text-slate-300 ml-2 font-semibold">junscience — interactive scientific repl</span>
               </div>
-              <span className="text-slate-500 font-mono">v1.0.0</span>
+              <span className="text-slate-500 font-mono">v1.1.0</span>
             </div>
 
             {/* Terminal Body */}
@@ -366,7 +366,7 @@ console.log(turn.agentResponse);`,
                     <div className="font-bold text-purple-300">📋 Proposed 5-Stage Scientific Research Plan:</div>
                     <div>1. Query UniProt (P29597) for JH2 pseudokinase domain vs JH1 catalytic domain</div>
                     <div>2. Retrieve ChEMBL IC50 / Kd values for allosteric inhibitors (Deucravacitinib)</div>
-                    <div>3. Cross-reference RCSB PDB structure 6NZP (JH2 complex) with JAK1/2/3 selectivity</div>
+                    <div>3. Cross-reference RCSB PDB structure 8Q4O (JH2 complex) with JAK1/2/3 selectivity</div>
                     <div>4. Run Python PythonRunnerTool for sub-nanomolar selectivity fold ratio computation</div>
                     <div>5. Verify mathematical anomalies via EvidenceVerifier &amp; anchor EV-001..EV-004</div>
                   </div>
@@ -413,7 +413,7 @@ console.log(turn.agentResponse);`,
             Architecture
           </h2>
           <p className="text-[14px] text-text-secondary">
-            JunScience is built on a modular, extensible architecture with multiple agent harnesses.
+            JunScience is built on a hardened, formal agent framework with non-bypassable security hooks and cross-platform isolation.
           </p>
         </div>
 
@@ -432,7 +432,7 @@ console.log(turn.agentResponse);`,
               <Cpu size={15} />
               <span>JunScience Core</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">Plan Mode / To-Do Tracker / Memory</p>
+            <p className="text-[11.5px] text-text-muted">Plan Tracker &amp; Hooks Registry</p>
           </div>
 
           <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-900/50 bg-purple-50/40 dark:bg-purple-950/20 text-center space-y-1.5 shadow-2xs">
@@ -440,15 +440,15 @@ console.log(turn.agentResponse);`,
               <Bot size={15} />
               <span>Agent Harness</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">DeepSeek Subagent Tree</p>
+            <p className="text-[11.5px] text-text-muted">Subagent Hypothesis Tree</p>
           </div>
 
           <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 text-center space-y-1.5 shadow-2xs">
             <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-[13px]">
               <Wrench size={15} />
-              <span>Scientific Tools</span>
+              <span>Scientific Tools &amp; Editor</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">PubMed / UniProt / ChEMBL / PDB</p>
+            <p className="text-[11.5px] text-text-muted">19 Skills / FileEditor / Sandbox</p>
           </div>
 
           <div className="p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 dark:bg-cyan-950/20 text-center space-y-1.5 shadow-2xs">
@@ -456,7 +456,7 @@ console.log(turn.agentResponse);`,
               <FileText size={15} />
               <span>Verified Results</span>
             </div>
-            <p className="text-[11.5px] text-text-muted">EV Anchors &amp; Citations</p>
+            <p className="text-[11.5px] text-text-muted">EV-xxx Provenance &amp; Gates</p>
           </div>
         </div>
       </section>
