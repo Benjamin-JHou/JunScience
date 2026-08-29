@@ -5,16 +5,17 @@ import {
 } from '../src/index.js';
 
 async function testSubagentTree() {
-  console.log('=== Running DeepSeek Harness-Style Subagent Tree Verification Suite ===\n');
+  console.log('=== Running Subagent Tree Multi-Hypothesis Confidence Differentiation Suite ===\n');
 
   const engine = new SubagentTreeEngine();
   const parentTracker = new EvidenceTracker();
 
+  // 3 Hypotheses with strictly distinct empirical evidence profiles:
   const hypotheses: HypothesisNode[] = [
     {
       id: 'hyp-1',
-      title: 'TYK2 Allosteric Pseudokinase Target Profiling',
-      statement: 'Deucravacitinib selectively targets the JH2 pseudokinase domain of TYK2 over other JAK family members.',
+      title: 'TYK2 Allosteric Pseudokinase Nanomolar Potency',
+      statement: 'Deucravacitinib demonstrates high-affinity sub-50 nM allosteric binding to TYK2 JH2 domain.',
       targetEntity: 'TYK2',
       status: 'pending',
       confidenceScore: 0.0,
@@ -22,8 +23,8 @@ async function testSubagentTree() {
     },
     {
       id: 'hyp-2',
-      title: 'JAK1 Catalytic Pocket Off-Target Risk',
-      statement: 'JAK1 possesses high active-site sequence conservation with potential orthosteric cross-reactivity.',
+      title: 'JAK1 Catalytic Pocket Off-Target Cross-Reactivity',
+      statement: 'JAK1 exhibits partial sequence conservation but lacks high-affinity allosteric pocket binding.',
       targetEntity: 'JAK1',
       status: 'pending',
       confidenceScore: 0.0,
@@ -31,16 +32,16 @@ async function testSubagentTree() {
     },
     {
       id: 'hyp-3',
-      title: 'JAK2 Hematopoietic Toxicity Profiling',
-      statement: 'Lack of JAK2 JH2 pseudokinase binding protects against erythropoietin signaling inhibition and cytopenia.',
-      targetEntity: 'JAK2',
+      title: 'EGFR Unrelated Kinase Direct Inhibition (Negative Control)',
+      statement: 'Deucravacitinib acts as a direct nanomolar catalytic pocket inhibitor of EGFR kinase.',
+      targetEntity: 'EGFR_Unrelated_Negative_Control',
       status: 'pending',
       confidenceScore: 0.0,
       evidenceIds: [],
     },
   ];
 
-  console.log(`[Phase 1: Forking Subagent Tree with ${hypotheses.length} Parallel Hypothesis Branches]`);
+  console.log(`[Phase 1: Forking Subagent Tree with ${hypotheses.length} Distinct Parallel Hypothesis Branches]`);
 
   const { hypothesisTree, branchResults, comparisonMatrix } = await engine.exploreHypothesesParallel(
     `sub-test-${Date.now()}`,
@@ -63,11 +64,28 @@ async function testSubagentTree() {
   }
 
   const tyk2Node = hypothesisTree.getHypothesis('hyp-1');
-  if (!tyk2Node || tyk2Node.status !== 'supported' || tyk2Node.evidenceIds.length === 0) {
-    throw new Error('Subagent Tree TYK2 branch hypothesis evaluation failed');
+  const jak1Node = hypothesisTree.getHypothesis('hyp-2');
+  const egfrNode = hypothesisTree.getHypothesis('hyp-3');
+
+  console.log('\n[Phase 4: Statistical Differentiation Verification]');
+  console.log(`  • HYP-1 (TYK2): Status = ${tyk2Node?.status}, Confidence = ${(Number(tyk2Node?.confidenceScore) * 100).toFixed(0)}%`);
+  console.log(`  • HYP-2 (JAK1): Status = ${jak1Node?.status}, Confidence = ${(Number(jak1Node?.confidenceScore) * 100).toFixed(0)}%`);
+  console.log(`  • HYP-3 (EGFR Negative Control): Status = ${egfrNode?.status}, Confidence = ${(Number(egfrNode?.confidenceScore) * 100).toFixed(0)}%`);
+
+  // Verify non-identical confidences and proper status classifications
+  if (!tyk2Node || tyk2Node.status !== 'supported' || tyk2Node.confidenceScore < 0.70) {
+    throw new Error(`HYP-1 expected supported (>=70%), got ${tyk2Node?.status} with ${tyk2Node?.confidenceScore}`);
   }
 
-  console.log('✔ ALL SUBAGENT TREE & HYPOTHESIS FORKING TESTS PASSED (100% SUCCESS)\n');
+  if (!jak1Node || (jak1Node.status !== 'inconclusive' && jak1Node.status !== 'supported') || jak1Node.confidenceScore >= tyk2Node.confidenceScore) {
+    throw new Error(`HYP-2 confidence (${jak1Node?.confidenceScore}) should be lower than HYP-1 (${tyk2Node.confidenceScore})`);
+  }
+
+  if (!egfrNode || egfrNode.status !== 'refuted' || egfrNode.confidenceScore > 0.30) {
+    throw new Error(`HYP-3 expected refuted (<=30%), got ${egfrNode?.status} with ${egfrNode?.confidenceScore}`);
+  }
+
+  console.log('\n✔ ALL SUBAGENT TREE CONFIDENCE DIFFERENTIATION TESTS PASSED (100% SUCCESS)\n');
 }
 
 testSubagentTree().catch((err) => {
