@@ -1,7 +1,51 @@
 /* JunScience Design Token System */
 
-:root {
-  /* Default Desktop Dark */
+:root,
+[data-theme="light"] {
+  /* Default Clean Academic Light Theme (Matching OmicVerse & Scientific Portal specs) */
+  --bg-primary: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-hover: #E2E8F0;
+  
+  --border-color: #E2E8F0;
+  --border-subtle: #EDF2F7;
+  --border-focus: #2563EB;
+  
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  
+  --accent-color: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --accent-secondary: #0284C7;
+  --accent-glow: rgba(37, 99, 235, 0.2);
+  
+  --status-success: #16A34A;
+  --status-warning: #D97706;
+  --status-error: #DC2626;
+  
+  --code-bg: #070A10;
+  
+  /* Shared CLI Tokens default (Green) */
+  --term-bg: #020603;
+  --term-window-bar: #0B140D;
+  --term-surface: #050E07;
+  --term-border: #14532D;
+  --term-border-box: #166534;
+  --term-text: #4ADE80;
+  --term-text-dim: #22C55E;
+  --term-muted: #15803D;
+  --term-accent: #22C55E;
+  --term-accent-bright: #86EFAC;
+  --term-cursor: #22C55E;
+  --term-glow: rgba(34, 197, 94, 0.25);
+}
+
+/* Desktop Dark Theme */
+[data-theme="dark"],
+html.dark {
   --bg-primary: #090D16;
   --bg-surface: #0E1524;
   --bg-elevated: #141D30;
@@ -26,48 +70,6 @@
   --status-error: #EF4444;
   
   --code-bg: #070A10;
-  
-  /* Shared CLI Tokens default (Green) */
-  --term-bg: #020603;
-  --term-window-bar: #0B140D;
-  --term-surface: #050E07;
-  --term-border: #14532D;
-  --term-border-box: #166534;
-  --term-text: #4ADE80;
-  --term-text-dim: #22C55E;
-  --term-muted: #15803D;
-  --term-accent: #22C55E;
-  --term-accent-bright: #86EFAC;
-  --term-cursor: #22C55E;
-  --term-glow: rgba(34, 197, 94, 0.25);
-}
-
-/* Desktop Light Theme */
-[data-theme="light"] {
-  --bg-primary: #F8FAFC;
-  --bg-surface: #FFFFFF;
-  --bg-elevated: #F1F5F9;
-  --bg-hover: #E2E8F0;
-  
-  --border-color: #E2E8F0;
-  --border-subtle: #EDF2F7;
-  --border-focus: #2563EB;
-  
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #94A3B8;
-  
-  --accent-color: #2563EB;
-  --accent-hover: #1D4ED8;
-  --accent-soft: rgba(37, 99, 235, 0.08);
-  --accent-secondary: #0284C7;
-  --accent-glow: rgba(37, 99, 235, 0.2);
-  
-  --status-success: #16A34A;
-  --status-warning: #D97706;
-  --status-error: #DC2626;
-  
-  --code-bg: #F8FAFC;
 }
 
 /* CLI Theme 1: Green (Matrix / Classic Science) */
