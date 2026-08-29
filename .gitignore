@@ -15,10 +15,21 @@ upstream/
 
 # Environment & Credentials
 .env
+.env.*
+*.env
+*.env.*
 .env.local
 .env.*.local
 *.pem
 *.key
+*.cert
+*.crt
+id_rsa*
+id_ed25519*
+*credentials*.json
+*secret*.json
+*.token
+*.auth
 
 # Runtime & Sandboxes
 .junscience/

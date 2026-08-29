@@ -88,15 +88,15 @@ All agents contributing to this codebase **MUST** follow these strict rules:
 ## 4. Directory Conventions for Skills & Hooks
 
 ### A. Adding a New Hook
-1. Place the hook class in [`packages/core/src/hooks/builtin/`](file:///Users/yangzi/Desktop/JunScience_Agent/packages/core/src/hooks/builtin/).
-2. Implement the `HookDefinition` interface from [`packages/core/src/hooks/types.ts`](file:///Users/yangzi/Desktop/JunScience_Agent/packages/core/src/hooks/types.ts).
+1. Place the hook class in [`packages/core/src/hooks/builtin/`](packages/core/src/hooks/builtin/).
+2. Implement the `HookDefinition` interface from [`packages/core/src/hooks/types.ts`](packages/core/src/hooks/types.ts).
 3. Bind the appropriate lifecycle events: `PreToolUse`, `PostToolUse`, `SessionStart`, or `Stop`.
-4. Register the hook in [`HookRegistry.ts`](file:///Users/yangzi/Desktop/JunScience_Agent/packages/core/src/hooks/HookRegistry.ts) and export it from `index.ts`.
-5. Add automated unit test in [`packages/core/tests/test-hooks-system.ts`](file:///Users/yangzi/Desktop/JunScience_Agent/packages/core/tests/test-hooks-system.ts).
+4. Register the hook in [`packages/core/src/hooks/HookRegistry.ts`](packages/core/src/hooks/HookRegistry.ts) and export it from `index.ts`.
+5. Add automated unit test in [`packages/core/tests/test-hooks-system.ts`](packages/core/tests/test-hooks-system.ts).
 
 ### B. Adding a New Skill
-1. Create a TypeScript definition in [`packages/core/src/skills/bundled/`](file:///Users/yangzi/Desktop/JunScience_Agent/packages/core/src/skills/bundled/) implementing `SkillDefinition`.
-2. Register the skill in [`SkillRegistry.ts`](file:///Users/yangzi/Desktop/JunScience_Agent/packages/core/src/skills/SkillRegistry.ts).
+1. Create a TypeScript definition in [`packages/core/src/skills/bundled/`](packages/core/src/skills/bundled/) implementing `SkillDefinition`.
+2. Register the skill in [`packages/core/src/skills/SkillRegistry.ts`](packages/core/src/skills/SkillRegistry.ts).
 3. Create the corresponding markdown specification and executable scripts in `skills/<skill-id>/`:
    - `SKILL.md` (YAML frontmatter + description + SOP workflow steps + input/output specification)
    - `scripts/` (reusable Python / statistical computation scripts)
