@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ArrowRight,
+  Download,
   Github,
   Bot,
   Wrench,
