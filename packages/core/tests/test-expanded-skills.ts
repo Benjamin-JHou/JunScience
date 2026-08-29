@@ -153,7 +153,7 @@ async function testExpandedSkillsSuite() {
   const matchSkill = registry.get('clinical-trial-eligibility-matching');
   if (!matchSkill) throw new Error('Skill clinical-trial-eligibility-matching not found');
   
-  // Real Patient matching against MASLD/MASH Trials (e.g. NCT04104776 Resmetirom / MAESTRO-NASH)
+  // Real Patient matching against MASLD/MASH Trials (e.g. NCT03900429 Resmetirom / MAESTRO-NASH)
   const patientProfile = {
     age: 54,
     gender: 'Female',
@@ -163,8 +163,8 @@ async function testExpandedSkillsSuite() {
     priorGlp1: false,
   };
   const trialMatch = {
-    nctId: 'NCT04104776',
-    title: 'A Phase 3 Study Evaluating Resmetirom in Patients With MASH and Liver Fibrosis (MAESTRO-NASH)',
+    nctId: 'NCT03900429',
+    title: 'A Phase 3 Study to Evaluate the Efficacy and Safety of MGL-3196 (Resmetirom) in Patients With NASH and Fibrosis (MAESTRO-NASH)',
     eligible: true,
     matchedCriteria: ['Age 18-75', 'Biopsy-proven MASH F2-F3', 'eGFR >= 50 mL/min', 'No concurrent GLP-1 therapy'],
     violations: [],
@@ -237,7 +237,7 @@ async function testExpandedSkillsSuite() {
     title: 'Efficacy and Safety of Resmetirom and GLP-1 Receptor Agonists in Metabolic Dysfunction-Associated Steatohepatitis (MASLD): A Meta-Analytical and Multi-Target Evidence Synthesis',
     abstractWordCount: 248,
     sections: ['Title', 'Structured Abstract', 'Introduction', 'Results', 'Discussion', 'Methods', 'Data Availability'],
-    sampleAbstractExcerpt: 'Background: Metabolic dysfunction-associated steatohepatitis (MASH/MASLD) remains a major cause of cirrhosis. Methods: We synthesized Phase 3 clinical trial endpoints (MAESTRO-NASH, NCT04104776) and transcriptomic signatures. Results: Resmetirom achieved MASH resolution without fibrosis worsening (RR = 2.85, 95% CI: 2.15-3.78, p < 0.001)...'
+    sampleAbstractExcerpt: 'Background: Metabolic dysfunction-associated steatohepatitis (MASH/MASLD) remains a major cause of cirrhosis. Methods: We synthesized Phase 3 clinical trial endpoints (MAESTRO-NASH, NCT03900429) and transcriptomic signatures. Results: Resmetirom achieved MASH resolution without fibrosis worsening (RR = 2.85, 95% CI: 2.15-3.78, p < 0.001)...'
   };
   console.log(`  ✔ Formatted Academic Manuscript for [${masldManuscript.targetJournal}]:`);
   console.log(`    Title: "${masldManuscript.title}"`);

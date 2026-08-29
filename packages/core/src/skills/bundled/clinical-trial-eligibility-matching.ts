@@ -23,7 +23,7 @@ export const ClinicalTrialEligibilityMatchingSkill: SkillDefinition = {
 - Explicitly list passed inclusion criteria and confirmed absent exclusion criteria.
 - Highlight any borderline laboratory values or ambiguous clinical conditions that require PI review.`,
   examples: [
-    'Match a 52-year-old MASLD patient with stage F2/F3 fibrosis against active Phase 3 MASH drug trials (NCT04104776, NCT04929210).',
+    'Match a 52-year-old MASLD patient with stage F2/F3 fibrosis against active Phase 3 MASH drug trials (NCT03900429 MAESTRO-NASH Resmetirom, NCT04929210).',
     'Evaluate patient eligibility for allosteric TYK2 inhibitor clinical trials in moderate-to-severe plaque psoriasis.',
   ],
   helperScripts: {
