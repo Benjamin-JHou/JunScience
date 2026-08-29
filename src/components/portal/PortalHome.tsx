@@ -150,11 +150,11 @@ console.log(turn.agentResponse);`,
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold text-[13.5px] shadow-sm transition-all active:scale-98"
             >
               <Download size={16} />
-              <span>Download Desktop App v1.1.0</span>
+              <span>Download Desktop App</span>
             </button>
             <button
               onClick={() => setActiveSection('cli')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent/10 border border-accent/30 hover:bg-accent/20 text-accent font-semibold text-[13.5px] shadow-2xs transition-all active:scale-98"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold text-[13.5px] shadow-sm transition-all active:scale-98"
             >
               <Terminal size={16} />
               <span>Explore CLI Agent</span>
