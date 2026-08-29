@@ -17,7 +17,10 @@
     "test": "npm run test:core && npm run test:cli",
     "cli": "node packages/cli/bin/junscience.js",
     "desktop": "npx electron packages/desktop/dist-electron/main.js",
-    "desktop:dev": "npm --workspace=@junscience/desktop run dev"
+    "desktop:dev": "npm --workspace=@junscience/desktop run dev",
+    "portal:dev": "vite",
+    "portal:preview": "vite preview",
+    "portal:build": "vite build"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
