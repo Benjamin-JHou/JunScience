@@ -86,7 +86,7 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
             </div>
             <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">JunScience CLI Agent Manual</h1>
             <p className="text-[15px] text-text-secondary leading-relaxed">
-              A high-performance, developer-first command-line research agent inspired by Claude Code.
+              A high-performance, developer-first command-line research agent for empirical scientific discovery.
               Featuring dual-mode execution (<strong>Plan Mode</strong> vs <strong>Act Mode</strong>), model switching with <code>/model</code>, real-time tool execution, and cryptographic evidence anchoring.
             </p>
           </div>
@@ -396,29 +396,82 @@ junscience research "Extract FAERS adverse event signals for GLP-1 agonists" --e
           <div className="space-y-2 border-b border-border pb-4">
             <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Installation Guide</h1>
             <p className="text-[15px] text-text-secondary">
-              Prerequisites, CLI one-line installer, monorepo setup, and Desktop binary downloads.
+              Desktop application downloads, CLI one-line installer, prerequisites, and monorepo setup.
             </p>
           </div>
 
           <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* 1. Desktop App (First) */}
             <div>
-              <h2 className="text-xl font-bold text-text-primary">1. Quick Install CLI (Claude Code style)</h2>
+              <h2 className="text-xl font-bold text-text-primary">1. Download Desktop App</h2>
               <p className="text-[13px] text-text-muted mt-1">
-                The fastest way to install JunScience CLI on macOS and Linux:
+                Official prebuilt binaries with native research GUI, real-time Plan &amp; To-Do tracker, and interactive visual canvases:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-3">
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">macOS (.dmg)</span>
+                    <span className="text-[11px] text-text-muted">Apple Silicon &amp; Intel</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">Windows (.exe)</span>
+                    <span className="text-[11px] text-text-muted">NSIS Installer &amp; Portable</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">Linux (.AppImage)</span>
+                    <span className="text-[11px] text-text-muted">Ubuntu / Debian / Fedora</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+              </div>
+            </div>
+
+            {/* 2. CLI Agent (Second) */}
+            <div className="pt-2">
+              <h2 className="text-xl font-bold text-text-primary">2. Quick Install CLI</h2>
+              <p className="text-[13px] text-text-muted mt-1">
+                Fast terminal-based scientific agent with dual Plan/Act mode execution:
               </p>
               {renderCodeBlock(
-                `# One-line bash installer
+                `# Option A: One-line bash installer (macOS & Linux)
 curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash
 
-# Or install globally with npm
-npm install -g @junscience/cli`,
+# Option B: Global npm package
+npm install -g @junscience/cli
+
+# Option C: Zero-install instant run
+npx @junscience/cli`,
                 'bash',
                 'install-quick'
               )}
             </div>
 
-            <div>
-              <h2 className="text-xl font-bold text-text-primary">2. Prerequisites</h2>
+            {/* 3. Prerequisites */}
+            <div className="pt-2">
+              <h2 className="text-xl font-bold text-text-primary">3. Prerequisites</h2>
               <ul className="list-disc list-inside space-y-1 text-[13.5px] text-text-secondary mt-1">
                 <li><strong>Node.js</strong>: version 20.x or 22.x LTS</li>
                 <li><strong>Python</strong>: version 3.10+ (standard library for sandboxed compute)</li>
@@ -426,8 +479,9 @@ npm install -g @junscience/cli`,
               </ul>
             </div>
 
-            <div>
-              <h2 className="text-xl font-bold text-text-primary">3. Build From Source (Monorepo)</h2>
+            {/* 4. Build From Source */}
+            <div className="pt-2">
+              <h2 className="text-xl font-bold text-text-primary">4. Build From Source (Monorepo)</h2>
               {renderCodeBlock(
                 `# Clone repository
 git clone https://github.com/Benjamin-JHou/JunScience.git
@@ -445,50 +499,6 @@ npm run desktop:dev`,
                 'bash',
                 'install-mono'
               )}
-            </div>
-
-            <div>
-              <h2 className="text-xl font-bold text-text-primary">4. Download Prebuilt Desktop Binaries (v0.1.0)</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-2">
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3 rounded-xl bg-bg-surface border border-border hover:border-accent flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13px] text-text-primary block">macOS (.dmg)</span>
-                    <span className="text-[11px] text-text-muted">Apple Silicon &amp; Intel</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
-
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3 rounded-xl bg-bg-surface border border-border hover:border-accent flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13px] text-text-primary block">Windows (.exe)</span>
-                    <span className="text-[11px] text-text-muted">NSIS Installer &amp; Portable</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
-
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/tag/v0.1.0"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3 rounded-xl bg-bg-surface border border-border hover:border-accent flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13px] text-text-primary block">Linux (.AppImage)</span>
-                    <span className="text-[11px] text-text-muted">Ubuntu / Debian / Fedora</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
-              </div>
             </div>
           </div>
         </article>
@@ -850,7 +860,7 @@ npm test`,
                 <span className="text-[12px] text-text-muted font-mono">August 2026</span>
               </div>
               <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
-                <li><strong>Claude Code Style CLI Agent</strong>: Interactive REPL with <code>/model</code>, <code>/plan</code>, <code>/act</code>, <code>/cost</code>, and streaming tool progress.</li>
+                <li><strong>Interactive CLI Agent with Dual-Mode Execution</strong>: Interactive REPL with <code>/model</code>, <code>/plan</code>, <code>/act</code>, <code>/cost</code>, and streaming tool progress.</li>
                 <li><strong>Codex-Style EvidenceVerifier Gate</strong>: Sanity bounds, numerical limits (p ∈ [0,1], IC50 &gt; 0, HU ∈ [-1024,3071]) and anomaly prevention.</li>
                 <li><strong>DeepSeek Harness Subagent Tree</strong>: Parallel hypothesis forking across competing targets/mechanisms with consolidated comparison matrix.</li>
                 <li><strong>4 Authoritative Biomedical Data Pillars</strong>: PubMed, arXiv, UniProtKB, RCSB PDB, ChEMBL, PubChem, ClinicalTrials.gov v2, openFDA, RxNorm, DailyMed.</li>

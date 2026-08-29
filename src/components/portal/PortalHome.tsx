@@ -117,7 +117,7 @@ console.log(turn.agentResponse);`,
             </p>
           </div>
 
-          {/* Quick One-Liner Install Banner (Claude Code style) */}
+          {/* Quick One-Liner Install Banner */}
           <div className="p-3.5 rounded-xl border border-border bg-[#070A10] text-[#E2E8F0] shadow-sm space-y-2">
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span className="flex items-center gap-1.5 text-accent font-semibold">
@@ -145,18 +145,19 @@ console.log(turn.agentResponse);`,
           {/* Call to Actions */}
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
+              onClick={() => setActiveSection('installation')}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold text-[13.5px] shadow-sm transition-all active:scale-98"
+            >
+              <Download size={16} />
+              <span>Download Desktop App</span>
+            </button>
+            <button
               onClick={() => setActiveSection('cli')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-medium text-[13.5px] shadow-sm transition-all active:scale-98"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent/10 border border-accent/30 hover:bg-accent/20 text-accent font-semibold text-[13.5px] shadow-2xs transition-all active:scale-98"
             >
               <Terminal size={16} />
               <span>Explore CLI Agent</span>
               <ArrowRight size={15} />
-            </button>
-            <button
-              onClick={() => setActiveSection('installation')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-bg-surface hover:bg-bg-hover text-text-primary font-medium text-[13.5px] transition-all shadow-2xs"
-            >
-              <span>Download Desktop App</span>
             </button>
             <a
               href="https://github.com/Benjamin-JHou/JunScience"
@@ -236,7 +237,7 @@ console.log(turn.agentResponse);`,
               <span>Interactive CLI Agent</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-              Powerful Terminal Agent. Claude Code Inspired.
+              Powerful Terminal Agent. Fast, Hypothesis-Driven Discovery.
             </h2>
             <p className="text-[14px] text-text-secondary">
               Seamlessly switch between deliberative <strong>Plan Mode</strong> and autonomous <strong>Act Mode</strong>, configure models with <code>/model</code>, and track scientific evidence in real time.

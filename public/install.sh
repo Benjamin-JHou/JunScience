@@ -2,7 +2,7 @@
 set -e
 
 # JunScience CLI Quick Installer
-# Inspired by modern developer agent installers (Claude Code, Bun, etc.)
+# Developer-first AI agent installer for scientific discovery
 
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'

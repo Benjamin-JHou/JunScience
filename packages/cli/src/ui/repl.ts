@@ -76,7 +76,7 @@ export async function startInteractiveRepl(): Promise<void> {
 
     // 1. HELP COMMAND
     if (input === '/help') {
-      console.log(`\n${c.bold}${c.brightCyan}JunScience CLI Agent Commands (Claude Code style):${c.reset}`);
+      console.log(`\n${c.bold}${c.brightCyan}JunScience CLI Agent Commands & Slash Shortcuts:${c.reset}`);
       console.log(`\n${c.bold}Model & API Configuration:${c.reset}`);
       console.log(`  ${c.cyan}/model${c.reset}                       - View or switch active LLM provider / model profile`);
       console.log(`  ${c.cyan}/model set --model <name>${c.reset}   - Configure model endpoint & API key`);

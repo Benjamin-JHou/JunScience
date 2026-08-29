@@ -35,7 +35,7 @@ export async function main() {
 JunScience CLI — Scientific AI Workstation & Autonomous Research Engine
 
 Usage:
-  junscience                          Start interactive scientific REPL (Claude Code style)
+  junscience                          Start interactive scientific REPL (Plan & Act modes)
   junscience research "<inquiry>"     Execute a one-shot autonomous scientific research inquiry
   junscience config list              List configured model profiles
   junscience config set [options]     Configure an OpenAI/Anthropic-compatible endpoint
