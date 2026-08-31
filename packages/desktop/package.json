@@ -5,6 +5,7 @@
   "author": "JunScience Team",
   "productName": "JunScience",
   "desktopName": "JunScience",
+  "executableName": "junscience",
   "private": true,
   "type": "module",
   "main": "./dist-electron/main.js",

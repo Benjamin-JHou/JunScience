@@ -2,7 +2,6 @@
   "appId": "com.junscience.desktop",
   "productName": "JunScience",
   "executableName": "junscience",
-  "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "directories": {
     "app": "packages/desktop",
     "output": "packages/desktop/release"
@@ -15,7 +14,6 @@
   "mac": {
     "category": "public.app-category.education",
     "identity": null,
-    "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
     "target": [
       {
         "target": "dmg",
@@ -30,7 +28,6 @@
     "gatekeeperAssess": false
   },
   "win": {
-    "artifactName": "${productName}-${version}-win-${arch}.${ext}",
     "target": [
       {
         "target": "nsis",
@@ -51,8 +48,7 @@
   "linux": {
     "executableName": "junscience",
     "desktopName": "JunScience",
-    "syncDesktopName": true,
-    "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+    "category": "Science",
     "target": [
       {
         "target": "AppImage",
@@ -66,7 +62,6 @@
         "target": "tar.gz",
         "arch": ["x64"]
       }
-    ],
-    "category": "Science"
+    ]
   }
 }
