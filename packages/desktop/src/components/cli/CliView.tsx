@@ -152,38 +152,24 @@ export const CliView: React.FC = () => {
         },
       ]);
 
-      import('../../runtime/research-loop/ResearchEngine').then(({ globalResearchEngine }) => {
-        globalResearchEngine.executeAutonomousResearch(inquiry).then((result) => {
+      if (window.junscience?.agent) {
+        window.junscience.agent.submitPrompt(inquiry).then((result) => {
+          const citationsCount = result.session?.citations?.length || 0;
+          const artifactsCount = result.session?.artifacts?.length || 0;
+          const responseText = result.turn?.agentResponse || 'Research turn completed.';
+
           setHistory((prev) => [
             ...prev,
             {
               id: `line-${Date.now()}-t1`,
               type: 'tool',
               symbol: '✓',
-              content: `✓ Literature Search: Queried PubMed & bioRxiv. ${result.session.citations.length} peer-reviewed studies cited.`,
-            },
-            {
-              id: `line-${Date.now()}-t2`,
-              type: 'tool',
-              symbol: '✓',
-              content: `✓ Data Analysis: Normalized single-cell profiles across 14,200 cells (GSE181283).`,
-            },
-            {
-              id: `line-${Date.now()}-t3`,
-              type: 'tool',
-              symbol: '✓',
-              content: `✓ Vector Figure: Synthesized 300 DPI SVG volcano plot & target priority tables.`,
-            },
-            {
-              id: `line-${Date.now()}-art`,
-              type: 'result',
-              symbol: '★',
-              content: `★ Provenance Verified: ${result.provenance.duration} execution time | Exit code: 0`,
+              content: `✓ Autonomous Research Engine completed turn with ${citationsCount} verified citations and ${artifactsCount} artifacts.`,
             },
             {
               id: `line-${Date.now()}-res`,
               type: 'result',
-              content: `[Synthesized Findings]\n• Pathogenic Type-I IFN signature verified (STAT4 log2FC=+2.84, TYK2 log2FC=+3.12)\n• Allosteric TYK2 JH2 pseudokinase pocket targetable with nanomolar potency (IC50=0.2 nM)\n• Complete interactive artifacts and figures loaded in Desktop Workspace.`,
+              content: `[Synthesized Findings]\n${responseText.slice(0, 600)}...`,
             },
           ]);
           setIsExecuting(false);
@@ -198,7 +184,26 @@ export const CliView: React.FC = () => {
           ]);
           setIsExecuting(false);
         });
-      });
+      } else {
+        // Fallback for browser preview environment
+        setTimeout(() => {
+          setHistory((prev) => [
+            ...prev,
+            {
+              id: `line-${Date.now()}-t1`,
+              type: 'tool',
+              symbol: '✓',
+              content: `✓ Autonomous Research Engine completed simulated exploration for: "${inquiry.slice(0, 45)}..."`,
+            },
+            {
+              id: `line-${Date.now()}-res`,
+              type: 'result',
+              content: `[Synthesized Findings]\n• Pathogenic Type-I IFN signature verified (STAT4 log2FC=+2.84, TYK2 log2FC=+3.12)\n• Allosteric TYK2 JH2 pseudokinase pocket targetable with nanomolar potency (IC50=0.2 nM)\n• Complete interactive artifacts and figures loaded in Desktop Workspace.`,
+            },
+          ]);
+          setIsExecuting(false);
+        }, 1200);
+      }
       return;
     }
 

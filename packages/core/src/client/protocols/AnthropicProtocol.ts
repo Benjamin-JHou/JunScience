@@ -55,36 +55,104 @@ export class AnthropicProtocol {
   }
 
   public static buildPayload(request: ModelRequest, stream: boolean = false): Record<string, any> {
-    const systemMessage = request.messages.find((m) => m.role === 'system');
-    const nonSystemMessages = request.messages.filter((m) => m.role !== 'system');
+    // 1. Combine all system messages into a single system prompt (preserving compacted memory blocks)
+    const systemMessages = request.messages.filter((m) => m.role === 'system');
+    const combinedSystemPrompt = systemMessages
+      .map((m) => (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)))
+      .filter((s) => s.trim().length > 0)
+      .join('\n\n---\n\n');
+
+    // 2. Filter non-system messages and normalize role alternation & tool blocks
+    const rawNonSystem = request.messages.filter((m) => m.role !== 'system');
+    const normalizedMessages: any[] = [];
+
+    for (const m of rawNonSystem) {
+      if (m.role === 'tool') {
+        const toolResultBlock = {
+          type: 'tool_result',
+          tool_use_id: m.toolCallId || 'call_default',
+          content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
+        };
+
+        // Merge into previous user message if previous message was also user/tool
+        const prevMsg = normalizedMessages[normalizedMessages.length - 1];
+        if (prevMsg && prevMsg.role === 'user' && Array.isArray(prevMsg.content)) {
+          prevMsg.content.push(toolResultBlock);
+        } else if (prevMsg && prevMsg.role === 'user' && typeof prevMsg.content === 'string') {
+          prevMsg.content = [{ type: 'text', text: prevMsg.content }, toolResultBlock];
+        } else {
+          normalizedMessages.push({
+            role: 'user',
+            content: [toolResultBlock],
+          });
+        }
+      } else if (m.role === 'assistant') {
+        const contentBlocks: any[] = [];
+        if (m.content) {
+          const textContent = typeof m.content === 'string' ? m.content : JSON.stringify(m.content);
+          if (textContent.trim()) {
+            contentBlocks.push({ type: 'text', text: textContent });
+          }
+        }
+        if (m.toolCalls && Array.isArray(m.toolCalls)) {
+          for (const tc of m.toolCalls) {
+            contentBlocks.push({
+              type: 'tool_use',
+              id: tc.id,
+              name: tc.name,
+              input: typeof tc.arguments === 'string' ? JSON.parse(tc.arguments || '{}') : tc.arguments || {},
+            });
+          }
+        }
+
+        const prevMsg = normalizedMessages[normalizedMessages.length - 1];
+        if (prevMsg && prevMsg.role === 'assistant') {
+          if (Array.isArray(prevMsg.content)) {
+            prevMsg.content.push(...contentBlocks);
+          } else if (typeof prevMsg.content === 'string') {
+            prevMsg.content = [{ type: 'text', text: prevMsg.content }, ...contentBlocks];
+          }
+        } else {
+          normalizedMessages.push({
+            role: 'assistant',
+            content: contentBlocks.length > 0 ? contentBlocks : [{ type: 'text', text: '' }],
+          });
+        }
+      } else {
+        // User message
+        const formattedContent = AnthropicProtocol.formatContent(m.content);
+        const prevMsg = normalizedMessages[normalizedMessages.length - 1];
+        if (prevMsg && prevMsg.role === 'user') {
+          if (typeof prevMsg.content === 'string' && typeof formattedContent === 'string') {
+            prevMsg.content += `\n\n${formattedContent}`;
+          } else if (Array.isArray(prevMsg.content)) {
+            if (Array.isArray(formattedContent)) {
+              prevMsg.content.push(...formattedContent);
+            } else {
+              prevMsg.content.push({ type: 'text', text: typeof formattedContent === 'string' ? formattedContent : JSON.stringify(formattedContent) });
+            }
+          } else {
+            prevMsg.content = [{ type: 'text', text: String(prevMsg.content) }, { type: 'text', text: String(formattedContent) }];
+          }
+        } else {
+          normalizedMessages.push({
+            role: 'user',
+            content: formattedContent,
+          });
+        }
+      }
+    }
 
     const payload: Record<string, any> = {
       model: request.model,
-      messages: nonSystemMessages.map((m) => {
-        if (m.role === 'tool') {
-          return {
-            role: 'user',
-            content: [
-              {
-                type: 'tool_result',
-                tool_use_id: m.toolCallId || 'call_default',
-                content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
-              },
-            ],
-          };
-        }
-        return {
-          role: m.role,
-          content: AnthropicProtocol.formatContent(m.content),
-        };
-      }),
+      messages: normalizedMessages,
       max_tokens: request.maxTokens || 4096,
       temperature: request.temperature ?? 0.2,
       stream,
     };
 
-    if (systemMessage) {
-      payload.system = typeof systemMessage.content === 'string' ? systemMessage.content : JSON.stringify(systemMessage.content);
+    if (combinedSystemPrompt) {
+      payload.system = combinedSystemPrompt;
     }
 
     if (request.tools && request.tools.length > 0) {

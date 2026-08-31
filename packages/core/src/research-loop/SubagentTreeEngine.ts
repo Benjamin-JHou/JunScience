@@ -106,6 +106,7 @@ export class SubagentTreeEngine {
     const branchLogs: string[] = [];
     const localEvidenceIds: string[] = [];
     const metrics: Record<string, string | number> = {};
+    const toolExecutionErrors: string[] = [];
 
     let sequenceScore = 0.0;
     let bioactivityScore = 0.0;
@@ -139,10 +140,12 @@ export class SubagentTreeEngine {
             uniRes.output
           );
           localEvidenceIds.push(ev.id);
+        } else if (uniRes.error) {
+          toolExecutionErrors.push(`UniProt: ${uniRes.error}`);
         }
       }
-    } catch {
-      // Non-fatal
+    } catch (err: any) {
+      toolExecutionErrors.push(`UniProt query failed: ${err.message || String(err)}`);
     }
 
     // 2. ChEMBL Bioactivity & Binding Potency Query
@@ -184,11 +187,11 @@ export class SubagentTreeEngine {
             } else if (minIc50 <= 10000) {
               bioactivityScore = 0.20;
             } else {
-              // High micromolar inactive > 10,000 nM
+              // High micromolar inactive > 10,000 nM (true empirical falsification)
               bioactivityScore = 0.05;
+              contradictionPenalty += 0.50;
             }
           } else if (actCount > 0) {
-            // Check if primary target or secondary
             const isPrimary = hypothesis.targetEntity.toUpperCase() === 'TYK2' || hypothesis.targetEntity.toUpperCase() === 'DEUCRAVACITINIB';
             bioactivityScore = isPrimary ? 1.0 : 0.40;
           }
@@ -201,10 +204,12 @@ export class SubagentTreeEngine {
             chemblRes.output
           );
           localEvidenceIds.push(ev.id);
+        } else if (chemblRes.error) {
+          toolExecutionErrors.push(`ChEMBL: ${chemblRes.error}`);
         }
       }
-    } catch {
-      // Non-fatal
+    } catch (err: any) {
+      toolExecutionErrors.push(`ChEMBL query failed: ${err.message || String(err)}`);
     }
 
     // 3. Clinical Trials Lookup
@@ -221,7 +226,7 @@ export class SubagentTreeEngine {
           const topTrial = ctRes.output.trials[0];
           metrics['ActiveClinicalTrial'] = topTrial.nctId;
           if (clinicalScore < 0.5) {
-            clinicalScore = 0.40; // Trial exists for family member but not approved for this specific mechanism
+            clinicalScore = 0.40;
           }
           const ev = parentEvidenceTracker.record(
             'clinical_trials_lookup',
@@ -231,10 +236,12 @@ export class SubagentTreeEngine {
             topTrial
           );
           localEvidenceIds.push(ev.id);
+        } else if (ctRes.error) {
+          toolExecutionErrors.push(`ClinicalTrials: ${ctRes.error}`);
         }
       }
-    } catch {
-      // Non-fatal
+    } catch (err: any) {
+      toolExecutionErrors.push(`ClinicalTrials query failed: ${err.message || String(err)}`);
     }
 
     // 4. Literature & Context Analysis
@@ -278,17 +285,32 @@ export class SubagentTreeEngine {
 
     const confidenceScore = Number(Math.max(0.05, Math.min(0.98, rawConfidence)).toFixed(2));
 
-    // Determine Status
+    // Determine Status: Strictly distinguish between Evidence Refutation, Evidence Support, Inconclusive, and Tool/Network Errors
     let status: HypothesisStatus = 'inconclusive';
-    if (contradictionPenalty >= 0.40 || confidenceScore <= 0.25) {
+    let findingsSummary = '';
+
+    if (contradictionPenalty >= 0.40) {
+      // Genuine empirical falsification / negative control
       status = 'refuted';
+      findingsSummary = `Subagent completed empirical evaluation for "${hypothesis.title}" with status "refuted" (Confidence: ${(confidenceScore * 100).toFixed(0)}%, Contradiction Penalty: ${contradictionPenalty}). Biological target or mechanism explicitly refuted by empirical data or negative control design.`;
     } else if (confidenceScore >= 0.70 && localEvidenceIds.length >= 2) {
+      // Strong multi-database empirical support
       status = 'supported';
+      findingsSummary = `Subagent completed empirical evaluation for "${hypothesis.title}" with status "supported" (Confidence: ${(confidenceScore * 100).toFixed(0)}%, ${localEvidenceIds.length} verified evidence anchors).`;
+    } else if (toolExecutionErrors.length > 0 && localEvidenceIds.length === 0) {
+      // Tool or network communication failure: DO NOT falsely refute! Mark as 'error'
+      status = 'error';
+      findingsSummary = `Subagent query execution failed for "${hypothesis.title}" due to tool/network errors (${toolExecutionErrors.join('; ')}). Hypothesis remains UNVERIFIED due to communication/tool failure, NOT empirically refuted.`;
+    } else if (confidenceScore <= 0.30 && localEvidenceIds.length > 0) {
+      // Low confidence with real evidence collected
+      status = 'refuted';
+      findingsSummary = `Subagent completed empirical evaluation for "${hypothesis.title}" with status "refuted" (Confidence: ${(confidenceScore * 100).toFixed(0)}%, ${localEvidenceIds.length} evidence anchors). Low binding affinity or lack of clinical efficacy.`;
     } else {
+      // Inconclusive
       status = 'inconclusive';
+      findingsSummary = `Subagent completed empirical evaluation for "${hypothesis.title}" with status "inconclusive" (Confidence: ${(confidenceScore * 100).toFixed(0)}%, ${localEvidenceIds.length} evidence anchors). Additional experimental data required.`;
     }
 
-    const findingsSummary = `Subagent completed empirical evaluation for "${hypothesis.title}" with status "${status}" (Confidence: ${(confidenceScore * 100).toFixed(0)}%, ${localEvidenceIds.length} evidence anchors).`;
     onProgress?.(branchName, findingsSummary);
 
     return {

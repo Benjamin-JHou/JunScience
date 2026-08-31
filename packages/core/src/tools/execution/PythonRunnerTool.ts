@@ -1,5 +1,5 @@
 import { ToolDefinition, ToolContext, ToolExecutionResult } from '../../types/tools.js';
-import { Artifact } from '../../types/runtime.js';
+import { Artifact, ToolExecution } from '../../types/runtime.js';
 import { spawn, execSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -9,6 +9,24 @@ export interface PythonRunnerInput {
   scriptContent: string;
   scriptName?: string;
   arguments?: string[];
+}
+
+function makeExecution(
+  toolName: string,
+  isSuccess: boolean,
+  summary: string,
+  durationMs: number
+): ToolExecution {
+  return {
+    id: `EXEC-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    toolName,
+    category: 'execution',
+    description: summary,
+    status: isSuccess ? 'completed' : 'failed',
+    logs: [summary],
+    duration: `${durationMs}ms`,
+    resultSummary: summary,
+  };
 }
 
 function generateSeatbeltProfile(sessionDir: string, homeDir: string): string {
@@ -32,6 +50,33 @@ function checkCommandAvailable(cmd: string): boolean {
   }
 }
 
+export function resolveWorkspaceRoot(): string {
+  if (process.env.JUNSCIENCE_HOME) {
+    return process.env.JUNSCIENCE_HOME;
+  }
+  const defaultHome = path.join(os.homedir(), '.junscience');
+  try {
+    if (!fs.existsSync(defaultHome)) {
+      fs.mkdirSync(defaultHome, { recursive: true, mode: 0o700 });
+    }
+    // Probe write capability
+    const probeFile = path.join(defaultHome, `.perm_probe_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`);
+    fs.writeFileSync(probeFile, 'ok');
+    fs.unlinkSync(probeFile);
+    return defaultHome;
+  } catch {
+    const cwdHome = path.join(process.cwd(), '.junscience');
+    try {
+      if (!fs.existsSync(cwdHome)) {
+        fs.mkdirSync(cwdHome, { recursive: true, mode: 0o700 });
+      }
+      return cwdHome;
+    } catch {
+      return path.join(os.tmpdir(), '.junscience');
+    }
+  }
+}
+
 export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
   name: 'python_runner',
   description: 'Execute Python scientific computing scripts inside cross-platform OS-enforced sandboxes (macOS Seatbelt, Linux Landlock/Bubblewrap, Windows Low-Integrity Restricted Token).',
@@ -48,15 +93,16 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
   },
   async execute(input: PythonRunnerInput, context: ToolContext): Promise<ToolExecutionResult> {
     const filename = input.scriptName || 'analysis.py';
-    const workspaceRoot = process.env.JUNSCIENCE_HOME || path.join(os.homedir(), '.junscience');
-    const sessionDir = path.join(workspaceRoot, 'workspace', context.sessionId || 'default', `run-${Date.now()}`);
+    const workspaceRoot = resolveWorkspaceRoot();
+    let sessionDir = path.join(workspaceRoot, 'workspace', context.sessionId || 'default', `run-${Date.now()}`);
     const homeDir = os.homedir();
 
     // 1. Create dedicated session workspace
     try {
       fs.mkdirSync(sessionDir, { recursive: true, mode: 0o700 });
     } catch {
-      // ignore
+      sessionDir = path.join(process.cwd(), '.junscience', 'workspace', context.sessionId || 'default', `run-${Date.now()}`);
+      fs.mkdirSync(sessionDir, { recursive: true, mode: 0o700 });
     }
 
     const scriptPath = path.join(sessionDir, filename);
@@ -77,6 +123,16 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
         execCmd = 'sandbox-exec';
         execArgs = ['-p', profile, 'python3', filename, ...(input.arguments || [])];
       } else {
+        const strictSandbox = process.env.JUNSCIENCE_REQUIRE_SANDBOX === 'true' || process.env.JUNSCIENCE_SANDBOX === 'strict';
+        if (strictSandbox) {
+          const errorMsg = `[SandboxEnforcementError]: macOS kernel sandbox utility 'sandbox-exec' is unavailable on this host. Execution blocked to prevent un-sandboxed host environment access. Set JUNSCIENCE_SANDBOX=disabled if you explicitly authorize un-sandboxed execution.`;
+          return {
+            success: false,
+            error: errorMsg,
+            output: null,
+            execution: makeExecution('python_runner', false, errorMsg, 0),
+          };
+        }
         sandboxMode = 'macOS Workspace Subprocess';
       }
     } else if (platform === 'linux') {

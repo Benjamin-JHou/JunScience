@@ -85,7 +85,53 @@ async function testSubagentTree() {
     throw new Error(`HYP-3 expected refuted (<=30%), got ${egfrNode?.status} with ${egfrNode?.confidenceScore}`);
   }
 
-  console.log('\n✔ ALL SUBAGENT TREE CONFIDENCE DIFFERENTIATION TESTS PASSED (100% SUCCESS)\n');
+  // [Phase 5: Network Error vs Genuine Scientific Refutation Distinction Test]
+  console.log('\n[Phase 5: Network & Tool Outage Distinction Verification (BUG-06 Fix)]');
+  const brokenToolRegistry: any = {
+    get: () => true,
+    execute: async () => ({
+      success: false,
+      error: 'FetchError: connect ETIMEDOUT 128.175.241.13:443 (Simulated Network Disconnection)',
+    }),
+  };
+
+  const offlineEngine = new SubagentTreeEngine(brokenToolRegistry);
+  const offlineTracker = new EvidenceTracker();
+  const testOfflineHypotheses: HypothesisNode[] = [
+    {
+      id: 'hyp-offline',
+      title: 'Valid Target under Network Outage',
+      statement: 'TYK2 demonstrates high-affinity binding.',
+      targetEntity: 'TYK2',
+      status: 'pending',
+      confidenceScore: 0.0,
+      evidenceIds: [],
+    },
+  ];
+
+  const offlineRes = await offlineEngine.exploreHypothesesParallel(
+    `offline-test-${Date.now()}`,
+    testOfflineHypotheses,
+    offlineTracker,
+    1
+  );
+
+  const offlineNode = offlineRes.hypothesisTree.getHypothesis('hyp-offline');
+  console.log(`  • Network Failure Node Status: "${offlineNode?.status}"`);
+  console.log(`  • Findings: "${offlineNode?.findingsSummary}"`);
+
+  if (offlineNode?.status === 'refuted') {
+    throw new Error(`CRITICAL BUG-06 FAILURE: Network failure was falsely classified as "refuted"! Must be "error".`);
+  }
+  if (offlineNode?.status !== 'error') {
+    throw new Error(`Expected status "error" on network outage, got "${offlineNode?.status}"`);
+  }
+  if (!offlineNode?.findingsSummary?.includes('communication/tool failure')) {
+    throw new Error(`Findings must clarify communication failure.`);
+  }
+  console.log('  ✔ Network failure correctly marked as "error" with zero false-refutations.');
+
+  console.log('\n✔ ALL SUBAGENT TREE CONFIDENCE DIFFERENTIATION & NETWORK ERROR TESTS PASSED (100% SUCCESS)\n');
 }
 
 testSubagentTree().catch((err) => {

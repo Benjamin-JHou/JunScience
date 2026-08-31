@@ -121,6 +121,18 @@ export class AgentLoop {
       if (response.finishReason === 'tool_calls' && response.toolCalls && response.toolCalls.length > 0) {
         this.sessionManager.updateSessionStatus(sessionId, 'tool_calling');
 
+        // 1. Append compliant assistant tool_calls initiation message
+        messages.push({
+          role: 'assistant',
+          content: response.content || '',
+          toolCalls: response.toolCalls.map((call) => ({
+            id: call.id,
+            name: call.name,
+            arguments: call.arguments,
+          })),
+        });
+
+        // 2. Execute each tool and append tool result
         for (const call of response.toolCalls) {
           const toolCall: ToolCall = {
             id: call.id,
@@ -160,11 +172,6 @@ export class AgentLoop {
           }
 
           // Append tool result into model history for next turn
-          messages.push({
-            role: 'assistant',
-            content: `Called tool ${call.name}`,
-            toolCallId: call.id,
-          });
           messages.push({
             role: 'tool',
             name: call.name,

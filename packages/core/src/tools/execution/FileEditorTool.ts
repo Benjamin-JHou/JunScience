@@ -1,5 +1,6 @@
 import { ToolDefinition, ToolContext, ToolExecutionResult } from '../../types/tools.js';
 import { ToolExecution } from '../../types/runtime.js';
+import { resolveWorkspaceRoot } from './PythonRunnerTool.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -64,7 +65,7 @@ export const FileEditorTool: ToolDefinition<FileEditorInput> = {
   },
   async execute(input: FileEditorInput, context: ToolContext): Promise<ToolExecutionResult> {
     const startTime = Date.now();
-    const workspaceRoot = process.env.JUNSCIENCE_HOME || path.join(os.homedir(), '.junscience');
+    const workspaceRoot = resolveWorkspaceRoot();
     const sessionWorkspace = path.resolve(workspaceRoot, 'workspace', context.sessionId || 'default');
 
     // 1. Ensure session workspace directory exists

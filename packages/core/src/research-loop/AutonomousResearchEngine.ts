@@ -246,6 +246,18 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
       if (response.finishReason === 'tool_calls' && response.toolCalls && response.toolCalls.length > 0) {
         this.sessionManager.updateSessionStatus(sessionId, 'tool_calling');
 
+        // 1. Append compliant assistant tool_calls initiation message to history
+        messages.push({
+          role: 'assistant',
+          content: response.content || '',
+          toolCalls: response.toolCalls.map((call) => ({
+            id: call.id,
+            name: call.name,
+            arguments: call.arguments,
+          })),
+        });
+
+        // 2. Execute each tool and append corresponding tool response message
         for (const call of response.toolCalls) {
           accumulatedToolCalls.push({
             id: call.id,
@@ -264,7 +276,7 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           }
           this.planTracker.startTask(sessionId, activeTaskId);
 
-          // 1. Trigger PreToolUse Hooks (Secret Redaction, Clinical Data Gate)
+          // Trigger PreToolUse Hooks (Secret Redaction, Clinical Data Gate)
           const preHookRes = await this.hookRegistry.triggerPreToolUse(
             { ...hookContext, event: 'PreToolUse' },
             { toolName: call.name, toolArguments: call.arguments }
@@ -272,11 +284,6 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
 
           if (!preHookRes.proceed) {
             this.planTracker.failTask(sessionId, activeTaskId, preHookRes.message || 'Blocked by PreToolUse security hook');
-            messages.push({
-              role: 'assistant',
-              content: `Called tool ${call.name}`,
-              toolCallId: call.id,
-            });
             messages.push({
               role: 'tool',
               name: call.name,
@@ -304,7 +311,7 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           };
           accumulatedToolResults.push(toolResult);
 
-          // 2. Trigger PostToolUse Hooks (Evidence Verifier Gate)
+          // Trigger PostToolUse Hooks (Evidence Verifier Gate)
           const postHookRes = await this.hookRegistry.triggerPostToolUse(
             { ...hookContext, event: 'PostToolUse' },
             {
@@ -328,11 +335,6 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           if (!postHookRes.proceed || postHookRes.verdict === 'REJECTED') {
             // Reject from evidence tracker, warn model
             this.planTracker.failTask(sessionId, activeTaskId, postHookRes.message || 'Evidence verification failed');
-            messages.push({
-              role: 'assistant',
-              content: `Called tool ${call.name}`,
-              toolCallId: call.id,
-            });
             messages.push({
               role: 'tool',
               name: call.name,
@@ -364,12 +366,7 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
             result.citations.forEach((cit: Citation) => this.sessionManager.addCitation(sessionId, cit));
           }
 
-          // Append to conversation history
-          messages.push({
-            role: 'assistant',
-            content: `Called tool ${call.name}`,
-            toolCallId: call.id,
-          });
+          // Append tool result into model history for next turn
           messages.push({
             role: 'tool',
             name: call.name,

@@ -1,6 +1,6 @@
 import { EvidenceRecord } from './EvidenceTracker.js';
 
-export type HypothesisStatus = 'pending' | 'exploring' | 'supported' | 'refuted' | 'inconclusive';
+export type HypothesisStatus = 'pending' | 'exploring' | 'supported' | 'refuted' | 'inconclusive' | 'error';
 
 export interface HypothesisNode {
   id: string; // e.g. 'hyp-1', 'hyp-2'
@@ -84,6 +84,8 @@ export class HypothesisTree {
           ? '🔴 Refuted'
           : node.status === 'inconclusive'
           ? '🟡 Inconclusive'
+          : node.status === 'error'
+          ? '⚠️ Error (Tool/Network Failure)'
           : '⏳ Exploring';
 
       const metricsStr = node.metrics

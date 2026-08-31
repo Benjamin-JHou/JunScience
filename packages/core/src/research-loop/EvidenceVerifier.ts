@@ -38,10 +38,10 @@ export class EvidenceVerifier {
     const outputStr = typeof rawOutput === 'string' ? rawOutput : JSON.stringify(rawOutput || {});
 
     // 1. Check Computational Anomalies (NaN, Infinity, ZeroDivision)
-    this.checkComputationalAnomalies(outputStr, details);
+    this.checkComputationalAnomalies(rawOutput, outputStr, details);
 
     // 2. Check Mathematical & Physics Boundaries (p-value, IC50, pLDDT, HU)
-    this.checkNumericalBoundaries(outputStr, details);
+    this.checkNumericalBoundaries(rawOutput, outputStr, details);
 
     // 3. Check Biological Sequence & Biochemical Boundaries
     if (category === 'databases' || toolName.includes('uniprot') || toolName.includes('chembl')) {
@@ -94,10 +94,32 @@ export class EvidenceVerifier {
     };
   }
 
-  private checkComputationalAnomalies(outputStr: string, details: VerificationDetail[]): void {
-    // Check for NaN
-    const hasNaN = /\b(NaN|nan)\b/.test(outputStr);
-    if (hasNaN) {
+  private checkComputationalAnomalies(rawOutput: any, outputStr: string, details: VerificationDetail[]): void {
+    let foundNaN = false;
+    let foundInf = false;
+
+    const inspectObjectForAnomalies = (obj: any, depth: number = 0) => {
+      if (depth > 8 || !obj) return;
+      if (typeof obj === 'number') {
+        if (Number.isNaN(obj)) foundNaN = true;
+        if (!Number.isFinite(obj)) foundInf = true;
+      } else if (Array.isArray(obj)) {
+        for (const item of obj) inspectObjectForAnomalies(item, depth + 1);
+      } else if (typeof obj === 'object') {
+        for (const key of Object.keys(obj)) inspectObjectForAnomalies(obj[key], depth + 1);
+      }
+    };
+
+    if (typeof rawOutput === 'object' && rawOutput !== null) {
+      inspectObjectForAnomalies(rawOutput);
+    }
+
+    // Case-sensitive check for NaN string token
+    if (!foundNaN) {
+      foundNaN = /\bNaN\b/.test(outputStr) || /["':\s]NaN["',\s]/.test(outputStr);
+    }
+
+    if (foundNaN) {
       details.push({
         rule: 'anomaly.no_nan',
         passed: false,
@@ -113,9 +135,12 @@ export class EvidenceVerifier {
       });
     }
 
-    // Check for Infinity
-    const hasInf = /\b(-?Infinity|-?inf)\b/.test(outputStr);
-    if (hasInf) {
+    // Case-sensitive check for Infinity string token
+    if (!foundInf) {
+      foundInf = /\b-?Infinity\b/.test(outputStr) || /["':\s]-?Infinity["',\s]/.test(outputStr);
+    }
+
+    if (foundInf) {
       details.push({
         rule: 'anomaly.no_infinity',
         passed: false,
@@ -131,8 +156,8 @@ export class EvidenceVerifier {
       });
     }
 
-    // Check for explicit error strings inside output
-    if (/ZeroDivisionError|FloatingPointError|OverflowError/i.test(outputStr)) {
+    // Check for explicit fatal Python mathematical exception strings inside output
+    if (/(?:ZeroDivisionError|FloatingPointError|OverflowError):/i.test(outputStr)) {
       details.push({
         rule: 'anomaly.python_exceptions',
         passed: false,
@@ -142,81 +167,135 @@ export class EvidenceVerifier {
     }
   }
 
-  private checkNumericalBoundaries(outputStr: string, details: VerificationDetail[]): void {
-    // 1. p-value check: must be strictly in [0.0, 1.0]
-    const pValueMatches = outputStr.matchAll(/(?:["']?(?:p[-_]?value|pValue)["']?|["']?p["']?\s*[=:])\s*[:=]?\s*([-\d\.]+)/gi);
+  private checkNumericalBoundaries(rawOutput: any, outputStr: string, details: VerificationDetail[]): void {
+    // 1. Structured inspection for explicit statistical fields (p-value, padj, fdr, qval)
+    const inspectedPVals: number[] = [];
+
+    const inspectObjectForStats = (obj: any, depth: number = 0) => {
+      if (depth > 6 || !obj || typeof obj !== 'object') return;
+      for (const [k, v] of Object.entries(obj)) {
+        const keyLower = k.toLowerCase().replace(/[-_]/g, '');
+        if (['pvalue', 'pval', 'padj', 'fdr', 'qval', 'qvalue'].includes(keyLower) && typeof v === 'number') {
+          inspectedPVals.push(v);
+        } else if (typeof v === 'object') {
+          inspectObjectForStats(v, depth + 1);
+        }
+      }
+    };
+
+    if (typeof rawOutput === 'object' && rawOutput !== null) {
+      inspectObjectForStats(rawOutput);
+    }
+
+    // Contextual Regex for p-value (Requires explicit scientific keyword; NEVER matches ?p=2 or p. 12)
+    const pValueRegex = /(?:["']?(?:p[-_]?val(?:ue)?|pValue|padj|p[-_]?adj|fdr|q[-_]?val(?:ue)?)["']?)\s*[:=]\s*([-\d\.eE]+)/gi;
+    const pValueMatches = outputStr.matchAll(pValueRegex);
     for (const match of pValueMatches) {
       const val = parseFloat(match[1]);
-      if (!isNaN(val)) {
-        if (val < 0.0 || val > 1.0) {
-          details.push({
-            rule: 'bounds.p_value',
-            passed: false,
-            severity: 'error',
-            message: `Invalid p-value ${val}: p-values must strictly reside within [0.0, 1.0].`,
-          });
-        } else {
-          details.push({
-            rule: 'bounds.p_value',
-            passed: true,
-            severity: 'info',
-            message: `p-value ${val} is mathematically valid within [0.0, 1.0].`,
-          });
-        }
+      if (!isNaN(val) && !inspectedPVals.includes(val)) {
+        inspectedPVals.push(val);
+      }
+    }
+
+    for (const val of inspectedPVals) {
+      if (val < 0.0 || val > 1.0) {
+        details.push({
+          rule: 'bounds.p_value',
+          passed: false,
+          severity: 'error',
+          message: `Invalid p-value ${val}: p-values must strictly reside within [0.0, 1.0].`,
+        });
+      } else {
+        details.push({
+          rule: 'bounds.p_value',
+          passed: true,
+          severity: 'info',
+          message: `p-value ${val} is mathematically valid within [0.0, 1.0].`,
+        });
       }
     }
 
     // 2. IC50 / Ki / Kd / EC50 check: must be positive (> 0)
-    const ic50Matches = outputStr.matchAll(/(?:["']?(?:IC50|Ki|Kd|EC50)["']?)\s*[:=]\s*([-\d\.]+)\s*(nM|uM|mM|M)?/gi);
+    const inspectedAffinities: { val: number; unit?: string }[] = [];
+
+    const inspectObjectForAffinities = (obj: any, depth: number = 0) => {
+      if (depth > 6 || !obj || typeof obj !== 'object') return;
+      if (Array.isArray(obj)) {
+        for (const item of obj) inspectObjectForAffinities(item, depth + 1);
+        return;
+      }
+      for (const [k, v] of Object.entries(obj)) {
+        const keyLower = k.toLowerCase().replace(/[-_]/g, '');
+        if (['ic50', 'ki', 'kd', 'ec50', 'standardvalue'].includes(keyLower) && typeof v === 'number') {
+          const unit = (obj as any).standardUnits || (obj as any).unit || '';
+          inspectedAffinities.push({ val: v, unit });
+        } else if (typeof v === 'object') {
+          inspectObjectForAffinities(v, depth + 1);
+        }
+      }
+    };
+
+    if (typeof rawOutput === 'object' && rawOutput !== null) {
+      inspectObjectForAffinities(rawOutput);
+    }
+
+    const ic50Matches = outputStr.matchAll(/(?:["']?(?:IC50|Ki|Kd|EC50|standard_value|standardValue)["']?)\s*[:=]\s*([-\d\.eE]+)\s*(nM|uM|mM|pM|fM|M)?/gi);
     for (const match of ic50Matches) {
       const val = parseFloat(match[1]);
       const unit = match[2] || '';
-      if (!isNaN(val)) {
-        if (val <= 0.0) {
-          details.push({
-            rule: 'bounds.binding_affinity',
-            passed: false,
-            severity: 'error',
-            message: `Invalid binding constant ${val} ${unit}: IC50/Ki values must be strictly positive (> 0).`,
-          });
-        } else if (val < 1e-15 || (unit === 'M' && val > 100)) {
-          details.push({
-            rule: 'bounds.binding_affinity_scale',
-            passed: false,
-            severity: 'warning',
-            message: `Binding constant ${val} ${unit} has extreme scale; check for unit confusion (nM vs uM).`,
-          });
-        } else {
-          details.push({
-            rule: 'bounds.binding_affinity',
-            passed: true,
-            severity: 'info',
-            message: `Binding affinity ${val} ${unit} is within reasonable pharmacological range.`,
-          });
-        }
+      if (!isNaN(val) && !inspectedAffinities.some((a) => a.val === val)) {
+        inspectedAffinities.push({ val, unit });
+      }
+    }
+
+    for (const { val, unit } of inspectedAffinities) {
+      if (val <= 0.0) {
+        details.push({
+          rule: 'bounds.binding_affinity',
+          passed: false,
+          severity: 'error',
+          message: `Invalid binding constant ${val} ${unit || ''}: IC50/Ki values must be strictly positive (> 0).`,
+        });
+      } else if (val < 1e-15 || (unit === 'M' && val > 100)) {
+        details.push({
+          rule: 'bounds.binding_affinity_scale',
+          passed: false,
+          severity: 'warning',
+          message: `Binding constant ${val} ${unit || ''} has extreme scale; check for unit confusion (nM vs uM).`,
+        });
+      } else {
+        details.push({
+          rule: 'bounds.binding_affinity',
+          passed: true,
+          severity: 'info',
+          message: `Binding affinity ${val} ${unit || ''} is within reasonable pharmacological range.`,
+        });
       }
     }
 
     // 3. AlphaFold pLDDT confidence check: [0.0, 100.0]
-    const plddtMatches = outputStr.matchAll(/(?:["']?(?:pLDDT|confidenceScore)["']?)\s*[:=]\s*([-\d\.]+)/gi);
+    const inspectedPlddts: number[] = [];
+    const plddtMatches = outputStr.matchAll(/(?:["']?(?:pLDDT|alphafold[-_]?confidence)["']?)\s*[:=]\s*([-\d\.]+)/gi);
     for (const match of plddtMatches) {
       const val = parseFloat(match[1]);
-      if (!isNaN(val)) {
-        if (val < 0.0 || val > 100.0) {
-          details.push({
-            rule: 'bounds.plddt_score',
-            passed: false,
-            severity: 'error',
-            message: `Invalid pLDDT score ${val}: AlphaFold confidence must be within [0, 100].`,
-          });
-        } else {
-          details.push({
-            rule: 'bounds.plddt_score',
-            passed: true,
-            severity: 'info',
-            message: `pLDDT score ${val} is valid.`,
-          });
-        }
+      if (!isNaN(val)) inspectedPlddts.push(val);
+    }
+
+    for (const val of inspectedPlddts) {
+      if (val < 0.0 || val > 100.0) {
+        details.push({
+          rule: 'bounds.plddt_score',
+          passed: false,
+          severity: 'error',
+          message: `Invalid pLDDT score ${val}: AlphaFold confidence must be within [0, 100].`,
+        });
+      } else {
+        details.push({
+          rule: 'bounds.plddt_score',
+          passed: true,
+          severity: 'info',
+          message: `pLDDT score ${val} is valid.`,
+        });
       }
     }
 

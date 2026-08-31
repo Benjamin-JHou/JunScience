@@ -52,6 +52,23 @@ export class OpenAIProtocol {
             tool_call_id: m.toolCallId || 'call_default',
           };
         }
+        if (m.role === 'assistant') {
+          const assistantMsg: Record<string, any> = {
+            role: 'assistant',
+            content: m.content ? (typeof m.content === 'string' ? m.content : OpenAIProtocol.formatContent(m.content)) : null,
+          };
+          if (m.toolCalls && Array.isArray(m.toolCalls) && m.toolCalls.length > 0) {
+            assistantMsg.tool_calls = m.toolCalls.map((tc) => ({
+              id: tc.id,
+              type: 'function',
+              function: {
+                name: tc.name,
+                arguments: typeof tc.arguments === 'string' ? tc.arguments : JSON.stringify(tc.arguments || {}),
+              },
+            }));
+          }
+          return assistantMsg;
+        }
         return {
           role: m.role,
           content: OpenAIProtocol.formatContent(m.content),

@@ -78,7 +78,24 @@ async function testEvidenceVerifier() {
     throw new Error('EvidenceTracker verification status integration failed');
   }
 
-  console.log('\n✔ ALL EVIDENCE VERIFIER TESTS PASSED (100% SUCCESS)\n');
+  // Test 5: False-Positive Immunity (URL params ?p=2, citation pages p. 12, lowercase words like nanometer/banana)
+  console.log('\n[Test 5/5] False-Positive Immunity: URL Parameters, Citations, & Word Substrings (ADOPTED)');
+  const urlAndPageOutput = {
+    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&p=25&retmode=json',
+    citationReference: 'Journal of Immunology, Vol. 142, p. 185-192, section p: 4',
+    particleSize: '15 nanometers (nm)',
+    targetCompound: 'banana-derived flavonoid',
+    summary: 'Retrieved 15 records from PubMed pagination endpoint (page=2, p=25). Particle scale: 20 nm.',
+  };
+
+  const fpRes = verifier.verify('literature_search', 'literature', 'query url and text', urlAndPageOutput);
+  console.log(`  ✔ Verdict: ${fpRes.verdict} (Confidence: ${fpRes.confidenceScore * 100}%)`);
+  console.log(`  ✔ Reason: ${fpRes.reasonSummary}`);
+  if (fpRes.verdict !== 'ADOPTED') {
+    throw new Error(`CRITICAL FALSE POSITIVE: EvidenceVerifier falsely rejected valid output containing URL param "?p=25" or text "p. 185"! Got ${fpRes.verdict} (${fpRes.reasonSummary})`);
+  }
+
+  console.log('\n✔ ALL EVIDENCE VERIFIER TESTS (INCLUDING FALSE-POSITIVE IMMUNITY) PASSED (100% SUCCESS)\n');
 }
 
 testEvidenceVerifier().catch((err) => {

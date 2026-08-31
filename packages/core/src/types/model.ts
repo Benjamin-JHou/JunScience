@@ -38,6 +38,7 @@ export interface ModelMessage {
   content: string | ModelContentPart[];
   toolCallId?: string;
   name?: string;
+  toolCalls?: ModelToolCall[];
 }
 
 export interface ModelToolCall {

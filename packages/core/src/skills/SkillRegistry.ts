@@ -109,33 +109,91 @@ export class SkillRegistry {
     }
   }
 
-  private parseSkillMarkdown(folderName: string, content: string): SkillDefinition | null {
+  public parseSkillMarkdown(folderName: string, content: string): SkillDefinition | null {
     try {
-      // Basic frontmatter parser
-      const lines = content.split('\n');
-      let name = folderName;
-      let description = 'Custom user scientific skill';
-      let category = 'literature';
+      const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
+      const match = content.match(frontmatterRegex);
 
-      for (const line of lines) {
-        if (line.startsWith('name:')) name = line.replace('name:', '').trim();
-        if (line.startsWith('description:')) description = line.replace('description:', '').trim();
+      const parsedData: Record<string, any> = {};
+      let bodyInstructions = content;
+
+      if (match) {
+        const rawYaml = match[1];
+        bodyInstructions = match[2] || '';
+
+        let currentKey = '';
+        const lines = rawYaml.split('\n');
+
+        for (let line of lines) {
+          line = line.trimEnd();
+          if (!line || line.trim().startsWith('#')) continue;
+
+          // Check if line is a list item: - value
+          const listMatch = line.match(/^(\s*)-\s+(.*)$/);
+          if (listMatch && currentKey) {
+            if (!Array.isArray(parsedData[currentKey])) {
+              parsedData[currentKey] = [];
+            }
+            parsedData[currentKey].push(listMatch[2].replace(/^["']|["']$/g, '').trim());
+            continue;
+          }
+
+          // Check if line is a key: value
+          const kvMatch = line.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+          if (kvMatch) {
+            currentKey = kvMatch[1].trim();
+            const val = kvMatch[2].trim();
+            if (val === '') {
+              // May be followed by a list on subsequent lines
+              parsedData[currentKey] = [];
+            } else {
+              // Strip surrounding quotes
+              const unquoted = val.replace(/^["']|["']$/g, '');
+              parsedData[currentKey] = unquoted;
+            }
+          }
+        }
       }
 
+      const id = parsedData.id || folderName;
+      const name = parsedData.name || folderName;
+      const displayName = parsedData.displayName || parsedData.name || folderName;
+      const description = parsedData.description || 'Custom user scientific skill';
+      const category = parsedData.category || 'literature';
+      const version = parsedData.version || '1.0.0';
+      const author = parsedData.author || 'User Local';
+      const requiredTools = Array.isArray(parsedData.requiredTools)
+        ? parsedData.requiredTools
+        : typeof parsedData.requiredTools === 'string'
+        ? parsedData.requiredTools.split(',').map((t: string) => t.trim())
+        : ['python_runner'];
+
+      const keywords = Array.isArray(parsedData.keywords)
+        ? parsedData.keywords
+        : typeof parsedData.keywords === 'string'
+        ? parsedData.keywords.split(',').map((k: string) => k.trim())
+        : [folderName, ...displayName.toLowerCase().split(/\s+/)];
+
+      const workflowSteps = Array.isArray(parsedData.workflowSteps)
+        ? parsedData.workflowSteps
+        : typeof parsedData.workflowSteps === 'string'
+        ? parsedData.workflowSteps.split('\n').filter(Boolean)
+        : ['Follow instructions specified in user SKILL.md document.'];
+
       return {
-        id: folderName,
-        name: folderName,
-        displayName: name,
+        id,
+        name,
+        displayName,
         description,
         category: category as any,
-        version: '1.0.0',
-        author: 'User Local',
+        version,
+        author,
         bundled: false,
-        requiredTools: ['python_runner'],
-        keywords: [folderName, ...name.toLowerCase().split(/\s+/)],
-        workflowSteps: ['Follow instructions specified in user SKILL.md document.'],
-        instructions: content,
-        examples: [],
+        requiredTools,
+        keywords,
+        workflowSteps,
+        instructions: bodyInstructions.trim() || content,
+        examples: parsedData.examples || [],
       };
     } catch {
       return null;
