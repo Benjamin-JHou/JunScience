@@ -6,6 +6,11 @@
   "directories": {
     "output": "release"
   },
+  "publish": {
+    "provider": "github",
+    "owner": "Benjamin-JHou",
+    "repo": "JunScience"
+  },
   "files": [
     "dist/**/*",
     "dist-electron/**/*",

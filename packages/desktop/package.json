@@ -6,6 +6,10 @@
   "productName": "JunScience",
   "desktopName": "JunScience",
   "executableName": "junscience",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Benjamin-JHou/JunScience.git"
+  },
   "private": true,
   "type": "module",
   "main": "./dist-electron/main.js",
