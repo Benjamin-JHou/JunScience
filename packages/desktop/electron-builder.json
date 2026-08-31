@@ -47,7 +47,6 @@
   },
   "linux": {
     "executableName": "junscience",
-    "desktopName": "JunScience",
     "category": "Science",
     "target": [
       {
