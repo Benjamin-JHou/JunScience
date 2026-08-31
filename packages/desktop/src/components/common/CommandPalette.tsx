@@ -26,15 +26,15 @@ interface CommandItem {
 
 export const CommandPalette: React.FC = () => {
   const { isCommandPaletteOpen, setIsCommandPaletteOpen, setActiveSection, setIsSettingsOpen } = useNav();
-  const { setDesktopTheme, setCliTheme, setViewMode } = useTheme();
-  const { resetSession, openProject } = useAgent();
+  const { setDesktopTheme } = useTheme();
+  const { resetSession, openSession } = useAgent();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const commands: CommandItem[] = [
     {
       id: 'cmd-new-chat',
-      label: 'New Research Chat',
+      label: 'New Research Inquiry',
       category: 'Actions',
       icon: Plus,
       shortcut: '⌘N',
@@ -44,89 +44,50 @@ export const CommandPalette: React.FC = () => {
       },
     },
     {
-      id: 'cmd-lit',
-      label: 'Search Scientific Literature',
-      category: 'Workflows',
-      icon: BookOpen,
-      action: () => setActiveSection('literature'),
+      id: 'cmd-skills',
+      label: 'Browse 19 Scientific Skills (SOPs)',
+      category: 'Navigation',
+      icon: Plus,
+      action: () => setActiveSection('skills'),
     },
     {
-      id: 'cmd-data',
-      label: 'Run Data Analysis Pipeline',
-      category: 'Workflows',
-      icon: BarChart2,
-      action: () => setActiveSection('data-analysis'),
-    },
-    {
-      id: 'cmd-proj-1',
-      label: 'Open Project: Autoimmune Target Discovery',
-      category: 'Projects',
+      id: 'cmd-sessions',
+      label: 'View Research Sessions & History',
+      category: 'Navigation',
       icon: FolderKanban,
-      action: () => openProject('proj-1', 'Autoimmune Target Discovery'),
+      action: () => setActiveSection('sessions'),
+    },
+    {
+      id: 'cmd-evidence',
+      label: 'Open Evidence & Citations Registry',
+      category: 'Navigation',
+      icon: BookOpen,
+      action: () => setActiveSection('evidence'),
+    },
+    {
+      id: 'cmd-files',
+      label: 'Browse Workspace Files & Artifacts',
+      category: 'Navigation',
+      icon: BarChart2,
+      action: () => setActiveSection('files'),
     },
     {
       id: 'cmd-dark',
       label: 'Switch to Desktop Dark Theme',
       category: 'Appearance',
       icon: Moon,
-      action: () => {
-        setDesktopTheme('dark');
-        setViewMode('desktop');
-      },
+      action: () => setDesktopTheme('dark'),
     },
     {
       id: 'cmd-light',
       label: 'Switch to Desktop Light Theme',
       category: 'Appearance',
       icon: Sun,
-      action: () => {
-        setDesktopTheme('light');
-        setViewMode('desktop');
-      },
-    },
-    {
-      id: 'cmd-cli-green',
-      label: 'Open Terminal CLI: Green (Matrix)',
-      category: 'CLI Themes',
-      icon: Terminal,
-      action: () => {
-        setCliTheme('green');
-        setViewMode('cli');
-      },
-    },
-    {
-      id: 'cmd-cli-blue',
-      label: 'Open Terminal CLI: Blue (Cyber)',
-      category: 'CLI Themes',
-      icon: Terminal,
-      action: () => {
-        setCliTheme('blue');
-        setViewMode('cli');
-      },
-    },
-    {
-      id: 'cmd-cli-purple',
-      label: 'Open Terminal CLI: Purple (Neon)',
-      category: 'CLI Themes',
-      icon: Terminal,
-      action: () => {
-        setCliTheme('purple');
-        setViewMode('cli');
-      },
-    },
-    {
-      id: 'cmd-cli-amber',
-      label: 'Open Terminal CLI: Amber (Retro)',
-      category: 'CLI Themes',
-      icon: Terminal,
-      action: () => {
-        setCliTheme('amber');
-        setViewMode('cli');
-      },
+      action: () => setDesktopTheme('light'),
     },
     {
       id: 'cmd-settings',
-      label: 'Open Application Settings',
+      label: 'Open Workstation Settings',
       category: 'System',
       icon: Settings,
       shortcut: '⌘,',

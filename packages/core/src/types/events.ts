@@ -17,6 +17,16 @@ export type SessionResumedEvent = BaseEvent<
   { sessionId: string }
 >;
 
+export type SessionDeletedEvent = BaseEvent<
+  'session.deleted',
+  { sessionId: string }
+>;
+
+export type SessionRenamedEvent = BaseEvent<
+  'session.renamed',
+  { sessionId: string; title: string }
+>;
+
 export type AgentStartedEvent = BaseEvent<
   'agent.started',
   { agentId: string; objective: string }
@@ -105,6 +115,8 @@ export type PlanTaskCompletedEvent = BaseEvent<
 export type RuntimeEvent =
   | SessionCreatedEvent
   | SessionResumedEvent
+  | SessionDeletedEvent
+  | SessionRenamedEvent
   | AgentStartedEvent
   | AgentThinkingEvent
   | AgentMessageDeltaEvent

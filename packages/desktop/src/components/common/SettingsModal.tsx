@@ -54,7 +54,7 @@ export const SettingsModal: React.FC = () => {
     setViewMode,
   } = useTheme();
 
-  const [activeTab, setActiveTab] = useState<'model' | 'appearance' | 'shortcuts'>('model');
+  const [activeTab, setActiveTab] = useState<'model' | 'guardrails' | 'appearance' | 'shortcuts'>('model');
 
   // Model Profiles State
   const [profiles, setProfiles] = useState<ModelProfile[]>([]);
@@ -216,8 +216,9 @@ export const SettingsModal: React.FC = () => {
         <div className="flex border-b border-border bg-bg-elevated/40 px-6 pt-2">
           {[
             { id: 'model', label: 'Model & API', icon: Cpu },
-            { id: 'appearance', label: 'Appearance & UI', icon: Monitor },
-            { id: 'shortcuts', label: 'Keyboard Shortcuts', icon: Keyboard },
+            { id: 'guardrails', label: 'Guardrail Hooks', icon: Shield },
+            { id: 'appearance', label: 'Appearance', icon: Sun },
+            { id: 'shortcuts', label: 'Hotkeys', icon: Keyboard },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -424,118 +425,116 @@ export const SettingsModal: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 2: APPEARANCE & UI */}
-          {activeTab === 'appearance' && (
-            <div className="space-y-6">
+          {/* TAB 2: GUARDRAIL HOOKS & PRIVACY */}
+          {activeTab === 'guardrails' && (
+            <div className="space-y-6 text-left">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
-                  Operating Environment Mode
-                </label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {[
-                    { id: 'desktop', label: 'Desktop UI', icon: Monitor },
-                    { id: 'cli', label: 'Terminal CLI', icon: Terminal },
-                    { id: 'showcase', label: 'Theme Showcase', icon: Monitor },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    const isSelected = viewMode === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setViewMode(item.id as ViewMode)}
-                        className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'border-accent bg-accent/15 text-accent shadow-sm'
-                            : 'border-border bg-bg-elevated hover:bg-bg-hover text-text-secondary'
-                        }`}
-                      >
-                        <Icon size={15} />
-                        <span>{item.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <h4 className="text-sm font-semibold text-text-primary">Non-Bypassable Research Guardrails</h4>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Deterministic security and scientific verification hooks enforced across all model calls.
+                </p>
               </div>
 
+              <div className="space-y-3">
+                {[
+                  {
+                    name: 'evidence-verifier',
+                    phase: 'PostToolUse',
+                    desc: 'Codex-style patch verification checking numerical bounds (p in [0,1], IC50 > 0, HU in [-1024, +3071], NaN/Inf guard).',
+                    status: 'Enforced',
+                  },
+                  {
+                    name: 'secret-redaction',
+                    phase: 'PreToolUse',
+                    desc: 'Scans outbound requests for exposed API credentials (sk-*, anthropic keys, bearer tokens) and redacts them before network transmission.',
+                    status: 'Enforced',
+                  },
+                  {
+                    name: 'clinical-data-gate',
+                    phase: 'PreToolUse',
+                    desc: 'Guards raw EHR text and DICOM image volumes inside local kernel sandbox, blocking unapproved egress.',
+                    status: 'Enforced',
+                  },
+                  {
+                    name: 'evidence-completeness-check',
+                    phase: 'Stop',
+                    desc: 'Verifies that every [Evidence: EV-xxx] citation in synthesized text corresponds to an immutable record.',
+                    status: 'Enforced',
+                  },
+                ].map((hook) => (
+                  <div
+                    key={hook.name}
+                    className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Shield size={15} className="text-accent" />
+                        <span className="font-mono text-xs font-semibold text-text-primary">
+                          {hook.name}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-semibold">
+                        {hook.status}
+                      </span>
+                    </div>
+                    <p className="text-[11.5px] text-text-secondary leading-relaxed">{hook.desc}</p>
+                    <div className="flex items-center gap-2 text-[10.5px] text-text-muted font-mono pt-1">
+                      <span>Lifecycle Event:</span>
+                      <span className="text-accent font-semibold">{hook.phase}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: APPEARANCE & UI */}
+          {activeTab === 'appearance' && (
+            <div className="space-y-6 text-left">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
-                  Desktop Theme
+                  Desktop Interface Theme
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setDesktopTheme('dark')}
-                    className={`flex items-center justify-between p-3 rounded-xl border text-xs font-medium transition-all ${
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-medium transition-all ${
                       desktopTheme === 'dark'
-                        ? 'border-accent bg-accent/10 text-text-primary ring-1 ring-accent/30'
+                        ? 'border-accent bg-accent/10 text-text-primary ring-1 ring-accent/30 shadow-xs'
                         : 'border-border bg-bg-elevated hover:bg-bg-hover text-text-secondary'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Moon size={16} className="text-accent" />
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-bg-surface text-accent">
+                        <Moon size={18} />
+                      </div>
                       <div className="text-left">
-                        <span className="block font-semibold">Desktop Dark</span>
-                        <span className="text-[11px] text-text-muted">Futuristic Science</span>
+                        <span className="block font-semibold text-sm">Desktop Dark</span>
+                        <span className="text-[11px] text-text-muted">High-contrast scientific matrix</span>
                       </div>
                     </div>
-                    {desktopTheme === 'dark' && <Check size={15} className="text-accent" />}
+                    {desktopTheme === 'dark' && <Check size={16} className="text-accent" />}
                   </button>
 
                   <button
                     onClick={() => setDesktopTheme('light')}
-                    className={`flex items-center justify-between p-3 rounded-xl border text-xs font-medium transition-all ${
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-medium transition-all ${
                       desktopTheme === 'light'
-                        ? 'border-accent bg-accent/10 text-text-primary ring-1 ring-accent/30'
+                        ? 'border-accent bg-accent/10 text-text-primary ring-1 ring-accent/30 shadow-xs'
                         : 'border-border bg-bg-elevated hover:bg-bg-hover text-text-secondary'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Sun size={16} className="text-accent" />
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-bg-surface text-accent">
+                        <Sun size={18} />
+                      </div>
                       <div className="text-left">
-                        <span className="block font-semibold">Desktop Light</span>
-                        <span className="text-[11px] text-text-muted">Paper Precision</span>
+                        <span className="block font-semibold text-sm">Desktop Light</span>
+                        <span className="text-[11px] text-text-muted">Paper precision & journal reading</span>
                       </div>
                     </div>
-                    {desktopTheme === 'light' && <Check size={15} className="text-accent" />}
+                    {desktopTheme === 'light' && <Check size={16} className="text-accent" />}
                   </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
-                  CLI Terminal Theme
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {[
-                    { id: 'green', label: 'CLI Green', desc: 'Classic Phosphor', color: '#10b981' },
-                    { id: 'blue', label: 'CLI Blue', desc: 'Cyber Navy', color: '#38bdf8' },
-                    { id: 'purple', label: 'CLI Purple', desc: 'Deep Matrix', color: '#c084fc' },
-                    { id: 'amber', label: 'CLI Amber', desc: 'Vintage CRT', color: '#f59e0b' },
-                  ].map((item) => {
-                    const isSelected = cliTheme === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setCliTheme(item.id as CliTheme)}
-                        className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'border-accent bg-accent/10 text-text-primary ring-1 ring-accent/30'
-                            : 'border-border bg-bg-elevated hover:bg-bg-hover text-text-secondary'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <div className="text-left">
-                            <span className="block font-semibold">{item.label}</span>
-                            <span className="text-[10px] text-text-muted">{item.desc}</span>
-                          </div>
-                        </div>
-                        {isSelected && <Check size={13} className="text-accent" />}
-                      </button>
-                    );
-                  })}
                 </div>
               </div>
             </div>

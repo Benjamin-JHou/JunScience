@@ -1,31 +1,102 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AgentSession, AgentStatus, AgentMessage, ToolExecution } from '../types/agent';
-import { mockDefaultSession, mockDefaultTools, mockDefaultArtifacts, mockDefaultCitations } from '../data/mockResearch';
+import { AgentSession, AgentStatus, AgentMessage, ToolExecution, Artifact, Citation } from '../types/agent';
 import type { RuntimeEvent } from '@junscience/core';
 
 interface AgentContextType {
+  sessions: AgentSession[];
   currentSession: AgentSession;
   activeView: 'home' | 'workspace';
   status: AgentStatus;
   submitPrompt: (promptText: string) => Promise<void>;
   resetSession: () => void;
-  openProject: (projectId: string, title: string) => void;
+  openSession: (sessionId: string) => void;
+  renameSession: (sessionId: string, newTitle: string) => Promise<void>;
+  deleteSession: (sessionId: string) => Promise<void>;
+  exportSession: (sessionId: string) => Promise<string>;
   setActiveView: (view: 'home' | 'workspace') => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
 
-export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const paramView = urlParams.get('view');
+function createFreshSession(): AgentSession {
+  const id = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const now = new Date().toISOString();
+  return {
+    id,
+    title: 'New Scientific Exploration',
+    createdAt: now,
+    updatedAt: now,
+    status: 'idle',
+    messages: [],
+  };
+}
 
-  const [currentSession, setCurrentSession] = useState<AgentSession>(mockDefaultSession);
-  const [activeView, setActiveView] = useState<'home' | 'workspace'>(
-    paramView === 'workspace' ? 'workspace' : 'home'
-  );
+const LOCAL_STORAGE_SESSIONS_KEY = 'junscience_desktop_sessions_v1';
+
+export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [sessions, setSessions] = useState<AgentSession[]>(() => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+
+  const [currentSession, setCurrentSession] = useState<AgentSession>(() => {
+    return createFreshSession();
+  });
+
+  const [activeView, setActiveView] = useState<'home' | 'workspace'>('home');
   const [status, setStatus] = useState<AgentStatus>('idle');
 
-  // Listen to IPC events from Electron Main process
+  // Save sessions to localStorage whenever sessions list changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_SESSIONS_KEY, JSON.stringify(sessions));
+    } catch {}
+  }, [sessions]);
+
+  // Load real sessions from Electron IPC on mount if available
+  useEffect(() => {
+    if (window.junscience?.session) {
+      window.junscience.session.list().then((list) => {
+        if (list && list.length > 0) {
+          // Convert RuntimeSession to AgentSession format if needed
+          const converted: AgentSession[] = list.map((rs) => ({
+            id: rs.id,
+            title: rs.title,
+            createdAt: rs.createdAt,
+            updatedAt: rs.updatedAt,
+            status: rs.status as AgentStatus,
+            messages: rs.turns?.flatMap((t, idx) => [
+              {
+                id: `msg-${rs.id}-${idx}-user`,
+                role: 'user' as const,
+                content: t.userInput,
+                timestamp: new Date(t.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              },
+              {
+                id: `msg-${rs.id}-${idx}-agent`,
+                role: 'agent' as const,
+                status: t.status as AgentStatus,
+                content: t.agentResponse,
+                timestamp: new Date(t.completedAt || t.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                toolExecutions: t.toolResults?.map((tr) => tr.execution as any) || [],
+                artifacts: rs.artifacts as any[] || [],
+                citations: rs.citations as any[] || [],
+              },
+            ]) || [],
+          }));
+          setSessions(converted);
+        }
+      }).catch(() => {});
+    }
+  }, []);
+
+  // Listen to IPC runtime events from Electron Main process
   useEffect(() => {
     if (window.junscience?.agent) {
       const unsub = window.junscience.agent.onEvent((event: RuntimeEvent) => {
@@ -47,7 +118,6 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setStatus('tool_calling');
         break;
       case 'tool.completed':
-        // Update tool execution in active message
         setCurrentSession((prev) => {
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
@@ -55,7 +125,7 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const existingTools = lastMsg.toolExecutions || [];
             const exec = event.payload.execution;
             const updatedTools: ToolExecution[] = [
-              ...existingTools.filter((t) => t.toolName !== exec.toolName),
+              ...existingTools.filter((t) => t.id !== exec.id && t.toolName !== exec.toolName),
               {
                 id: exec.id,
                 toolName: exec.toolName,
@@ -77,8 +147,8 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
           if (lastMsg && lastMsg.role === 'agent') {
-            const art = event.payload.artifact;
-            lastMsg.artifacts = [...(lastMsg.artifacts || []), art as any];
+            const art = event.payload.artifact as Artifact;
+            lastMsg.artifacts = [...(lastMsg.artifacts || []).filter((a) => a.id !== art.id), art];
           }
           return { ...prev, messages };
         });
@@ -88,8 +158,8 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const messages = [...prev.messages];
           const lastMsg = messages[messages.length - 1];
           if (lastMsg && lastMsg.role === 'agent') {
-            const cit = event.payload.citation;
-            lastMsg.citations = [...(lastMsg.citations || []), cit as any];
+            const cit = event.payload.citation as Citation;
+            lastMsg.citations = [...(lastMsg.citations || []).filter((c) => c.id !== cit.id), cit];
           }
           return { ...prev, messages };
         });
@@ -103,66 +173,131 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             lastMsg.content = event.payload.fullContent;
             lastMsg.status = 'completed';
           }
-          return { ...prev, status: 'completed', messages };
+          const updated = { ...prev, status: 'completed' as AgentStatus, updatedAt: new Date().toISOString(), messages };
+          // Upsert into sessions list
+          setSessions((prevList) => {
+            const exists = prevList.some((s) => s.id === updated.id);
+            if (exists) {
+              return prevList.map((s) => (s.id === updated.id ? updated : s));
+            }
+            return [updated, ...prevList];
+          });
+          return updated;
         });
         break;
     }
   };
 
   const resetSession = () => {
-    const newSessionId = `sess-${Date.now()}`;
-    setCurrentSession({
-      id: newSessionId,
-      title: 'New Scientific Exploration',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'idle',
-      messages: [],
-    });
+    const fresh = createFreshSession();
+    setCurrentSession(fresh);
     setStatus('idle');
     setActiveView('home');
   };
 
-  const openProject = (projectId: string, title: string) => {
-    if (projectId === 'proj-1') {
-      setCurrentSession(mockDefaultSession);
-    } else {
-      setCurrentSession({
-        id: projectId,
-        title: title,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'completed',
-        messages: [
-          {
-            id: `msg-${Date.now()}-user`,
-            role: 'user',
-            content: `Review research progress and recent artifacts for ${title}.`,
-            timestamp: 'Just now',
-          },
-          {
-            id: `msg-${Date.now()}-agent`,
-            role: 'agent',
-            status: 'completed',
-            timestamp: 'Just now',
-            content: `### Project Overview: **${title}**\n\nAll automated pipeline analyses and target screenings have converged. Pre-computed molecular dynamics and literature mining results are indexed below.`,
-            toolExecutions: mockDefaultTools.slice(0, 2),
-            artifacts: mockDefaultArtifacts.slice(0, 2),
-            citations: mockDefaultCitations.slice(0, 2),
-          },
-        ],
-      });
+  const openSession = (sessionId: string) => {
+    const target = sessions.find((s) => s.id === sessionId);
+    if (target) {
+      setCurrentSession(target);
+      setStatus(target.status);
+      setActiveView('workspace');
     }
-    setActiveView('workspace');
+  };
+
+  const renameSession = async (sessionId: string, newTitle: string) => {
+    const trimmed = newTitle.trim();
+    if (!trimmed) return;
+
+    if (window.junscience?.session) {
+      await window.junscience.session.rename(sessionId, trimmed);
+    }
+
+    setSessions((prev) =>
+      prev.map((s) => (s.id === sessionId ? { ...s, title: trimmed, updatedAt: new Date().toISOString() } : s))
+    );
+
+    setCurrentSession((prev) => (prev.id === sessionId ? { ...prev, title: trimmed } : prev));
+  };
+
+  const deleteSession = async (sessionId: string) => {
+    if (window.junscience?.session) {
+      await window.junscience.session.delete(sessionId);
+    }
+
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+
+    if (currentSession.id === sessionId) {
+      resetSession();
+    }
+  };
+
+  const exportSession = async (sessionId: string): Promise<string> => {
+    if (window.junscience?.session) {
+      try {
+        const exported = await window.junscience.session.export(sessionId);
+        if (exported) return exported;
+      } catch {}
+    }
+
+    const sess = sessions.find((s) => s.id === sessionId) || (currentSession.id === sessionId ? currentSession : null);
+    if (!sess) return '# Session Not Found\n';
+
+    const lines: string[] = [
+      `# JunScience Research Report: ${sess.title}`,
+      `\n**Session ID**: \`${sess.id}\`  `,
+      `**Created At**: ${new Date(sess.createdAt).toLocaleString()}  `,
+      `**Status**: \`${sess.status.toUpperCase()}\`\n`,
+      `---\n`,
+      `## Research Dialogue & Investigation Stream\n`,
+    ];
+
+    sess.messages.forEach((msg, idx) => {
+      const isAgent = msg.role === 'agent';
+      lines.push(`### ${isAgent ? '🔬 JunScience Agent' : '👤 User Inquiry'} (${msg.timestamp})`);
+      lines.push(`${msg.content}\n`);
+
+      if (msg.toolExecutions && msg.toolExecutions.length > 0) {
+        lines.push(`**Executed Scientific Tools:**`);
+        msg.toolExecutions.forEach((t) => {
+          lines.push(`- **\`${t.toolName}\`** (${t.status}, ${t.duration || 'N/A'}): ${t.resultSummary || t.description}`);
+        });
+        lines.push('');
+      }
+
+      if (msg.artifacts && msg.artifacts.length > 0) {
+        lines.push(`**Generated Research Artifacts:**`);
+        msg.artifacts.forEach((art) => {
+          lines.push(`- **${art.title}** (\`${art.type}\`): ${art.description}`);
+        });
+        lines.push('');
+      }
+
+      if (msg.citations && msg.citations.length > 0) {
+        lines.push(`**Verified Evidence & Citations:**`);
+        msg.citations.forEach((cit, cIdx) => {
+          lines.push(`[${cIdx + 1}] **${cit.title}** (${cit.journal || 'Journal'}, ${cit.year || 'Year'})`);
+          if (cit.pmid) lines.push(`    PMID: [${cit.pmid}](https://pubmed.ncbi.nlm.nih.gov/${cit.pmid}/)`);
+          if (cit.doi) lines.push(`    DOI: [${cit.doi}](https://doi.org/${cit.doi})`);
+        });
+        lines.push('');
+      }
+    });
+
+    lines.push(`\n---\n*Generated by JunScience Autonomous Research Workstation*`);
+    return lines.join('\n');
   };
 
   const submitPrompt = async (promptText: string) => {
     if (!promptText.trim()) return;
 
+    const trimmed = promptText.trim();
+    const isFirstInquiry = currentSession.messages.length === 0;
+    const sessionTitle = isFirstInquiry ? trimmed.slice(0, 50) : currentSession.title;
+
     const userMessage: AgentMessage = {
       id: `msg-${Date.now()}-user`,
       role: 'user',
-      content: promptText,
+      content: trimmed,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
@@ -178,35 +313,34 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       citations: [],
     };
 
-    setCurrentSession((prev) => ({
-      ...prev,
-      title: prev.messages.length === 0 ? promptText.slice(0, 40) : prev.title,
+    const activeSession: AgentSession = {
+      ...currentSession,
+      title: sessionTitle,
       status: 'thinking',
-      messages: [...prev.messages, userMessage, initialAgentMessage],
-    }));
+      updatedAt: new Date().toISOString(),
+      messages: [...currentSession.messages, userMessage, initialAgentMessage],
+    };
+
+    setCurrentSession(activeSession);
+    setSessions((prev) => {
+      const exists = prev.some((s) => s.id === activeSession.id);
+      if (exists) {
+        return prev.map((s) => (s.id === activeSession.id ? activeSession : s));
+      }
+      return [activeSession, ...prev];
+    });
 
     setStatus('thinking');
     setActiveView('workspace');
 
     try {
       if (window.junscience?.agent) {
-        // Execute via Electron IPC
-        await window.junscience.agent.submitPrompt(promptText, currentSession.id);
+        await window.junscience.agent.submitPrompt(trimmed, currentSession.id);
       } else {
-        // Browser fallback
+        // Fallback for browser preview
         setTimeout(() => {
           setStatus('tool_calling');
-          setCurrentSession((prev) => {
-            const msgs = [...prev.messages];
-            const last = msgs[msgs.length - 1];
-            if (last && last.role === 'agent') {
-              last.toolExecutions = mockDefaultTools;
-              last.artifacts = mockDefaultArtifacts;
-              last.citations = mockDefaultCitations;
-            }
-            return { ...prev, messages: msgs };
-          });
-        }, 1000);
+        }, 800);
 
         setTimeout(() => {
           setStatus('completed');
@@ -215,11 +349,13 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const last = msgs[msgs.length - 1];
             if (last && last.role === 'agent') {
               last.status = 'completed';
-              last.content = `### Scientific Research Synthesis\n\nAutomated analysis for "${promptText}" completed. Data tables, volcano plots, and literature citations are indexed below.`;
+              last.content = `### Scientific Research Synthesis: ${trimmed}\n\nAutomated scientific reasoning, evidence verification, and cross-database validation completed. Verified findings and research artifacts have been indexed into the Evidence Registry.`;
             }
-            return { ...prev, status: 'completed', messages: msgs };
+            const completed = { ...prev, status: 'completed' as AgentStatus, updatedAt: new Date().toISOString(), messages: msgs };
+            setSessions((prevList) => prevList.map((s) => (s.id === completed.id ? completed : s)));
+            return completed;
           });
-        }, 2500);
+        }, 2000);
       }
     } catch (err) {
       console.error('Agent execution error:', err);
@@ -230,12 +366,16 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <AgentContext.Provider
       value={{
+        sessions,
         currentSession,
         activeView,
         status,
         submitPrompt,
         resetSession,
-        openProject,
+        openSession,
+        renameSession,
+        deleteSession,
+        exportSession,
         setActiveView,
       }}
     >

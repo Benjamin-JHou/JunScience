@@ -4,29 +4,18 @@ import { TopBar } from './TopBar';
 import { ContextPanel } from './ContextPanel';
 import { DesktopHomeView } from '../views/DesktopHomeView';
 import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';
-import { FunctionalPlaceholders } from '../views/FunctionalPlaceholders';
-import { CliView } from '../cli/CliView';
-import { ThemeGalleryView } from '../views/ThemeGalleryView';
+import { SessionsView } from '../views/SessionsView';
+import { SkillsCatalogView } from '../views/SkillsCatalogView';
+import { EvidenceRegistryView } from '../views/EvidenceRegistryView';
+import { WorkspaceFilesView } from '../views/WorkspaceFilesView';
 import { CommandPalette } from '../common/CommandPalette';
 import { SettingsModal } from '../common/SettingsModal';
-import { useTheme } from '../../context/ThemeContext';
 import { useNav } from '../../context/NavContext';
 import { useAgent } from '../../context/AgentContext';
 
 export const AppShell: React.FC = () => {
-  const { viewMode } = useTheme();
   const { activeSection } = useNav();
   const { activeView } = useAgent();
-
-  if (viewMode === 'cli') {
-    return (
-      <div className="w-screen h-screen overflow-hidden flex flex-col bg-[#020503]">
-        <CliView />
-        <CommandPalette />
-        <SettingsModal />
-      </div>
-    );
-  }
 
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden bg-bg-primary text-text-primary">
@@ -40,21 +29,17 @@ export const AppShell: React.FC = () => {
 
         {/* Center Workspace */}
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-bg-primary">
-          {viewMode === 'showcase' ? (
-            <ThemeGalleryView />
-          ) : activeSection === 'home' ? (
-            activeView === 'home' ? (
-              <DesktopHomeView />
-            ) : (
-              <DesktopWorkspaceView />
-            )
-          ) : (
-            <FunctionalPlaceholders section={activeSection} />
+          {activeSection === 'home' && (
+            activeView === 'home' ? <DesktopHomeView /> : <DesktopWorkspaceView />
           )}
+          {activeSection === 'sessions' && <SessionsView />}
+          {activeSection === 'skills' && <SkillsCatalogView />}
+          {activeSection === 'evidence' && <EvidenceRegistryView />}
+          {activeSection === 'files' && <WorkspaceFilesView />}
         </main>
 
-        {/* Right Context Panel (Only in Desktop Home / Workspace mode) */}
-        {viewMode !== 'showcase' && activeSection === 'home' && <ContextPanel />}
+        {/* Right Context Panel (Only in Research Agent Home / Workspace mode) */}
+        {activeSection === 'home' && <ContextPanel />}
       </div>
 
       {/* Global Modals & Overlays */}

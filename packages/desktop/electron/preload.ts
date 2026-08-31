@@ -29,8 +29,11 @@ const api = {
   session: {
     list: (): Promise<RuntimeSession[]> => ipcRenderer.invoke('session:list'),
     get: (id: string): Promise<RuntimeSession | undefined> => ipcRenderer.invoke('session:get', id),
-    create: (title: string, agentId?: string): Promise<RuntimeSession> =>
-      ipcRenderer.invoke('session:create', { title, agentId }),
+    create: (title: string, agentId?: string, profileId?: string, modelName?: string): Promise<RuntimeSession> =>
+      ipcRenderer.invoke('session:create', { title, agentId, profileId, modelName }),
+    delete: (id: string): Promise<boolean> => ipcRenderer.invoke('session:delete', id),
+    rename: (id: string, title: string): Promise<boolean> => ipcRenderer.invoke('session:rename', { id, title }),
+    export: (id: string): Promise<string> => ipcRenderer.invoke('session:export', id),
   },
 };
 

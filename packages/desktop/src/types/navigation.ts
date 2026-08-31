@@ -1,13 +1,9 @@
 export type NavSection =
   | 'home'
-  | 'literature'
-  | 'data-analysis'
-  | 'experiment-design'
-  | 'code-assistant'
-  | 'molecule-explorer'
-  | 'notebook'
-  | 'knowledge-base'
-  | 'my-projects';
+  | 'sessions'
+  | 'skills'
+  | 'evidence'
+  | 'files';
 
 export interface NavItem {
   id: NavSection;
