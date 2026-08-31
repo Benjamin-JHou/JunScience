@@ -51,12 +51,12 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: '1'
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
-            npx --yes electron-builder --mac -c packages/desktop/electron-builder.json --publish never
+            npm --workspace=@junscience/desktop run dist:mac
           elif [ "${{ runner.os }}" = "Windows" ]; then
-            npx --yes electron-builder --win -c packages/desktop/electron-builder.json --publish never
+            npm --workspace=@junscience/desktop run dist:win
           else
             export APPIMAGE_EXTRACT_AND_RUN=1
-            npx --yes electron-builder --linux -c packages/desktop/electron-builder.json --publish never
+            npm --workspace=@junscience/desktop run dist:linux
           fi
         shell: bash
 
