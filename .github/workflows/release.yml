@@ -64,6 +64,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ github.ref_name }}
+          fail_on_unmatched_files: false
           files: |
             packages/desktop/release/*.dmg
             packages/desktop/release/*.zip
