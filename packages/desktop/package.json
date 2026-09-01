@@ -18,9 +18,9 @@
     "build:renderer": "tsc && vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build": "npm run build:renderer && npm run build:electron",
-    "dist": "npm run build && electron-builder -c electron-builder.json --publish never",
-    "dist:mac": "npm run build && electron-builder -c electron-builder.json --mac --publish never",
-    "dist:win": "npm run build && electron-builder -c electron-builder.json --win --publish never"
+    "dist": "npm run build && node ../../node_modules/electron-builder/cli.js --publish never",
+    "dist:mac": "npm run build && node ../../node_modules/electron-builder/cli.js --mac --publish never",
+    "dist:win": "npm run build && node ../../node_modules/electron-builder/cli.js --win --publish never"
   },
   "dependencies": {
     "@junscience/core": "*",

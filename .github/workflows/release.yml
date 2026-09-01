@@ -45,9 +45,9 @@ jobs:
           cd packages/desktop
           npm run build
           if [ "${{ runner.os }}" = "macOS" ]; then
-            npx electron-builder --mac --publish never
+            node ../../node_modules/electron-builder/cli.js --mac --publish never
           else
-            npx electron-builder --win --publish never
+            node ../../node_modules/electron-builder/cli.js --win --publish never
           fi
         shell: bash
 
