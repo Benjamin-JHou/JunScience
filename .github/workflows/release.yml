@@ -40,7 +40,6 @@ jobs:
 
       - name: Build Desktop Binaries (macOS DMG / Windows EXE)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
