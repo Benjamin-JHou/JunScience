@@ -14,6 +14,7 @@ interface NavContextType {
   setIsCommandPaletteOpen: (open: boolean) => void;
   isNewChatModalOpen: boolean;
   setIsNewChatModalOpen: (open: boolean) => void;
+  registerNewChatCallback: (cb: () => void) => void;
 }
 
 const NavContext = createContext<NavContextType | undefined>(undefined);
@@ -25,6 +26,11 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState<boolean>(false);
+  const newChatCallbackRef = React.useRef<(() => void) | null>(null);
+
+  const registerNewChatCallback = (cb: () => void) => {
+    newChatCallbackRef.current = cb;
+  };
 
   // Global Keyboard shortcuts
   useEffect(() => {
@@ -37,6 +43,9 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // ⌘N or Ctrl+N -> New Chat
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n') {
         e.preventDefault();
+        if (newChatCallbackRef.current) {
+          newChatCallbackRef.current();
+        }
         setActiveSection('home');
       }
       // Esc -> Close Modals
@@ -66,6 +75,7 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsCommandPaletteOpen,
         isNewChatModalOpen,
         setIsNewChatModalOpen,
+        registerNewChatCallback,
       }}
     >
       {children}

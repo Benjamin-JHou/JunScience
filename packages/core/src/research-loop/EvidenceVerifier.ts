@@ -410,6 +410,11 @@ export class EvidenceVerifier {
   }
 
   private checkArtifactIntegrity(artifacts: Artifact[], details: VerificationDetail[]): void {
+    const isNodeEnv = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+    if (!isNodeEnv || typeof fs?.existsSync !== 'function') {
+      return;
+    }
+
     for (const art of artifacts) {
       const filePath = art.metadata?.Path;
       if (filePath && typeof filePath === 'string') {

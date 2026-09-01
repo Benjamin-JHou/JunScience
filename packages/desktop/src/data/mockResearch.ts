@@ -139,8 +139,8 @@ export const mockDefaultArtifacts: Artifact[] = [
 export const mockDefaultSession: AgentSession = {
   id: 'sess-sle-target-discovery',
   title: 'Autoimmune Target Discovery & Transcriptomic Validation',
-  createdAt: '2026-08-27T10:14:00Z',
-  updatedAt: '2026-08-27T10:15:30Z',
+  createdAt: new Date(Date.now() - 3600000).toISOString(),
+  updatedAt: new Date().toISOString(),
   status: 'completed',
   messages: [
     {

@@ -20,13 +20,13 @@ export class PermissionManager {
     this.policies.set('READ', { defaultAction: 'allow' });
     this.policies.set('WRITE', {
       defaultAction: 'allow',
-      deniedPrefixes: ['/etc', '/usr', '/System', '~/.ssh'],
+      deniedPrefixes: ['/etc', '/usr', '/System', '~/.ssh', 'C:\\Windows'],
     });
     this.policies.set('EXECUTE', {
       defaultAction: 'allow',
     });
     this.policies.set('NETWORK', {
-      defaultAction: 'allow',
+      defaultAction: 'ask',
       allowedPrefixes: [
         'https://eutils.ncbi.nlm.nih.gov',
         'https://rest.uniprot.org',
@@ -35,6 +35,15 @@ export class PermissionManager {
         'https://data.rcsb.org',
         'https://rest.ensembl.org',
         'https://api.openalex.org',
+        'https://clinicaltrials.gov',
+        'https://api.fda.gov',
+        'https://rxnav.nlm.nih.gov',
+        'https://dailymed.nlm.nih.gov',
+        'https://api.semanticscholar.org',
+        'https://europepmc.org',
+      ],
+      deniedPrefixes: [
+        'http://', // Disallow unencrypted plain HTTP for biomedical data
       ],
     });
     this.policies.set('INSTALL', { defaultAction: 'ask' });
@@ -53,18 +62,25 @@ export class PermissionManager {
   ): Promise<boolean> {
     const policy = this.policies.get(operation) || { defaultAction: 'ask' };
 
+    // 1. Explicit denial checks
     if (policy.deniedPrefixes?.some((prefix) => target.startsWith(prefix))) {
       return false;
     }
 
-    if (policy.defaultAction === 'allow') {
-      return true;
-    }
-
+    // 2. Explicit whitelist checks
     if (policy.allowedPrefixes?.some((prefix) => target.startsWith(prefix))) {
       return true;
     }
 
+    // 3. Default action checks
+    if (policy.defaultAction === 'allow') {
+      return true;
+    }
+    if (policy.defaultAction === 'deny') {
+      return false;
+    }
+
+    // 4. Ask user / custom resolver
     const requestId = `perm-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const request: PermissionRequest = {
       id: requestId,

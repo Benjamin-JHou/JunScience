@@ -1,12 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AgentSession, AgentStatus, AgentMessage, ToolExecution, Artifact, Citation } from '../types/agent';
+import { useNav } from './NavContext';
 import type { RuntimeEvent } from '@junscience/core';
+
+export interface PlanTask {
+  id: string;
+  title: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  evidenceIds?: string[];
+}
 
 interface AgentContextType {
   sessions: AgentSession[];
   currentSession: AgentSession;
   activeView: 'home' | 'workspace';
   status: AgentStatus;
+  planTasks: PlanTask[];
   submitPrompt: (promptText: string) => Promise<void>;
   resetSession: () => void;
   openSession: (sessionId: string) => void;
@@ -34,6 +43,8 @@ function createFreshSession(): AgentSession {
 const LOCAL_STORAGE_SESSIONS_KEY = 'junscience_desktop_sessions_v1';
 
 export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { registerNewChatCallback } = useNav();
+
   const [sessions, setSessions] = useState<AgentSession[]>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY);
@@ -51,6 +62,14 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [activeView, setActiveView] = useState<'home' | 'workspace'>('home');
   const [status, setStatus] = useState<AgentStatus>('idle');
+  const [planTasks, setPlanTasks] = useState<PlanTask[]>([]);
+
+  // Register ⌘N shortcut handler
+  useEffect(() => {
+    registerNewChatCallback(() => {
+      resetSession();
+    });
+  }, [registerNewChatCallback]);
 
   // Save sessions to localStorage whenever sessions list changes
   useEffect(() => {
@@ -62,37 +81,43 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Load real sessions from Electron IPC on mount if available
   useEffect(() => {
     if (window.junscience?.session) {
-      window.junscience.session.list().then((list) => {
-        if (list && list.length > 0) {
-          // Convert RuntimeSession to AgentSession format if needed
-          const converted: AgentSession[] = list.map((rs) => ({
-            id: rs.id,
-            title: rs.title,
-            createdAt: rs.createdAt,
-            updatedAt: rs.updatedAt,
-            status: rs.status as AgentStatus,
-            messages: rs.turns?.flatMap((t, idx) => [
-              {
-                id: `msg-${rs.id}-${idx}-user`,
-                role: 'user' as const,
-                content: t.userInput,
-                timestamp: new Date(t.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              },
-              {
-                id: `msg-${rs.id}-${idx}-agent`,
-                role: 'agent' as const,
-                status: t.status as AgentStatus,
-                content: t.agentResponse,
-                timestamp: new Date(t.completedAt || t.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                toolExecutions: t.toolResults?.map((tr) => tr.execution as any) || [],
-                artifacts: rs.artifacts as any[] || [],
-                citations: rs.citations as any[] || [],
-              },
-            ]) || [],
-          }));
-          setSessions(converted);
-        }
-      }).catch(() => {});
+      window.junscience.session
+        .list()
+        .then((list) => {
+          if (list && list.length > 0) {
+            const converted: AgentSession[] = list.map((rs) => ({
+              id: rs.id,
+              title: rs.title,
+              createdAt: rs.createdAt,
+              updatedAt: rs.updatedAt,
+              status: rs.status as AgentStatus,
+              messages:
+                rs.turns?.flatMap((t, idx) => [
+                  {
+                    id: `msg-${rs.id}-${idx}-user`,
+                    role: 'user' as const,
+                    content: t.userInput,
+                    timestamp: new Date(t.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  },
+                  {
+                    id: `msg-${rs.id}-${idx}-agent`,
+                    role: 'agent' as const,
+                    status: t.status as AgentStatus,
+                    content: t.agentResponse,
+                    timestamp: new Date(t.completedAt || t.startedAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }),
+                    toolExecutions: (t.toolResults?.map((tr) => tr.execution as any) || []) as ToolExecution[],
+                    artifacts: (rs.artifacts as any[] || []) as Artifact[],
+                    citations: (rs.citations as any[] || []) as Citation[],
+                  },
+                ]) || [],
+            }));
+            setSessions(converted);
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -109,8 +134,6 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const handleRuntimeEvent = (event: RuntimeEvent) => {
     switch (event.type) {
       case 'agent.started':
-        setStatus('thinking');
-        break;
       case 'agent.thinking':
         setStatus('thinking');
         break;
@@ -119,62 +142,79 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         break;
       case 'tool.completed':
         setCurrentSession((prev) => {
-          const messages = [...prev.messages];
-          const lastMsg = messages[messages.length - 1];
-          if (lastMsg && lastMsg.role === 'agent') {
-            const existingTools = lastMsg.toolExecutions || [];
-            const exec = event.payload.execution;
-            const updatedTools: ToolExecution[] = [
-              ...existingTools.filter((t) => t.id !== exec.id && t.toolName !== exec.toolName),
-              {
-                id: exec.id,
-                toolName: exec.toolName,
-                category: exec.category as any,
-                description: exec.description,
-                status: 'completed',
-                duration: exec.duration,
-                resultSummary: exec.resultSummary,
-                logs: exec.logs,
-              },
-            ];
-            lastMsg.toolExecutions = updatedTools;
-          }
+          const exec = event.payload.execution;
+          const messages = prev.messages.map((m, idx) => {
+            if (idx === prev.messages.length - 1 && m.role === 'agent') {
+              const existingTools = m.toolExecutions || [];
+              const updatedTools: ToolExecution[] = [
+                ...existingTools.filter((t) => t.id !== exec.id && t.toolName !== exec.toolName),
+                {
+                  id: exec.id,
+                  toolName: exec.toolName,
+                  category: exec.category as any,
+                  description: exec.description,
+                  status: 'completed',
+                  duration: exec.duration,
+                  resultSummary: exec.resultSummary,
+                  logs: exec.logs,
+                },
+              ];
+              return { ...m, toolExecutions: updatedTools };
+            }
+            return m;
+          });
           return { ...prev, messages };
         });
         break;
       case 'artifact.created':
         setCurrentSession((prev) => {
-          const messages = [...prev.messages];
-          const lastMsg = messages[messages.length - 1];
-          if (lastMsg && lastMsg.role === 'agent') {
-            const art = event.payload.artifact as Artifact;
-            lastMsg.artifacts = [...(lastMsg.artifacts || []).filter((a) => a.id !== art.id), art];
-          }
+          const art = event.payload.artifact as Artifact;
+          const messages = prev.messages.map((m, idx) => {
+            if (idx === prev.messages.length - 1 && m.role === 'agent') {
+              return {
+                ...m,
+                artifacts: [...(m.artifacts || []).filter((a) => a.id !== art.id), art],
+              };
+            }
+            return m;
+          });
           return { ...prev, messages };
         });
         break;
       case 'citation.created':
         setCurrentSession((prev) => {
-          const messages = [...prev.messages];
-          const lastMsg = messages[messages.length - 1];
-          if (lastMsg && lastMsg.role === 'agent') {
-            const cit = event.payload.citation as Citation;
-            lastMsg.citations = [...(lastMsg.citations || []).filter((c) => c.id !== cit.id), cit];
-          }
+          const cit = event.payload.citation as Citation;
+          const messages = prev.messages.map((m, idx) => {
+            if (idx === prev.messages.length - 1 && m.role === 'agent') {
+              return {
+                ...m,
+                citations: [...(m.citations || []).filter((c) => c.id !== cit.id), cit],
+              };
+            }
+            return m;
+          });
           return { ...prev, messages };
         });
         break;
       case 'agent.message.completed':
         setStatus('completed');
         setCurrentSession((prev) => {
-          const messages = [...prev.messages];
-          const lastMsg = messages[messages.length - 1];
-          if (lastMsg && lastMsg.role === 'agent') {
-            lastMsg.content = event.payload.fullContent;
-            lastMsg.status = 'completed';
-          }
-          const updated = { ...prev, status: 'completed' as AgentStatus, updatedAt: new Date().toISOString(), messages };
-          // Upsert into sessions list
+          const messages = prev.messages.map((m, idx) => {
+            if (idx === prev.messages.length - 1 && m.role === 'agent') {
+              return {
+                ...m,
+                content: event.payload.fullContent,
+                status: 'completed' as AgentStatus,
+              };
+            }
+            return m;
+          });
+          const updated = {
+            ...prev,
+            status: 'completed' as AgentStatus,
+            updatedAt: new Date().toISOString(),
+            messages,
+          };
           setSessions((prevList) => {
             const exists = prevList.some((s) => s.id === updated.id);
             if (exists) {
@@ -192,6 +232,7 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const fresh = createFreshSession();
     setCurrentSession(fresh);
     setStatus('idle');
+    setPlanTasks([]);
     setActiveView('home');
   };
 
@@ -251,7 +292,7 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       `## Research Dialogue & Investigation Stream\n`,
     ];
 
-    sess.messages.forEach((msg, idx) => {
+    sess.messages.forEach((msg) => {
       const isAgent = msg.role === 'agent';
       lines.push(`### ${isAgent ? '🔬 JunScience Agent' : '👤 User Inquiry'} (${msg.timestamp})`);
       lines.push(`${msg.content}\n`);
@@ -321,6 +362,16 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       messages: [...currentSession.messages, userMessage, initialAgentMessage],
     };
 
+    // Initialize 5-stage research milestones
+    const initialPlan: PlanTask[] = [
+      { id: 'task-1', title: 'Target Sequence, Structure & Topology Search', status: 'in_progress', evidenceIds: [] },
+      { id: 'task-2', title: 'Bioactivity & Chemical Target Association', status: 'pending', evidenceIds: [] },
+      { id: 'task-3', title: 'Multi-Database Functional Enrichment & Pathway Mapping', status: 'pending', evidenceIds: [] },
+      { id: 'task-4', title: 'Clinical Trials & Safety Screening', status: 'pending', evidenceIds: [] },
+      { id: 'task-5', title: 'Hypothesis Synthesis & Formal Evidence Verification', status: 'pending', evidenceIds: [] },
+    ];
+    setPlanTasks(initialPlan);
+
     setCurrentSession(activeSession);
     setSessions((prev) => {
       const exists = prev.some((s) => s.id === activeSession.id);
@@ -337,21 +388,38 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (window.junscience?.agent) {
         await window.junscience.agent.submitPrompt(trimmed, currentSession.id);
       } else {
-        // Fallback for browser preview
+        // Fallback for browser preview / development environment
         setTimeout(() => {
           setStatus('tool_calling');
+          setPlanTasks((prev) =>
+            prev.map((t, idx) => {
+              if (idx === 0) return { ...t, status: 'completed' };
+              if (idx === 1) return { ...t, status: 'in_progress' };
+              return t;
+            })
+          );
         }, 800);
 
         setTimeout(() => {
           setStatus('completed');
+          setPlanTasks((prev) => prev.map((t) => ({ ...t, status: 'completed' })));
           setCurrentSession((prev) => {
-            const msgs = [...prev.messages];
-            const last = msgs[msgs.length - 1];
-            if (last && last.role === 'agent') {
-              last.status = 'completed';
-              last.content = `### Scientific Research Synthesis: ${trimmed}\n\nAutomated scientific reasoning, evidence verification, and cross-database validation completed. Verified findings and research artifacts have been indexed into the Evidence Registry.`;
-            }
-            const completed = { ...prev, status: 'completed' as AgentStatus, updatedAt: new Date().toISOString(), messages: msgs };
+            const msgs = prev.messages.map((m, idx) => {
+              if (idx === prev.messages.length - 1 && m.role === 'agent') {
+                return {
+                  ...m,
+                  status: 'completed' as AgentStatus,
+                  content: `### Scientific Research Synthesis: ${trimmed}\n\n*Note: Running in Web Preview Mode. For production execution, configure your API endpoint in Settings or launch via Desktop Electron.*`,
+                };
+              }
+              return m;
+            });
+            const completed = {
+              ...prev,
+              status: 'completed' as AgentStatus,
+              updatedAt: new Date().toISOString(),
+              messages: msgs,
+            };
             setSessions((prevList) => prevList.map((s) => (s.id === completed.id ? completed : s)));
             return completed;
           });
@@ -370,6 +438,7 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         currentSession,
         activeView,
         status,
+        planTasks,
         submitPrompt,
         resetSession,
         openSession,

@@ -14,6 +14,7 @@ import {
 import { JunScienceLogo } from '../common/JunScienceLogo';
 import { useNav } from '../../context/NavContext';
 import { useAgent } from '../../context/AgentContext';
+import { useUser } from '../../context/UserContext';
 import { NavSection } from '../../types/navigation';
 
 interface SidebarProps {
@@ -44,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   } = useNav();
 
   const { resetSession, sessions } = useAgent();
+  const { user } = useUser();
 
   const handleNewChat = () => {
     resetSession();
@@ -145,30 +147,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
         })}
       </nav>
 
-      {/* Bottom Workstation & Settings Section */}
+      {/* Bottom User Profile & Settings Section */}
       <div className="p-3 border-t border-border-subtle">
         <button
           onClick={() => setIsSettingsOpen(true)}
           className={`w-full flex items-center justify-between p-2 rounded-lg hover:bg-bg-hover text-text-secondary hover:text-text-primary cursor-pointer transition-colors ${
             isSidebarCollapsed ? 'justify-center px-0' : ''
           }`}
-          title="Workstation Settings"
+          title="Account & Workstation Settings"
         >
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="relative flex-shrink-0 w-8 h-8 rounded-lg bg-bg-elevated border border-border flex items-center justify-center text-text-primary shadow-xs">
-              <Settings size={16} className="text-accent" />
+            <div className="relative flex-shrink-0 w-8 h-8 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent text-xs font-bold shadow-xs">
+              {user.avatar || 'RE'}
             </div>
             {!isSidebarCollapsed && (
               <div className="flex flex-col text-left truncate">
-                <span className="text-[13px] font-semibold text-text-primary truncate">Settings & Models</span>
-                <span className="text-[11px] text-text-muted flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                  <span>Local Workstation</span>
+                <span className="text-[13px] font-semibold text-text-primary truncate">{user.name}</span>
+                <span className="text-[11px] text-text-muted flex items-center gap-1.5 truncate">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block flex-shrink-0" />
+                  <span className="truncate">{user.plan}</span>
                 </span>
               </div>
             )}
           </div>
-          {!isSidebarCollapsed && <ChevronRight size={14} className="text-text-muted" />}
+          {!isSidebarCollapsed && <Settings size={15} className="text-text-muted hover:text-text-primary flex-shrink-0" />}
         </button>
       </div>
     </aside>

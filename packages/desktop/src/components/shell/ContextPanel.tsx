@@ -32,16 +32,7 @@ const iconMap: Record<string, React.ElementType> = {
 
 export const ContextPanel: React.FC<ContextPanelProps> = ({ className = '' }) => {
   const { isContextPanelOpen, setIsContextPanelOpen } = useNav();
-  const { submitPrompt } = useAgent();
-
-  // Active Research Plan state
-  const [tasks, setTasks] = useState([
-    { id: 'task-1', title: 'Target Sequence, Structure & Topology', status: 'completed', evidenceIds: ['EV-1', 'EV-2'] },
-    { id: 'task-2', title: 'Bioactivity (IC50/Ki) & SAR Exploration', status: 'completed', evidenceIds: ['EV-3'] },
-    { id: 'task-3', title: 'Local Statistical Computation & Radiomics', status: 'in_progress', evidenceIds: ['EV-4'] },
-    { id: 'task-4', title: 'Clinical Trials & FAERS Safety Screening', status: 'pending', evidenceIds: [] },
-    { id: 'task-5', title: 'Synthesis & Evidence-Anchored Critique', status: 'pending', evidenceIds: [] },
-  ]);
+  const { submitPrompt, planTasks } = useAgent();
 
   if (!isContextPanelOpen) {
     return (
@@ -79,51 +70,60 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ className = '' }) =>
           </button>
         </div>
 
-        <div className="space-y-2">
-          {tasks.map((task) => {
-            const isDone = task.status === 'completed';
-            const isProgress = task.status === 'in_progress';
-            return (
-              <div
-                key={task.id}
-                className={`p-2 rounded-md border text-[12px] transition-all ${
-                  isDone
-                    ? 'bg-emerald-500/5 border-emerald-500/20 text-text-primary'
-                    : isProgress
-                    ? 'bg-accent/10 border-accent/30 text-accent font-medium shadow-sm'
-                    : 'bg-bg-card/40 border-border-subtle text-text-muted'
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  <div className="mt-0.5 flex-shrink-0">
-                    {isDone ? (
-                      <CheckCircle2 size={14} className="text-emerald-500" />
-                    ) : isProgress ? (
-                      <Clock size={14} className="text-accent animate-spin" />
-                    ) : (
-                      <Circle size={14} className="text-text-muted" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="leading-snug">{task.title}</p>
-                    {task.evidenceIds && task.evidenceIds.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {task.evidenceIds.map((ev) => (
-                          <span
-                            key={ev}
-                            className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-accent/15 text-accent border border-accent/25"
-                          >
-                            {ev}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+        {planTasks.length === 0 ? (
+          <div className="p-3.5 rounded-xl border border-dashed border-border text-center bg-bg-elevated/20">
+            <p className="text-xs font-medium text-text-secondary">No Active Research Plan</p>
+            <p className="text-[11px] text-text-muted mt-1 leading-normal">
+              Submit an inquiry to formulate automated 5-stage research milestones.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {planTasks.map((task) => {
+              const isDone = task.status === 'completed';
+              const isProgress = task.status === 'in_progress';
+              return (
+                <div
+                  key={task.id}
+                  className={`p-2 rounded-md border text-[12px] transition-all ${
+                    isDone
+                      ? 'bg-emerald-500/5 border-emerald-500/20 text-text-primary'
+                      : isProgress
+                      ? 'bg-accent/10 border-accent/30 text-accent font-medium shadow-sm'
+                      : 'bg-bg-card/40 border-border-subtle text-text-muted'
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5 flex-shrink-0">
+                      {isDone ? (
+                        <CheckCircle2 size={14} className="text-emerald-500" />
+                      ) : isProgress ? (
+                        <Clock size={14} className="text-accent animate-spin" />
+                      ) : (
+                        <Circle size={14} className="text-text-muted" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="leading-snug">{task.title}</p>
+                      {task.evidenceIds && task.evidenceIds.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {task.evidenceIds.map((ev) => (
+                            <span
+                              key={ev}
+                              className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-accent/15 text-accent border border-accent/25"
+                            >
+                              {ev}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Section 2: Scientific Tools */}
