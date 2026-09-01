@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
 
     steps:
       - name: Checkout code
@@ -32,31 +32,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Linux build dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update || true
-          sudo apt-get install -y libarchive-tools libgl1 libfuse2 libfuse2t64 libfuse3-3 fuse3 fakeroot dpkg libnotify4 libnss3 libxss1 libasound2t64 libasound2 || true
-
       - name: Install dependencies
         run: npm ci || npm install
 
       - name: Build Monorepo Workspaces
         run: npm run build
 
-      - name: Build Desktop Binaries (macOS DMG / Windows EXE / Linux AppImage)
+      - name: Build Desktop Binaries (macOS DMG / Windows EXE)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          APPIMAGE_EXTRACT_AND_RUN: '1'
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
             npm --workspace=@junscience/desktop run dist:mac
-          elif [ "${{ runner.os }}" = "Windows" ]; then
-            npm --workspace=@junscience/desktop run dist:win
           else
-            export APPIMAGE_EXTRACT_AND_RUN=1
-            npm --workspace=@junscience/desktop run dist:linux
+            npm --workspace=@junscience/desktop run dist:win
           fi
         shell: bash
 
@@ -70,8 +60,5 @@ jobs:
             packages/desktop/release/*.dmg
             packages/desktop/release/*.zip
             packages/desktop/release/*.exe
-            packages/desktop/release/*.AppImage
-            packages/desktop/release/*.tar.gz
-            packages/desktop/release/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

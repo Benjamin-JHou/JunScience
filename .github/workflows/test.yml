@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, windows-latest]
         node-version: [22.x]
 
     steps:
@@ -31,14 +31,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install Linux OS Sandboxing Utilities (Bubblewrap)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update || true
-          sudo apt-get install -y bubblewrap libgl1 || true
-          sudo chmod u+s /usr/bin/bwrap || true
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
 
       - name: Install Monorepo Dependencies
         run: npm ci || npm install

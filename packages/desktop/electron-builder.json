@@ -49,23 +49,5 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true
-  },
-  "linux": {
-    "executableName": "junscience",
-    "category": "Science",
-    "target": [
-      {
-        "target": "AppImage",
-        "arch": ["x64"]
-      },
-      {
-        "target": "deb",
-        "arch": ["x64"]
-      },
-      {
-        "target": "tar.gz",
-        "arch": ["x64"]
-      }
-    ]
   }
 }

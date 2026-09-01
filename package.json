@@ -24,6 +24,8 @@
     "cli": "node packages/cli/bin/junscience.js",
     "desktop": "npx electron packages/desktop/dist-electron/main.js",
     "desktop:dev": "npm --workspace=@junscience/desktop run dev",
+    "dist:mac": "npm --workspace=@junscience/desktop run dist:mac",
+    "dist:win": "npm --workspace=@junscience/desktop run dist:win",
     "portal:dev": "vite",
     "portal:preview": "vite preview",
     "portal:build": "vite build"
