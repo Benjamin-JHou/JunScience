@@ -47,7 +47,7 @@ jobs:
           if [ "${{ runner.os }}" = "macOS" ]; then
             node ../../node_modules/electron-builder/cli.js --mac --publish never
           else
-            node ../../node_modules/electron-builder/cli.js --win --publish never
+            node ../../node_modules/electron-builder/cli.js --win nsis zip --publish never || node ../../node_modules/electron-builder/cli.js --win zip --publish never
           fi
         shell: bash
 
