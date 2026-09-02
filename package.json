@@ -24,6 +24,8 @@
     "cli": "node packages/cli/bin/junscience.js",
     "desktop": "npx electron packages/desktop/dist-electron/main.js",
     "desktop:dev": "npm --workspace=@junscience/desktop run dev",
+    "web": "npm run build:core && npm --workspace=@junscience/desktop run build:renderer && npm --workspace=@junscience/desktop run typecheck:web && tsx packages/desktop/web/server.ts",
+    "web:dev": "npm run build:core && npm --workspace=@junscience/desktop run typecheck:web && tsx packages/desktop/web/server.ts --dev",
     "dist:mac": "npm --workspace=@junscience/desktop run dist:mac",
     "dist:win": "npm --workspace=@junscience/desktop run dist:win",
     "portal:dev": "vite",

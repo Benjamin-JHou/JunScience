@@ -15,9 +15,10 @@
   "main": "./dist-electron/main.js",
   "scripts": {
     "dev": "vite",
+    "typecheck:web": "tsc -p tsconfig.web.json",
     "build:renderer": "tsc && vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
-    "build": "npm run build:renderer && npm run build:electron",
+    "build": "npm run build:renderer && npm run typecheck:web && npm run build:electron",
     "dist": "npm run build && node ../../node_modules/electron-builder/cli.js --publish never",
     "dist:mac": "npm run build && node ../../node_modules/electron-builder/cli.js --mac --publish never",
     "dist:win": "npm run build && node ../../node_modules/electron-builder/cli.js --win --publish never"
