@@ -90,7 +90,23 @@ npm run cli hooks list
 npm run cli skill list
 ```
 
-#### 3. TypeScript Core SDK Usage
+#### 3. Local Web Application (no `.exe` required)
+
+The browser UI can run against the real local JunScience runtime. The HTTP server binds to
+`127.0.0.1` only; model credentials, sessions, tools, and sandboxed execution remain in the
+local Node.js process and are not exposed as browser-stored secrets.
+
+```bash
+# Production-style local build and server
+npm run web
+
+# Or use Vite hot reload while developing
+npm run web:dev
+```
+
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Set `JUNSCIENCE_WEB_PORT` to use a different port.
+
+#### 4. TypeScript Core SDK Usage
 
 ```typescript
 import { AutonomousResearchEngine, globalToolRegistry } from '@junscience/core';
@@ -152,6 +168,12 @@ npx tsx packages/core/tests/test-clinical-research-loop.ts # Pure clinical ReAct
 - **📋 显式科学规划与流式任务追踪器 (`PlanTracker`)**：推理之初显式制定 5 阶段调研计划，全双工广播每一步任务流转与挂载的证据勋章。
 - **🔒 跨平台操作系统级内核沙盒**：macOS `sandbox-exec` 物理断网隔离、Linux `bwrap` LSM 容器化、Windows Low-Integrity MIC 访问控制，全量通过 GitHub Actions CI 验证。
 - **🔌 双向 MCP 协议支持**：所有科研工具原生暴露为标准 Model Context Protocol (MCP) Server，亦可自由挂载第三方 MCP 工具。
+
+### 🌐 本地 Web 模式（无需 `.exe`）
+
+安装依赖后运行 `npm run web`，再访问 [http://127.0.0.1:3000](http://127.0.0.1:3000)。开发时可运行
+`npm run web:dev` 启用 Vite 热更新。本地服务器仅监听回环地址；模型密钥、科研会话、工具调用和沙盒执行均保留在
+Node.js 后端，不会作为浏览器本地存储中的明文密钥下发。
 
 ---
 
