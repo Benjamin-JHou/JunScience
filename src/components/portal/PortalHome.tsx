@@ -32,9 +32,11 @@ import {
 } from 'lucide-react';
 import { PortalHeroVisual } from './PortalHeroVisual';
 import { useNav } from '../../context/NavContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const PortalHome: React.FC = () => {
   const { setActiveSection } = useNav();
+  const { language } = useLanguage();
   const [activeGalleryTab, setActiveGalleryTab] = useState<'desktop-light' | 'desktop-dark' | 'workspace' | 'cli'>('desktop-light');
   const [activeCliColor, setActiveCliColor] = useState<'green' | 'blue' | 'purple' | 'amber'>('green');
   const [activeCodeTab, setActiveCodeTab] = useState<'cli-curl' | 'cli-npm' | 'cli-npx' | 'git' | 'desktop' | 'sdk'>('cli-curl');
@@ -72,7 +74,7 @@ npm run cli`,
     desktop: `# Launch the JunScience Desktop Electron interface
 npm run desktop:dev
 
-# Or build native desktop application (.dmg / .exe / .AppImage)
+# Or build native desktop application (.dmg / .exe)
 npm run build`,
     sdk: `import { AutonomousResearchEngine, globalToolRegistry } from '@junscience/core';
 
@@ -93,6 +95,8 @@ console.log(turn.agentResponse);`,
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
+  const isZh = language === 'zh';
+
   return (
     <div className="space-y-14 sm:space-y-20 py-4 sm:py-8 px-4 sm:px-8 max-w-[1240px] mx-auto">
       {/* 1. HERO SECTION */}
@@ -101,20 +105,26 @@ console.log(turn.agentResponse);`,
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent text-[12px] font-medium">
               <Sparkles size={14} />
-              <span>v1.1.0 Released — Evidence-First Scientific Agent Workstation</span>
+              <span>
+                {isZh
+                  ? 'v1.3.0 正式发布 — 循证驱动的自主科研智能体工作站'
+                  : 'v1.3.0 Released — Evidence-First Scientific Agent Workstation'}
+              </span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-text-primary leading-[1.15]">
               <span className="text-text-primary">JunScience</span>
               <br />
               <span className="bg-gradient-to-r from-accent via-accent-secondary to-purple-600 bg-clip-text text-transparent">
-                AI
+                {isZh ? '人工智能' : 'AI'}
               </span>{' '}
-              <span className="text-text-primary font-bold">for Scientific Discovery</span>
+              <span className="text-text-primary font-bold">
+                {isZh ? '加速科学发现与循证探索' : 'for Scientific Discovery'}
+              </span>
             </h1>
             <p className="text-[14.5px] sm:text-[16px] text-text-secondary leading-relaxed pt-1">
-              JunScience is an open-source AI agent framework for scientific research.
-              It features 19 domain skills, 4 non-bypassable guardrail hooks, a confined workspace file editor,
-              and cryptographic evidence verification for reproducible scientific discoveries.
+              {isZh
+                ? 'JunScience 是一套专为生物医药与生命科学打造的开源自主智能体系统。内置19项领域技能、4道不可绕过的安全守卫Hook、隔离工作区文件编辑器，以及严苛的物理/数学边界验证网关，确保每一次推演结论都有据可查、可重复、零虚构。'
+                : 'JunScience is an open-source AI agent framework for scientific research. It features 19 domain skills, 4 non-bypassable guardrail hooks, a confined workspace file editor, and cryptographic evidence verification for reproducible scientific discoveries.'}
             </p>
           </div>
 
@@ -123,7 +133,7 @@ console.log(turn.agentResponse);`,
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span className="flex items-center gap-1.5 text-accent font-semibold">
                 <Terminal size={13} />
-                <span>QUICK INSTALL (CLI AGENT)</span>
+                <span>{isZh ? '快速安装 (CLI 终端智能体)' : 'QUICK INSTALL (CLI AGENT)'}</span>
               </span>
               <button
                 onClick={() => {
@@ -134,7 +144,7 @@ console.log(turn.agentResponse);`,
                 className="flex items-center gap-1 hover:text-white transition-colors"
               >
                 {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                <span>{copiedCode ? 'Copied' : 'Copy'}</span>
+                <span>{copiedCode ? (isZh ? '已复制' : 'Copied') : (isZh ? '复制' : 'Copy')}</span>
               </button>
             </div>
             <div className="flex items-center gap-2 font-mono text-[13px] text-emerald-400 select-all overflow-x-auto py-0.5">
@@ -150,14 +160,14 @@ console.log(turn.agentResponse);`,
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold text-[13.5px] shadow-sm transition-all active:scale-98"
             >
               <Download size={16} />
-              <span>Download Desktop App</span>
+              <span>{isZh ? '下载桌面客户端' : 'Download Desktop App'}</span>
             </button>
             <button
               onClick={() => setActiveSection('cli')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold text-[13.5px] shadow-sm transition-all active:scale-98"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-bg-surface hover:bg-bg-hover text-text-primary font-semibold text-[13.5px] shadow-2xs transition-all active:scale-98"
             >
               <Terminal size={16} />
-              <span>Explore CLI Agent</span>
+              <span>{isZh ? '查看终端智能体' : 'Explore CLI Agent'}</span>
               <ArrowRight size={15} />
             </button>
             <a
@@ -185,9 +195,13 @@ console.log(turn.agentResponse);`,
             <Bot size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">Subagent Hypothesis Tree</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">
+              {isZh ? '多假说子智能体树' : 'Subagent Hypothesis Tree'}
+            </h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              Parallel competing hypothesis branches with empirical multi-factor confidence scoring.
+              {isZh
+                ? '并行派生多个假说分支并发探索，综合序列、生化、临床与文献计算置信度。'
+                : 'Parallel competing hypothesis branches with empirical multi-factor confidence scoring.'}
             </p>
           </div>
         </div>
@@ -197,9 +211,13 @@ console.log(turn.agentResponse);`,
             <Wrench size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">19 Scientific Skills & Tools</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">
+              {isZh ? '19项科学领域技能' : '19 Scientific Skills & Tools'}
+            </h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              From SAR mapping and MASLD RNA-seq to FAERS disproportionality and PRISMA reviews.
+              {isZh
+                ? '覆盖分子对齐、SAR药效团、FAERS药物警戒、RNA-seq与PRISMA系统评价。'
+                : 'From SAR mapping and MASLD RNA-seq to FAERS disproportionality and PRISMA reviews.'}
             </p>
           </div>
         </div>
@@ -209,9 +227,13 @@ console.log(turn.agentResponse);`,
             <Layers size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">Formal Guardrail Hooks</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">
+              {isZh ? '严苛生命周期守卫' : 'Formal Guardrail Hooks'}
+            </h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              PreToolUse secret redaction, EvidenceVerifier gate, ClinicalDataGate, and provenance check.
+              {isZh
+                ? '执行前密钥脱敏、执行后边界校验、临床EHR/DICOM沙箱隔离与证据闭环审计。'
+                : 'PreToolUse secret redaction, EvidenceVerifier gate, ClinicalDataGate, and provenance check.'}
             </p>
           </div>
         </div>
@@ -221,9 +243,13 @@ console.log(turn.agentResponse);`,
             <Users size={20} />
           </div>
           <div>
-            <h3 className="text-[14px] font-bold text-text-primary mb-1">Confined Workspace Editor</h3>
+            <h3 className="text-[14px] font-bold text-text-primary mb-1">
+              {isZh ? '隔离工作区代码编辑' : 'Confined Workspace Editor'}
+            </h3>
             <p className="text-[12px] text-text-muted leading-relaxed">
-              In-workspace text &amp; script modification with zero host escape for iterative research.
+              {isZh
+                ? '支持工作区内代码与配置文件的精准查看、替换与插入，严格禁止宿主机逃逸。'
+                : 'In-workspace text & script modification with zero host escape for iterative research.'}
             </p>
           </div>
         </div>
@@ -235,13 +261,15 @@ console.log(turn.agentResponse);`,
           <div className="text-left space-y-1">
             <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-accent">
               <Terminal size={14} />
-              <span>Interactive CLI Agent</span>
+              <span>{isZh ? '终端交互式智能体' : 'Interactive CLI Agent'}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-              Powerful Terminal Agent. Fast, Hypothesis-Driven Discovery.
+              {isZh ? '高效极速的终端智能体：双模式驱动科学发现' : 'Powerful Terminal Agent. Fast, Hypothesis-Driven Discovery.'}
             </h2>
             <p className="text-[14px] text-text-secondary">
-              Seamlessly switch between deliberative <strong>Plan Mode</strong> and autonomous <strong>Act Mode</strong>, inspect guardrails with <code>junscience hooks list</code>, manage skills, and track evidence.
+              {isZh
+                ? '自由切换审慎规划的 Plan Mode 与自主执行的 Act Mode，使用 /model 动态管理模型，通过 /cost 洞悉Token开销。'
+                : 'Seamlessly switch between deliberative Plan Mode and autonomous Act Mode, inspect guardrails with junscience hooks list, manage skills, and track evidence.'}
             </p>
           </div>
 
@@ -249,7 +277,7 @@ console.log(turn.agentResponse);`,
             onClick={() => setActiveSection('cli')}
             className="self-start sm:self-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent hover:underline"
           >
-            <span>View Full CLI Manual</span>
+            <span>{isZh ? '查看完整终端手册' : 'View Full CLI Manual'}</span>
             <ArrowRight size={14} />
           </button>
         </div>
@@ -262,7 +290,7 @@ console.log(turn.agentResponse);`,
             <div className="p-4 rounded-xl border border-border bg-bg-surface space-y-3">
               <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
                 <Sliders size={16} className="text-accent" />
-                <span>Agent Execution Modes</span>
+                <span>{isZh ? '智能体运行模式' : 'Agent Execution Modes'}</span>
               </h3>
               
               <div className="grid grid-cols-2 gap-2">
@@ -279,7 +307,9 @@ console.log(turn.agentResponse);`,
                     /plan Mode
                   </div>
                   <p className="text-[11px] text-text-secondary mt-1">
-                    Structured 5-stage planning, literature synthesis, and hypothesis tree formulation.
+                    {isZh
+                      ? '结构化五阶段里程碑规划、文献综合与假说树构建，不触发改变环境的沙箱代码。'
+                      : 'Structured 5-stage planning, literature synthesis, and hypothesis tree formulation.'}
                   </p>
                 </button>
 
@@ -296,7 +326,9 @@ console.log(turn.agentResponse);`,
                     /act Mode
                   </div>
                   <p className="text-[11px] text-text-secondary mt-1">
-                    Autonomous tool execution (PubMed, UniProt, ChEMBL, FileEditor) &amp; artifact generation.
+                    {isZh
+                      ? '自主调用 PubMed、UniProt、ChEMBL 工具，在内核沙箱中执行计算并生成研究报告。'
+                      : 'Autonomous tool execution (PubMed, UniProt, ChEMBL, FileEditor) & artifact generation.'}
                   </p>
                 </button>
               </div>
@@ -306,28 +338,28 @@ console.log(turn.agentResponse);`,
             <div className="p-4 rounded-xl border border-border bg-bg-surface space-y-2.5 text-[12.5px]">
               <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
                 <Code2 size={16} className="text-accent" />
-                <span>Essential CLI &amp; REPL Commands</span>
+                <span>{isZh ? '常用 CLI 指令速查' : 'Essential CLI & REPL Commands'}</span>
               </h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-accent font-bold">junscience hooks list</span>
-                  <span className="text-text-secondary">Inspect active guardrail hooks</span>
+                  <span className="text-text-secondary">{isZh ? '审查所有活跃的生命周期Hook' : 'Inspect active guardrail hooks'}</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-emerald-500 font-bold">junscience skill install</span>
-                  <span className="text-text-secondary">Securely install third-party skill</span>
+                  <span className="text-text-secondary">{isZh ? '通过静态安全审查安装三方技能' : 'Securely install third-party skill'}</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-purple-500 font-bold">/plan | /act</span>
-                  <span className="text-text-secondary">Toggle Planning vs Execution mode</span>
+                  <span className="text-text-secondary">{isZh ? '即时切换规划与执行工作模式' : 'Toggle Planning vs Execution mode'}</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-amber-500 font-bold">/model</span>
-                  <span className="text-text-secondary">Switch LLM or configure API key</span>
+                  <span className="text-text-secondary">{isZh ? '切换大模型基座或配置API密钥' : 'Switch LLM or configure API key'}</span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-bg-elevated/50 font-mono text-[12px]">
                   <span className="text-cyan-500 font-bold">/compact</span>
-                  <span className="text-text-secondary">Compress context with EV anchors</span>
+                  <span className="text-text-secondary">{isZh ? '无损保留EV证据压缩上下文' : 'Compress context with EV anchors'}</span>
                 </div>
               </div>
             </div>
@@ -345,131 +377,67 @@ console.log(turn.agentResponse);`,
                 </div>
                 <span className="text-slate-300 ml-2 font-semibold">junscience — interactive scientific repl</span>
               </div>
-              <span className="text-slate-500 font-mono">v1.1.0</span>
+              <span className="text-slate-500 font-mono">v1.3.0</span>
             </div>
 
             {/* Terminal Body */}
-            <div className="p-4 sm:p-5 font-mono text-[12.5px] leading-relaxed space-y-3 flex-1 overflow-x-auto text-left">
+            <div className="p-4 sm:p-5 font-mono text-[12.5px] leading-relaxed space-y-3 overflow-x-auto text-left flex-1 min-h-[340px]">
+              <div className="text-slate-400">
+                <span className="text-emerald-400 font-bold">JunScience v1.3.0</span> — Autonomous Scientific Workstation
+                <br />
+                Type <span className="text-accent font-bold">/help</span> for commands,{' '}
+                <span className="text-purple-400 font-bold">/plan</span> for hypothesis mode,{' '}
+                <span className="text-emerald-400 font-bold">/act</span> for autonomous execution.
+              </div>
+
               {activeModeDemo === 'plan' ? (
-                <>
-                  <div className="text-cyan-400">
-                    junscience config set --model deepseek-chat --api-key sk-***
+                <div className="space-y-2 text-slate-300 pt-1">
+                  <div className="flex items-center gap-2 text-purple-400 font-bold">
+                    <span>junscience [PLAN] &gt;</span>
+                    <span className="text-slate-100">
+                      Investigate TYK2 JH2 allosteric pseudokinase binding vs JAK1 catalytic domain
+                    </span>
                   </div>
-                  <div className="text-emerald-400">✔ Active model profile set: DeepSeek Chat (deepseek-chat)</div>
-                  <div className="text-purple-400">
-                    junscience &gt; /plan
+                  <div className="text-slate-400 text-[12px] space-y-1">
+                    <div>[TASK-1] Formulate competing hypothesis tree (H1: JH2 Allosteric, H2: ATP Orthosteric)... <span className="text-emerald-400">DONE</span></div>
+                    <div>[TASK-2] Retrieve Swiss-Prot topological domains for TYK2 (P29597) &amp; JAK1 (P23458)... <span className="text-emerald-400">DONE</span></div>
+                    <div>[TASK-3] Design ChEMBL bioactivity assay filter protocol (IC50 &lt; 50nM, Ki comparison)... <span className="text-amber-400">PLANNED</span></div>
+                    <div>[TASK-4] Verify mathematical boundaries via EvidenceVerifier Gate... <span className="text-slate-500">PENDING ACT</span></div>
                   </div>
-                  <div className="text-purple-300">✔ Switched to PLAN MODE. Formulating 5-stage research strategy...</div>
-                  <div className="text-slate-400 pt-1">
-                    <span className="text-purple-400 font-bold">[PLAN] junscience &gt;</span> Evaluate TYK2 JH2 pseudokinase allosteric selectivity
+                  <div className="p-2.5 rounded-lg bg-purple-950/30 border border-purple-800/40 text-purple-200 text-[11.5px]">
+                    Plan Tracker: 2/4 milestones formulated. Evidence verification checklist initialized. Switch to <span className="text-emerald-400 font-bold">/act</span> to execute tools autonomously.
                   </div>
-                  <div className="p-3 rounded-lg bg-purple-950/30 border border-purple-800/40 text-purple-200 text-[12px] space-y-1">
-                    <div className="font-bold text-purple-300">📋 Proposed 5-Stage Scientific Research Plan:</div>
-                    <div>1. Query UniProt (P29597) for JH2 pseudokinase domain vs JH1 catalytic domain</div>
-                    <div>2. Retrieve ChEMBL IC50 / Kd values for allosteric inhibitors (Deucravacitinib)</div>
-                    <div>3. Cross-reference RCSB PDB structure 8Q4O (JH2 complex) with JAK1/2/3 selectivity</div>
-                    <div>4. Run Python PythonRunnerTool for sub-nanomolar selectivity fold ratio computation</div>
-                    <div>5. Verify mathematical anomalies via EvidenceVerifier &amp; anchor EV-001..EV-004</div>
-                  </div>
-                  <div className="text-slate-500 text-[11px] italic">
-                    Type /act to start autonomous tool execution and artifact synthesis.
-                  </div>
-                </>
+                </div>
               ) : (
-                <>
-                  <div className="text-slate-400">
-                    <span className="text-emerald-400 font-bold">[ACT] junscience &gt;</span> Execute TYK2 JH2 selectivity workflow
+                <div className="space-y-2 text-slate-300 pt-1">
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                    <span>junscience [ACT] &gt;</span>
+                    <span className="text-slate-100">Executing verification plan and bioactivity extraction...</span>
                   </div>
-                  <div className="text-amber-400 flex items-center gap-2">
-                    <span className="animate-pulse">⚡</span>
-                    <span>Calling UniProtTool [query: P29597, domain: JH2]...</span>
+                  <div className="text-slate-400 text-[12px] space-y-1">
+                    <div>[TOOL] <span className="text-cyan-400">uniprot_fetch</span>(id: &quot;P29597&quot;) -&gt; 1187 aa sequence [EV-001]</div>
+                    <div>[TOOL] <span className="text-cyan-400">chembl_query</span>(target: &quot;TYK2&quot;, molecule: &quot;Deucravacitinib&quot;) -&gt; IC50 = 12.8 nM [EV-002]</div>
+                    <div>[SANDBOX] Running Python fold selectivity script in isolated macOS Seatbelt...</div>
+                    <div className="text-emerald-400 font-semibold">[VERIFIER] Pre-adoption gate passed: IC50 &gt; 0, p &lt; 0.001. Digest: sha256:7f4a...</div>
                   </div>
-                  <div className="text-slate-300 pl-4 border-l-2 border-emerald-500/50">
-                    Found TYK2 (P29597): JH2 domain residues 590-880, JH1 kinase domain residues 881-1187.
+                  <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-800/40 text-emerald-200 text-[11.5px]">
+                    Finding: Deucravacitinib demonstrates &gt;10,000-fold functional selectivity for TYK2 JH2 domain over JAK1/2/3 ATP active sites. All claims anchored in [EV-001, EV-002].
                   </div>
-                  <div className="text-amber-400 flex items-center gap-2">
-                    <span className="animate-pulse">⚡</span>
-                    <span>Calling ChEMBLTool [target: CHEMBL4630, type: IC50]...</span>
-                  </div>
-                  <div className="text-slate-300 pl-4 border-l-2 border-emerald-500/50">
-                    Deucravacitinib (CHEMBL4297893): JH2 IC50 = 0.2 nM vs JAK1/2/3 IC50 &gt; 10,000 nM (&gt;1000x selective).
-                  </div>
-                  <div className="text-emerald-400 font-bold">
-                    ✔ EvidenceVerifier: Verdict = ADOPTED (Confidence: 1.0, Evidence: EV-001)
-                  </div>
-                  <div className="text-cyan-300">
-                    📄 Artifact generated: Figure_1_Selectivity_Radar.png &amp; TYK2_Selectivity_Report.md
-                  </div>
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. ARCHITECTURE OVERVIEW & FLOWCHART */}
-      <section className="space-y-6">
-        <div className="text-left space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-            Architecture
-          </h2>
-          <p className="text-[14px] text-text-secondary">
-            JunScience is built on a hardened, formal agent framework with non-bypassable security hooks and cross-platform isolation.
-          </p>
-        </div>
-
-        {/* Horizontal Flowchart Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-2 items-center">
-          <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 text-center space-y-1.5 shadow-2xs">
-            <div className="flex items-center justify-center gap-1.5 text-accent font-semibold text-[13px]">
-              <Eye size={15} />
-              <span>User Interface</span>
-            </div>
-            <p className="text-[11.5px] text-text-muted">CLI Agent / Desktop App</p>
-          </div>
-
-          <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/20 text-center space-y-1.5 shadow-2xs">
-            <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold text-[13px]">
-              <Cpu size={15} />
-              <span>JunScience Core</span>
-            </div>
-            <p className="text-[11.5px] text-text-muted">Plan Tracker &amp; Hooks Registry</p>
-          </div>
-
-          <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-900/50 bg-purple-50/40 dark:bg-purple-950/20 text-center space-y-1.5 shadow-2xs">
-            <div className="flex items-center justify-center gap-1.5 text-purple-600 dark:text-purple-400 font-semibold text-[13px]">
-              <Bot size={15} />
-              <span>Agent Harness</span>
-            </div>
-            <p className="text-[11.5px] text-text-muted">Subagent Hypothesis Tree</p>
-          </div>
-
-          <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 text-center space-y-1.5 shadow-2xs">
-            <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-[13px]">
-              <Wrench size={15} />
-              <span>Scientific Tools &amp; Editor</span>
-            </div>
-            <p className="text-[11.5px] text-text-muted">19 Skills / FileEditor / Sandbox</p>
-          </div>
-
-          <div className="p-4 rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 dark:bg-cyan-950/20 text-center space-y-1.5 shadow-2xs">
-            <div className="flex items-center justify-center gap-1.5 text-cyan-600 dark:text-cyan-400 font-semibold text-[13px]">
-              <FileText size={15} />
-              <span>Verified Results</span>
-            </div>
-            <p className="text-[11.5px] text-text-muted">EV-xxx Provenance &amp; Gates</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. QUICK START CODE SNIPPETS (Multi-Tab Installer) */}
+      {/* 4. QUICK START CODE SNIPPETS (Multi-Tab Installer) */}
       <section className="space-y-4">
         <div className="text-left space-y-1">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-            Installation &amp; Quick Start
+            {isZh ? '快速安装与运行' : 'Installation & Quick Start'}
           </h2>
           <p className="text-[14px] text-text-secondary">
-            Get started with JunScience CLI or Desktop in seconds.
+            {isZh ? '数秒内即可配置并运行 JunScience 终端智能体或桌面工作站。' : 'Get started with JunScience CLI or Desktop in seconds.'}
           </p>
         </div>
 
@@ -531,7 +499,7 @@ console.log(turn.agentResponse);`,
               className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11.5px] font-medium text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
             >
               {copiedCode ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-              <span>{copiedCode ? 'Copied' : 'Copy'}</span>
+              <span>{copiedCode ? (isZh ? '已复制' : 'Copied') : (isZh ? '复制' : 'Copy')}</span>
             </button>
           </div>
 
@@ -541,15 +509,17 @@ console.log(turn.agentResponse);`,
         </div>
       </section>
 
-      {/* 6. REAL INTERFACE SHOWCASE (Real Screenshots Gallery) */}
+      {/* 5. REAL INTERFACE SHOWCASE (Real Screenshots Gallery) */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
           <div className="text-left space-y-1">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
-              One Scientific Agent. Multiple Interfaces.
+              {isZh ? '多模态界面体验：桌面工作站与终端命令行' : 'One Scientific Agent. Multiple Interfaces.'}
             </h2>
             <p className="text-[14px] text-text-secondary">
-              Experience JunScience in native Desktop Electron or high-speed CLI terminal.
+              {isZh
+                ? '支持基于 Electron 的沉浸式学术科研桌面工作站，以及面向开发者的全功能终端交互智能体。'
+                : 'Experience JunScience in native Desktop Electron or high-speed CLI terminal.'}
             </p>
           </div>
 
@@ -561,7 +531,7 @@ console.log(turn.agentResponse);`,
                 activeGalleryTab === 'desktop-light' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
             >
-              Desktop Light
+              {isZh ? '桌面端浅色' : 'Desktop Light'}
             </button>
             <button
               onClick={() => setActiveGalleryTab('desktop-dark')}
@@ -569,7 +539,7 @@ console.log(turn.agentResponse);`,
                 activeGalleryTab === 'desktop-dark' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
             >
-              Desktop Dark
+              {isZh ? '桌面端深色' : 'Desktop Dark'}
             </button>
             <button
               onClick={() => setActiveGalleryTab('workspace')}
@@ -577,7 +547,7 @@ console.log(turn.agentResponse);`,
                 activeGalleryTab === 'workspace' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
             >
-              Workspace View
+              {isZh ? '工作区视图' : 'Workspace View'}
             </button>
             <button
               onClick={() => setActiveGalleryTab('cli')}
@@ -585,7 +555,7 @@ console.log(turn.agentResponse);`,
                 activeGalleryTab === 'cli' ? 'bg-bg-surface text-accent shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
             >
-              CLI Terminal
+              {isZh ? '终端命令行' : 'CLI Terminal'}
             </button>
           </div>
         </div>
@@ -600,7 +570,9 @@ console.log(turn.agentResponse);`,
                 className="w-full rounded-xl border border-border/80 shadow-sm"
               />
               <p className="text-[12px] text-text-muted text-center">
-                JunScience Desktop Light Mode — High-density research workspace with real-time Plan &amp; To-Do tracker.
+                {isZh
+                  ? 'JunScience 桌面端浅色模式 — 高信息密度的科研工作台，集成实时计划追踪与证据流卡片。'
+                  : 'JunScience Desktop Light Mode — High-density research workspace with real-time Plan & To-Do tracker.'}
               </p>
             </div>
           )}
@@ -613,7 +585,9 @@ console.log(turn.agentResponse);`,
                 className="w-full rounded-xl border border-border/80 shadow-sm"
               />
               <p className="text-[12px] text-text-muted text-center">
-                JunScience Desktop Dark Mode — Deep navy theme tailored for prolonged academic discovery.
+                {isZh
+                  ? 'JunScience 桌面端深色模式 — 深邃沉浸的暗色护眼主题，专为长时间科研攻关优化。'
+                  : 'JunScience Desktop Dark Mode — Deep navy theme tailored for prolonged academic discovery.'}
               </p>
             </div>
           )}
@@ -626,7 +600,9 @@ console.log(turn.agentResponse);`,
                 className="w-full rounded-xl border border-border/80 shadow-sm"
               />
               <p className="text-[12px] text-text-muted text-center">
-                Interactive Workspace — Autonomous ReAct execution with tool outputs, live logs, and EV-xxx provenance tags.
+                {isZh
+                  ? '交互式科研工作区 — 自主 ReAct 执行过程，包含工具输出卡片、沙箱执行日志与 EV 证据锚点。'
+                  : 'Interactive Workspace — Autonomous ReAct execution with tool outputs, live logs, and EV-xxx provenance tags.'}
               </p>
             </div>
           )}
@@ -634,7 +610,7 @@ console.log(turn.agentResponse);`,
           {activeGalleryTab === 'cli' && (
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-[12px] text-text-muted">Color theme:</span>
+                <span className="text-[12px] text-text-muted">{isZh ? '主题配色：' : 'Color theme:'}</span>
                 {(['green', 'blue', 'purple', 'amber'] as const).map((color) => (
                   <button
                     key={color}
@@ -655,7 +631,9 @@ console.log(turn.agentResponse);`,
                 className="w-full max-w-4xl mx-auto rounded-xl border border-border/80 shadow-sm"
               />
               <p className="text-[12px] text-text-muted text-center">
-                JunScience CLI — Ultra-fast terminal execution with live ASCII To-Do checklists and streaming thought flow.
+                {isZh
+                  ? 'JunScience CLI 终端 — 极速响应，实时呈现 ASCII 任务清单与多假说思考流。'
+                  : 'JunScience CLI — Ultra-fast terminal execution with live ASCII To-Do checklists and streaming thought flow.'}
               </p>
             </div>
           )}

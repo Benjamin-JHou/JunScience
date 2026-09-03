@@ -30,7 +30,7 @@
     "dist:win": "node node_modules/electron-builder/cli.js --win --project packages/desktop -c electron-builder.json --publish never",
     "portal:dev": "vite",
     "portal:preview": "vite preview",
-    "portal:build": "vite build"
+    "portal:build": "vite build && cp dist/index.html dist/404.html && cp -R dist/* docs/ && cp dist/index.html docs/404.html && cp dist/index.html public/404.html && touch docs/.nojekyll dist/.nojekyll"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

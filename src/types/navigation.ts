@@ -9,7 +9,6 @@ export type PortalSection =
   | 'cli'
   | 'architecture'
   | 'skills'
-  | 'usecases'
   | 'contributing'
   | 'changelog';
 

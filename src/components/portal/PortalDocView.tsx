@@ -9,7 +9,6 @@ import {
   Terminal,
   Layers,
   Cpu,
-  CheckCircle2,
   GitPullRequest,
   History,
   Copy,
@@ -25,9 +24,14 @@ import {
   Boxes,
   HelpCircle,
   Key,
+  Lock,
+  Search,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import { PortalSection } from '../../types/navigation';
 import { useNav } from '../../context/NavContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface PortalDocViewProps {
   section: PortalSection;
@@ -35,7 +39,10 @@ interface PortalDocViewProps {
 
 export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
   const { setActiveSection } = useNav();
+  const { language } = useLanguage();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const isZh = language === 'zh';
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -43,16 +50,16 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  const renderCodeBlock = (code: string, language: string = 'bash', key: string) => (
+  const renderCodeBlock = (code: string, lang: string = 'bash', key: string) => (
     <div className="rounded-xl border border-border bg-[#070A10] text-[#E2E8F0] overflow-hidden my-3 shadow-xs">
       <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10 text-[11px] font-mono text-slate-400">
-        <span>{language.toUpperCase()}</span>
+        <span>{lang.toUpperCase()}</span>
         <button
           onClick={() => copyToClipboard(code, key)}
           className="flex items-center gap-1 hover:text-white transition-colors"
         >
           {copiedKey === key ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-          <span>{copiedKey === key ? 'Copied' : 'Copy'}</span>
+          <span>{copiedKey === key ? (isZh ? '已复制' : 'Copied') : (isZh ? '复制' : 'Copy')}</span>
         </button>
       </div>
       <pre className="p-4 text-[12.5px] font-mono overflow-x-auto leading-relaxed text-left">
@@ -61,457 +68,165 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
     </div>
   );
 
+  const sectionTitles: Record<PortalSection, { en: string; zh: string }> = {
+    home: { en: 'Home', zh: '主页' },
+    docs: { en: 'Documentation & Core Concepts', zh: '核心文档与系统概念' },
+    installation: { en: 'Installation Guide', zh: '安装与部署指南' },
+    quickstart: { en: 'Quick Start Tutorial', zh: '快速上手教程' },
+    userguide: { en: 'User Guide & Operating Manual', zh: '用户指南与操作手册' },
+    apireference: { en: 'TypeScript API Reference', zh: 'TypeScript API 参考' },
+    examples: { en: 'Scientific Examples & Workflows', zh: '实践案例与科研工作流' },
+    cli: { en: 'CLI Agent Manual', zh: 'CLI 终端智能体手册' },
+    architecture: { en: 'System Architecture & Sandboxes', zh: '系统架构与安全沙箱' },
+    skills: { en: 'Agent Skills Library (19 Total)', zh: '科学技能库 (共19项)' },
+    contributing: { en: 'Contributing Guide', zh: '参与贡献与开发者指南' },
+    changelog: { en: 'Changelog & Releases', zh: '版本更新日志' },
+  };
+
   return (
-    <div className="py-6 sm:py-10 px-4 sm:px-8 max-w-[980px] mx-auto text-left space-y-8">
+    <div className="py-6 sm:py-10 px-4 sm:px-8 max-w-[1040px] mx-auto text-left space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-[12px] text-text-muted">
         <button onClick={() => setActiveSection('home')} className="hover:text-text-primary hover:underline">
-          Home
+          {isZh ? '主页' : 'Home'}
         </button>
         <span>/</span>
-        <span className="capitalize font-medium text-text-primary">
-          {section === 'cli' ? 'CLI Agent Manual' : section}
+        <span className="font-medium text-text-primary">
+          {sectionTitles[section] ? (isZh ? sectionTitles[section].zh : sectionTitles[section].en) : section}
         </span>
       </div>
 
       {/* ========================================================================= */}
-      {/* SECTION: CLI AGENT MANUAL (Claude Code style)                            */}
+      {/* SECTION: DOCS (Documentation & Core Concepts)                             */}
       {/* ========================================================================= */}
-      {section === 'cli' && (
+      {section === 'docs' && (
         <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
-              <Terminal size={12} />
-              <span>TERMINAL AGENT WORKSTATION</span>
+              <BookOpen size={12} />
+              <span>{isZh ? '科学研究自主工作站' : 'AUTONOMOUS RESEARCH WORKSTATION'}</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">JunScience CLI Agent Manual</h1>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? 'JunScience 架构总览与核心设计理念' : 'Documentation & Core Concepts'}
+            </h1>
             <p className="text-[15px] text-text-secondary leading-relaxed">
-              A high-performance, developer-first command-line research agent for empirical scientific discovery.
-              Featuring dual-mode execution (<strong>Plan Mode</strong> vs <strong>Act Mode</strong>), model switching with <code>/model</code>, real-time tool execution, and cryptographic evidence anchoring.
-            </p>
-          </div>
-
-          {/* 1. Quick Installation */}
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-              <span>1. Quick Installation</span>
-            </h2>
-            <p className="text-[13.5px] text-text-secondary">
-              Install JunScience CLI via our official one-line script or globally via npm:
-            </p>
-
-            <div className="space-y-2">
-              <div className="text-[12.5px] font-semibold text-text-primary">Option A: One-Line Bash Installer (macOS &amp; Linux)</div>
-              {renderCodeBlock(
-                `curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash`,
-                'bash',
-                'cli-install-curl'
-              )}
-
-              <div className="text-[12.5px] font-semibold text-text-primary pt-2">Option B: Global npm Package</div>
-              {renderCodeBlock(
-                `# Install globally
-npm install -g @junscience/cli
-
-# Run anywhere
-junscience`,
-                'bash',
-                'cli-install-npm'
-              )}
-
-              <div className="text-[12.5px] font-semibold text-text-primary pt-2">Option C: Zero-Install Instant Run (npx)</div>
-              {renderCodeBlock(
-                `npx @junscience/cli`,
-                'bash',
-                'cli-install-npx'
-              )}
-            </div>
-          </div>
-
-          {/* 2. Dual Agent Execution Modes (Plan vs Act) */}
-          <div className="space-y-4 pt-2">
-            <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-              <Sliders size={20} className="text-accent" />
-              <span>2. Execution Modes: Plan Mode vs Act Mode</span>
-            </h2>
-            <p className="text-[13.5px] text-text-secondary leading-relaxed">
-              JunScience provides explicit operational mode switching to ensure researchers can deliberate on study designs before triggering autonomous tool executions.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-3">
-              <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-50/50 dark:bg-purple-950/20 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-purple-500 text-white">
-                    /plan Mode
-                  </span>
-                  <span className="text-[11px] text-purple-600 dark:text-purple-400 font-mono">Deliberative Planning</span>
-                </div>
-                <h3 className="font-bold text-[14px] text-text-primary">Hypothesis &amp; Protocol Design</h3>
-                <ul className="text-[12px] text-text-secondary space-y-1 list-disc list-inside">
-                  <li>Formulates 5-stage research plans and hypothesis trees.</li>
-                  <li>Performs read-only literature searches and syntheses.</li>
-                  <li>Drafts required <code>EV-xxx</code> evidence anchors without running mutating sandbox code.</li>
-                  <li>Ideal for aligning on experimental parameters.</li>
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-emerald-500 text-white">
-                    /act Mode (or /run)
-                  </span>
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono">Autonomous Execution</span>
-                </div>
-                <h3 className="font-bold text-[14px] text-text-primary">Task Execution &amp; Artifact Synthesis</h3>
-                <ul className="text-[12px] text-text-secondary space-y-1 list-disc list-inside">
-                  <li>Autonomously invokes UniProt, ChEMBL, PDB, PubMed tools.</li>
-                  <li>Executes Python data analysis scripts in kernel sandboxes.</li>
-                  <li>Evaluates mathematical boundaries via <code>EvidenceVerifier</code>.</li>
-                  <li>Generates publication figures and markdown reports.</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-bg-surface border border-border text-[13px] text-text-secondary">
-              <span className="font-bold text-text-primary">💡 Switching Modes:</span> In the interactive CLI REPL, simply type <code className="text-purple-500 font-bold">/plan</code> or <code className="text-emerald-500 font-bold">/act</code>, or type <code className="text-accent font-bold">/mode</code> to toggle back and forth.
-            </div>
-          </div>
-
-          {/* 3. Essential Slash Commands Cheat Sheet */}
-          <div className="space-y-3 pt-2">
-            <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-              <Code2 size={20} className="text-accent" />
-              <span>3. CLI Slash Commands Reference</span>
-            </h2>
-            <p className="text-[13.5px] text-text-secondary">
-              The JunScience CLI REPL supports interactive slash commands:
-            </p>
-
-            <div className="overflow-x-auto rounded-xl border border-border bg-bg-surface shadow-xs">
-              <table className="w-full text-left text-[12.5px]">
-                <thead className="bg-bg-elevated/70 border-b border-border text-text-muted font-mono text-[11px]">
-                  <tr>
-                    <th className="p-3">Command</th>
-                    <th className="p-3">Description</th>
-                    <th className="p-3">Example Usage</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/model</td>
-                    <td className="p-3 text-text-secondary">List, switch, or configure active LLM model provider and API keys</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/model set --model deepseek-chat --api-key sk-...</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-purple-500">/plan</td>
-                    <td className="p-3 text-text-secondary">Switch agent to Plan Mode (deliberative reasoning &amp; hypothesis tree)</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/plan</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-emerald-500">/act (or /run)</td>
-                    <td className="p-3 text-text-secondary">Switch agent to Act Mode (autonomous tool execution &amp; artifact generation)</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/act</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-yellow-500">/mode</td>
-                    <td className="p-3 text-text-secondary">Toggle between Plan Mode and Act Mode</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/mode</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/tools</td>
-                    <td className="p-3 text-text-secondary">List registered scientific database, literature, and computation tools</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/tools</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/skills</td>
-                    <td className="p-3 text-text-secondary">List active domain SOP skills (Pathway enrichment, SAR mapping, etc.)</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/skills</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/cost (or /tokens)</td>
-                    <td className="p-3 text-text-secondary">Display session token metrics, prompt cache hits, and estimated API costs</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/cost</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/compact</td>
-                    <td className="p-3 text-text-secondary">Compress context memory while preserving all immutable EV-xxx evidence anchors</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/compact</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/mcp</td>
-                    <td className="p-3 text-text-secondary">Inspect and bridge Model Context Protocol (MCP) servers and tools</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/mcp</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/export</td>
-                    <td className="p-3 text-text-secondary">Export current research findings and evidence index to Markdown/LaTeX</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/export</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/new</td>
-                    <td className="p-3 text-text-secondary">Start a fresh scientific research session and clear working context</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/new</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/clear</td>
-                    <td className="p-3 text-text-secondary">Clear terminal screen while retaining active session memory</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/clear</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/help</td>
-                    <td className="p-3 text-text-secondary">Show interactive command palette and keybindings</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/help</code></td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-mono font-bold text-accent">/exit (or /quit)</td>
-                    <td className="p-3 text-text-secondary">Safely exit JunScience CLI REPL</td>
-                    <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/exit</code></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* 4. Model & API Key Configuration */}
-          <div className="space-y-3 pt-2">
-            <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-              <Key size={20} className="text-accent" />
-              <span>4. Configuring LLM Models and Providers</span>
-            </h2>
-            <p className="text-[13.5px] text-text-secondary leading-relaxed">
-              JunScience includes built-in offline mock providers for instant testing. You can easily link OpenAI, Anthropic, DeepSeek, or local Ollama / vLLM models:
-            </p>
-
-            <div className="space-y-2">
-              <div className="text-[12.5px] font-semibold text-text-primary">1. DeepSeek API (Recommended for scientific reasoning):</div>
-              {renderCodeBlock(
-                `junscience config set \\
-  --name "DeepSeek V3" \\
-  --model "deepseek-chat" \\
-  --base-url "https://api.deepseek.com/v1" \\
-  --api-key "sk-your-key-here"`,
-                'bash',
-                'cfg-deepseek'
-              )}
-
-              <div className="text-[12.5px] font-semibold text-text-primary pt-2">2. Anthropic Claude 3.7 Sonnet:</div>
-              {renderCodeBlock(
-                `junscience config set \\
-  --name "Claude 3.7" \\
-  --model "claude-3-7-sonnet-20250219" \\
-  --protocol "anthropic-compatible" \\
-  --base-url "https://api.anthropic.com/v1" \\
-  --api-key "sk-ant-..."`,
-                'bash',
-                'cfg-anthropic'
-              )}
-
-              <div className="text-[12.5px] font-semibold text-text-primary pt-2">3. Local Ollama / vLLM Endpoint (Air-Gapped / Private):</div>
-              {renderCodeBlock(
-                `junscience config set \\
-  --name "Local Llama 3" \\
-  --model "llama3.3:70b" \\
-  --base-url "http://localhost:11434/v1" \\
-  --protocol "openai-compatible"`,
-                'bash',
-                'cfg-ollama'
-              )}
-            </div>
-          </div>
-
-          {/* 5. One-Shot Command Execution */}
-          <div className="space-y-3 pt-2">
-            <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-              <Zap size={20} className="text-accent" />
-              <span>5. One-Shot Direct Research Commands</span>
-            </h2>
-            <p className="text-[13.5px] text-text-secondary">
-              For scripted CI pipelines or fast command-line queries, you can bypass the interactive REPL and run research directly:
-            </p>
-            {renderCodeBlock(
-              `# Execute direct scientific inquiry
-junscience research "Investigate TYK2 JH2 allosteric pseudokinase binding versus ATP catalytic domain"
-
-# Run with custom output path
-junscience research "Extract FAERS adverse event signals for GLP-1 agonists" --export ./glp1_report.md`,
-              'bash',
-              'cli-oneshot'
-            )}
-          </div>
-        </article>
-      )}
-
-      {/* ========================================================================= */}
-      {/* SECTION: DOCS (Overview & Concepts)                                       */}
-      {/* ========================================================================= */}
-      {section === 'docs' && (
-        <article className="space-y-6">
-          <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Documentation &amp; Core Concepts</h1>
-            <p className="text-[15px] text-text-secondary">
-              Understand the core design philosophy, evidence-first execution model, and scientific runtime architecture.
-            </p>
-          </div>
-
-          <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
-            <h2 className="text-xl font-bold text-text-primary">1. What is JunScience?</h2>
-            <p>
-              JunScience is an open-source AI Agent framework engineered specifically for <strong>empirical scientific and biomedical discovery</strong>.
-              Unlike conversational chatbots, JunScience operates with strict scientific skepticism: all conclusions must be derived from verified data retrieved from authoritative databases or computed in isolated sandboxes.
-            </p>
-
-            <h2 className="text-xl font-bold text-text-primary pt-2">2. The 3 Core Tenets</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
-              <div className="p-4 rounded-xl bg-bg-surface border border-border">
-                <ShieldCheck size={20} className="text-accent mb-2" />
-                <h3 className="font-bold text-[14px] text-text-primary mb-1">Pre-Adoption Verification</h3>
-                <p className="text-[12px] text-text-muted">
-                  The Codex-style <code>EvidenceVerifier</code> screens all outputs for mathematical anomalies, physics boundaries, and non-empty artifacts before admitting findings.
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-bg-surface border border-border">
-                <Layers size={20} className="text-emerald-500 mb-2" />
-                <h3 className="font-bold text-[14px] text-text-primary mb-1">Hypothesis Subagent Tree</h3>
-                <p className="text-[12px] text-text-muted">
-                  DeepSeek Harness forks concurrent subagent branches to explore competing targets or mechanisms in parallel and merges evidence into a comparison matrix.
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-bg-surface border border-border">
-                <CheckCircle2 size={20} className="text-purple-500 mb-2" />
-                <h3 className="font-bold text-[14px] text-text-primary mb-1">Explicit Plan &amp; To-Do Tracker</h3>
-                <p className="text-[12px] text-text-muted">
-                  Every inquiry generates an explicit 5-stage research plan, broadcasting live task status and immutable <code>EV-xxx</code> evidence anchors to CLI and Desktop UI.
-                </p>
-              </div>
-            </div>
-          </div>
-        </article>
-      )}
-
-      {/* ========================================================================= */}
-      {/* SECTION: INSTALLATION                                                     */}
-      {/* ========================================================================= */}
-      {section === 'installation' && (
-        <article className="space-y-6">
-          <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Installation Guide</h1>
-            <p className="text-[15px] text-text-secondary">
-              Desktop application downloads, CLI one-line installer, prerequisites, and monorepo setup.
+              {isZh
+                ? '深入了解 JunScience 的循证哲学、多假说子智能体树设计、不可绕过的生命周期守卫 Hook 与内核级隔离沙箱。'
+                : 'Understand the core design philosophy, evidence-first execution model, multi-agent hypothesis tree, and hardened biomedical runtime architecture.'}
             </p>
           </div>
 
           <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
-            {/* 1. Desktop App (First) */}
-            <div>
-              <h2 className="text-xl font-bold text-text-primary">1. Download Desktop App (v1.1.0)</h2>
-              <p className="text-[13px] text-text-muted mt-1">
-                Official native scientific workstations with integrated multi-agent tree engine, real-time Plan &amp; To-Do tracker, and interactive evidence cards:
+            {/* Mission Statement */}
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '1. 什么是 JunScience？' : '1. What is JunScience?'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? 'JunScience 是一套专为经验科学与生物医药发现设计的开源自主智能体工作站与多智能体框架。不同于传统仅依靠预训练知识对话的聊天机器人，JunScience 恪守严苛的科学怀疑主义原则：所有推演结论必须完全锚定在从权威数据库（UniProt、PDB、ChEMBL、ClinicalTrials.gov、openFDA 等）检索到的真实数据，或在内核隔离沙箱中由 Python 代码精确计算的数值。'
+                  : 'JunScience is an autonomous, open-source scientific and biomedical research workstation and multi-agent framework. Unlike general-purpose conversational LLMs, JunScience operates with strict scientific skepticism: every synthesized finding must be anchored in verified data retrieved from authoritative databases or computed deterministically inside kernel-enforced sandboxes.'}
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-3">
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0-arm64.dmg"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">macOS Apple Silicon</span>
-                    <span className="text-[11px] text-text-muted">M1/M2/M3/M4 (.dmg, 93.2 MB)</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
-
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0.dmg"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">macOS Intel</span>
-                    <span className="text-[11px] text-text-muted">x86_64 (.dmg, 98.0 MB)</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
-
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.Setup.1.1.0.exe"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">Windows Setup</span>
-                    <span className="text-[11px] text-text-muted">NSIS Installer (73.9 MB)</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
-
-                <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.1.1.0.exe"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
-                >
-                  <div>
-                    <span className="font-bold text-[13.5px] text-text-primary block">Windows Portable</span>
-                    <span className="text-[11px] text-text-muted">Standalone (.exe, 73.7 MB)</span>
-                  </div>
-                  <Download size={16} className="text-text-muted group-hover:text-accent" />
-                </a>
+              <div className="p-4 rounded-xl bg-accent/5 border border-accent/20 space-y-1.5">
+                <div className="font-bold text-[13.5px] text-text-primary flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-accent" />
+                  <span>{isZh ? '核心工程不变性 (Non-Negotiable Invariants)' : 'Core Engineering Invariants'}</span>
+                </div>
+                <ul className="text-[12.5px] text-text-secondary space-y-1 list-disc list-inside">
+                  <li><strong>{isZh ? '科学真实性与零虚构：' : 'Scientific Integrity & Zero Hallucination: '}</strong>{isZh ? '严禁伪造文献引用、PMID、临床试验编号或蛋白质序列，所有结论必须带有 [Evidence: EV-xxx] 凭证。' : 'Never fabricate citations, PMIDs, NCT IDs, or protein sequences; all claims require immutable [Evidence: EV-xxx] tags.'}</li>
+                  <li><strong>{isZh ? '临床隐私与沙箱安全：' : 'Clinical Privacy & Sandbox Isolation: '}</strong>{isZh ? '患者电子病历文本与 DICOM 原始影像必须在沙箱内部本地处理，禁止未经凭据网关向外泄露。' : 'Raw EHR text and DICOM image volumes are processed strictly inside sandboxes with ClinicalDataGate privacy enforcement.'}</li>
+                  <li><strong>{isZh ? '预采纳验证前置：' : 'Pre-Adoption Verification Gate: '}</strong>{isZh ? '任何计算结果与工具输出必须通过数学与物理边界校验方能并入证据树。' : 'No computational output is admitted into the evidence tracker without passing physical and mathematical boundary tests.'}</li>
+                </ul>
               </div>
             </div>
 
-            {/* 2. CLI Agent (Second) */}
-            <div className="pt-2">
-              <h2 className="text-xl font-bold text-text-primary">2. Quick Install CLI</h2>
-              <p className="text-[13px] text-text-muted mt-1">
-                Fast terminal-based scientific agent with dual Plan/Act mode execution:
+            {/* The 4 Architectural Pillars */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '2. 框架三大核心支柱' : '2. The Core Architectural Pillars'}</span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
+                <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2 shadow-2xs">
+                  <Layers size={20} className="text-accent" />
+                  <h3 className="font-bold text-[14px] text-text-primary">
+                    {isZh ? '多假说子智能体树' : 'Subagent Hypothesis Tree'}
+                  </h3>
+                  <p className="text-[12px] text-text-muted leading-relaxed">
+                    {isZh
+                      ? 'SubagentTreeEngine 并行派生多个独立的假说探索分支，分别在隔离的证据上下文中搜集论据，多维度评估置信度并生成比对矩阵。'
+                      : 'SubagentTreeEngine forks concurrent subagents to explore competing targets or mechanisms in parallel, computing multi-factor confidence scores and synthesis matrices.'}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2 shadow-2xs">
+                  <ShieldCheck size={20} className="text-emerald-500" />
+                  <h3 className="font-bold text-[14px] text-text-primary">
+                    {isZh ? 'Codex 风格验证网关' : 'Pre-Adoption Verification'}
+                  </h3>
+                  <p className="text-[12px] text-text-muted leading-relaxed">
+                    {isZh
+                      ? 'EvidenceVerifier 在证据被正式接纳前，严格审计物理与数学合法性（例如 p ∈ [0, 1]、IC50 > 0、HU ∈ [-1024, 3071]），杜绝异常溢出。'
+                      : 'EvidenceVerifier enforces physical and mathematical boundary checks (p ∈ [0, 1], IC50 > 0, HU ∈ [-1024, +3071], NaN/Inf detection) prior to evidence adoption.'}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2 shadow-2xs">
+                  <Activity size={20} className="text-purple-500" />
+                  <h3 className="font-bold text-[14px] text-text-primary">
+                    {isZh ? '形式化生命周期守卫' : 'Formal Lifecycle Guardrails'}
+                  </h3>
+                  <p className="text-[12px] text-text-muted leading-relaxed">
+                    {isZh
+                      ? 'HookRegistry 在 PreToolUse、PostToolUse、SessionStart 和 Stop 四个生命周期节点触发不可绕过的安全与完备性审计。'
+                      : 'HookRegistry executes non-bypassable guardrails at PreToolUse (secret redaction, clinical data gate), PostToolUse, and Stop (evidence completeness checking).'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Monorepo Architecture */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '3. 单体多包工程架构 (Monorepo)' : '3. Monorepo Architecture'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? 'JunScience 采用模块化解耦的 npm workspaces 结构，核心运行引擎、命令行工具和桌面客户端职责清晰：'
+                  : 'JunScience is structured as an npm workspaces monorepo separating core scientific runtime, CLI REPL, desktop application, and standardized OpenScience skills:'}
               </p>
-              {renderCodeBlock(
-                `# Option A: One-line bash installer (macOS & Linux)
-curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash
-
-# Option B: Global npm package
-npm install -g @junscience/cli
-
-# Option C: Zero-install instant run
-npx @junscience/cli`,
-                'bash',
-                'install-quick'
-              )}
-            </div>
-
-            {/* 3. Prerequisites */}
-            <div className="pt-2">
-              <h2 className="text-xl font-bold text-text-primary">3. Prerequisites</h2>
-              <ul className="list-disc list-inside space-y-1 text-[13.5px] text-text-secondary mt-1">
-                <li><strong>Node.js</strong>: version 20.x or 22.x LTS</li>
-                <li><strong>Python</strong>: version 3.10+ (standard library for sandboxed compute)</li>
-                <li><strong>Git</strong>: latest version</li>
-              </ul>
-            </div>
-
-            {/* 4. Build From Source */}
-            <div className="pt-2">
-              <h2 className="text-xl font-bold text-text-primary">4. Build From Source (Monorepo)</h2>
-              {renderCodeBlock(
-                `# Clone repository
-git clone https://github.com/Benjamin-JHou/JunScience.git
-cd JunScience
-
-# Install all workspace dependencies
-npm install
-
-# Build all packages (@junscience/core, @junscience/cli, @junscience/desktop)
-npm run build
-
-# Start CLI or Desktop Dev Server
-npm run cli
-npm run desktop:dev`,
-                'bash',
-                'install-mono'
-              )}
+              <div className="overflow-x-auto rounded-xl border border-border bg-bg-surface shadow-xs">
+                <table className="w-full text-left text-[12.5px]">
+                  <thead className="bg-bg-elevated/70 border-b border-border text-text-muted font-mono text-[11px]">
+                    <tr>
+                      <th className="p-3">Package / Directory</th>
+                      <th className="p-3">Description</th>
+                      <th className="p-3">Key Responsibilities</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">packages/core</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '核心运行时引擎与底层工具包' : 'Core runtime engine & tools'}</td>
+                      <td className="p-3 text-text-muted">{isZh ? 'ReAct循环、EvidenceVerifier、SubagentTreeEngine、生命周期Hook、沙箱' : 'Research loop, EvidenceVerifier, SubagentTree, Hooks, Sandboxes'}</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">packages/cli</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '交互式终端研究智能体' : 'Interactive CLI research agent'}</td>
+                      <td className="p-3 text-text-muted">{isZh ? '终端 REPL、/model、/plan、/act、/cost 指令与单次直接执行命令' : 'REPL, slash commands (/model, /plan, /act), one-shot research'}</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">packages/desktop</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '跨平台学术桌面工作站' : 'Electron desktop application'}</td>
+                      <td className="p-3 text-text-muted">{isZh ? 'Electron 28 + React 18，多栏工作区、假说树可视化与报告导出' : 'Native workspace UI, real-time PlanTracker, hypothesis graph'}</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">skills/</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '标准领域 SOP 技能仓库' : 'Standard OpenScience skill repo'}</td>
+                      <td className="p-3 text-text-muted">{isZh ? '19项涵盖生物、化学、临床与文献的标准化 SKILL.md 与执行脚本' : '19 domain-specific skills with scripts, SKILL.md, and examples'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </article>
@@ -521,41 +236,124 @@ npm run desktop:dev`,
       {/* SECTION: QUICKSTART                                                       */}
       {/* ========================================================================= */}
       {section === 'quickstart' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Quick Start Tutorial</h1>
-            <p className="text-[15px] text-text-secondary">
-              Run your first evidence-anchored scientific research loop in under 2 minutes.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Zap size={12} />
+              <span>{isZh ? '快速开始教程' : 'GETTING STARTED'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? '快速上手指南 (Quick Start)' : 'Quick Start Tutorial'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '在2分钟内安装并启动 JunScience，发起您的第一个循证科研推演循环。'
+                : 'Install and launch JunScience in under 2 minutes, and run an evidence-anchored scientific research loop.'}
             </p>
           </div>
 
-          <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
-            <h2 className="text-xl font-bold text-text-primary">Step 1: Start Interactive REPL</h2>
-            {renderCodeBlock(
-              `junscience`,
-              'bash',
-              'qs-start'
-            )}
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* 1. Prerequisites */}
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '1. 环境准备 (Prerequisites)' : '1. Prerequisites'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? 'JunScience 设计为即开即用，依赖轻量：'
+                  : 'JunScience requires minimal local system prerequisites:'}
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-[13px] text-text-secondary">
+                <li><strong>Node.js:</strong> v20.x 或 v22.x LTS ({isZh ? '推荐 Node 22' : 'recommended Node 22'})</li>
+                <li><strong>Python:</strong> v3.10+ ({isZh ? '用于沙箱内统计计算与特征提取' : 'for sandboxed scientific data computation'})</li>
+                <li><strong>Git:</strong> {isZh ? '用于代码检出与三方技能安装' : 'for repository management and skill installs'}</li>
+              </ul>
+            </div>
 
-            <h2 className="text-xl font-bold text-text-primary pt-2">Step 2: Switch to Plan Mode &amp; Inquire</h2>
-            <p>
-              In the REPL, type <code>/plan</code> to engage deliberate multi-hypothesis exploration:
-            </p>
-            {renderCodeBlock(
-              `junscience [PLAN] > Evaluate the allosteric selectivity of TYK2 JH2 pseudokinase vs ATP catalytic domain across JAK family kinases`,
-              'bash',
-              'qs-plan'
-            )}
+            {/* 2. Installation */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '2. 快速安装' : '2. Quick Installation'}</span>
+              </h2>
+              <div className="space-y-2">
+                <div className="text-[13px] font-semibold text-text-primary">{isZh ? '方式 A：一键脚本 (macOS & Linux)' : 'Option A: One-Line Installer (macOS & Linux)'}</div>
+                {renderCodeBlock(
+                  `curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash`,
+                  'bash',
+                  'qs-curl'
+                )}
 
-            <h2 className="text-xl font-bold text-text-primary pt-2">Step 3: Switch to Act Mode &amp; Execute Tools</h2>
-            <p>
-              Type <code>/act</code> to autonomously invoke UniProt, ChEMBL, and Python statistical verification:
-            </p>
-            {renderCodeBlock(
-              `junscience [ACT] > Execute the research plan and compute fold selectivity`,
-              'bash',
-              'qs-act'
-            )}
+                <div className="text-[13px] font-semibold text-text-primary pt-2">{isZh ? '方式 B：全局 npm 安装' : 'Option B: Global npm Package'}</div>
+                {renderCodeBlock(
+                  `npm install -g @junscience/cli\njunscience`,
+                  'bash',
+                  'qs-npm'
+                )}
+
+                <div className="text-[13px] font-semibold text-text-primary pt-2">{isZh ? '方式 C：免安装即时运行 (npx)' : 'Option C: Zero-Install Instant Run (npx)'}</div>
+                {renderCodeBlock(
+                  `npx @junscience/cli`,
+                  'bash',
+                  'qs-npx'
+                )}
+              </div>
+            </div>
+
+            {/* 3. Step-by-Step Research Session */}
+            <div className="space-y-4 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '3. 实践演练：完成首个激酶别构选择性课题' : '3. Walkthrough: Answering a Real-World Biomedical Inquiry'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? '让我们通过一个真实的生物医药案例，体验 Plan Mode 规划与 Act Mode 执行的全过程：'
+                  : 'Follow this real-world pharmaceutical discovery inquiry through Plan Mode deliberation and Act Mode execution:'}
+              </p>
+
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-accent block mb-1">
+                    {isZh ? '第一步：启动终端 REPL 并配置大模型' : 'Step 1: Launch REPL and Configure LLM'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted mb-2">
+                    {isZh ? '启动后输入 /model 配置您的大模型（内置离线科学 Mock 服务可直接用于测试）：' : 'Launch the CLI and configure your provider (or use the offline scientific mock provider):'}
+                  </p>
+                  {renderCodeBlock(
+                    `# 启动终端\njunscience\n\n# 在终端内配置大模型提供方 (如 DeepSeek V3 或 Claude 3.7)\n/model set --model deepseek-chat --api-key sk-your-key-here`,
+                    'bash',
+                    'qs-step1'
+                  )}
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-purple-500 block mb-1">
+                    {isZh ? '第二步：进入 /plan 模式进行审慎设计' : 'Step 2: Enter /plan Mode for Deliberative Planning'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted mb-2">
+                    {isZh ? '输入 /plan，输入研究课题。智能体将制定5阶段里程碑计划，拆解靶点与文献，不触发改变环境的沙箱代码：' : 'Switch to /plan mode and enter your research query. The agent formulates a 5-stage plan without modifying state:'}
+                  </p>
+                  {renderCodeBlock(
+                    `junscience [PLAN] > Investigate TYK2 JH2 allosteric pseudokinase binding vs JAK1/2/3 catalytic domain for Deucravacitinib`,
+                    'bash',
+                    'qs-step2'
+                  )}
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-emerald-500 block mb-1">
+                    {isZh ? '第三步：切换到 /act 模式自主执行工具' : 'Step 3: Switch to /act Mode to Execute Tools'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted mb-2">
+                    {isZh ? '输入 /act，智能体将自主调用 UniProt、ChEMBL、Python 沙箱执行统计拟合，并通过 EvidenceVerifier 边界审查：' : 'Switch to /act mode to autonomously trigger database queries, compute fold selectivity, and verify bounds:'}
+                  </p>
+                  {renderCodeBlock(
+                    `junscience [ACT] > Proceed with data retrieval and compute fold selectivity\n\n# 智能体将输出：\n# [TOOL] uniprot_fetch(P29597) -> 1187 aa sequence [EV-001]\n# [TOOL] chembl_query(target: "TYK2", drug: "Deucravacitinib") -> IC50 = 12.8 nM [EV-002]\n# [SANDBOX] Running Python fold selectivity script...\n# [VERIFIER] Pre-adoption gate passed: IC50 > 0, p < 0.001. Digest: sha256:7f4a...`,
+                    'bash',
+                    'qs-step3'
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </article>
       )}
@@ -564,24 +362,102 @@ npm run desktop:dev`,
       {/* SECTION: USER GUIDE                                                       */}
       {/* ========================================================================= */}
       {section === 'userguide' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">User Guide</h1>
-            <p className="text-[15px] text-text-secondary">
-              Detailed workflow manual for scientific discovery with JunScience CLI &amp; Desktop.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Compass size={12} />
+              <span>{isZh ? '操作使用指南' : 'USER MANUAL'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? '用户指南与高级操作手册' : 'User Guide & Operating Manual'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '详尽的科研工作流操作手册，涵盖双工作模式、工具生态、隔离工作区文件编辑器、证据链导出与Token成本控制。'
+                : 'Comprehensive operational manual covering dual execution modes, scientific tool ecosystems, in-workspace file editing, and evidence export.'}
             </p>
           </div>
 
-          <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
-            <h2 className="text-xl font-bold text-text-primary">1. Planning Mode vs Autonomous Execution</h2>
-            <p>
-              JunScience operates under a dual-mode interaction model. In <strong>Plan Mode</strong>, the agent focuses on study design, hypothesis trees, and evidence checklists. In <strong>Act Mode</strong>, the agent executes Python scripts, calls biomedical REST APIs, passes the <code>EvidenceVerifier</code> gate, and outputs immutable research artifacts.
-            </p>
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* 1. Plan Mode vs Act Mode */}
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <Sliders size={18} className="text-accent" />
+                <span>{isZh ? '1. 规划模式 (/plan) 与 执行模式 (/act)' : '1. Plan Mode vs Act Mode Mechanics'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? '为了解决通用自主智能体容易在缺乏充分论证前盲目执行破坏性工具或浪费 API 配额的问题，JunScience 引入了双重状态机控制：'
+                  : 'JunScience provides deliberate mode separation to ensure scientists can inspect study design before executing mutating tool calls:'}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+                <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-2">
+                  <span className="font-bold text-[13.5px] text-purple-600 dark:text-purple-400 font-mono">/plan Mode</span>
+                  <p className="text-[12.5px] text-text-secondary">
+                    {isZh
+                      ? '审慎规划模式。仅允许调用只读检索工具与文献归纳，聚焦于制定多假说树（SubagentTreeEngine）、设定研究阶段目标（TASK-1 至 TASK-5）与确定证据检验标准。'
+                      : 'Deliberative planning. Restricts execution to read-only queries, hypothesis generation, and experimental design without triggering environment changes.'}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-2">
+                  <span className="font-bold text-[13.5px] text-emerald-600 dark:text-emerald-400 font-mono">/act Mode</span>
+                  <p className="text-[12.5px] text-text-secondary">
+                    {isZh
+                      ? '自主执行模式。智能体自主调用分子数据库连接器、在沙箱内运行 Python 数据处理脚本、调用 FileEditorTool 编辑工作区文件，并实时生成带有 EV 标签的研究报告。'
+                      : 'Autonomous execution. Invokes molecular database connectors, executes Python code inside sandboxes, updates local project files, and streams findings.'}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <h2 className="text-xl font-bold text-text-primary pt-2">2. Evidence Verification &amp; EV Anchors</h2>
-            <p>
-              Every claim made by the agent includes a link to an immutable evidence anchor (e.g. <code>[Evidence: EV-001]</code>). These anchors contain the exact raw database response, execution duration, sandbox integrity status, and mathematical sanity verification.
-            </p>
+            {/* 2. Tool Ecosystem */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <Database size={18} className="text-accent" />
+                <span>{isZh ? '2. 科学数据与计算工具生态' : '2. Scientific Tool Ecosystem'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? '核心包内置经过加固与物理边界检测的权威科学连接器：'
+                  : 'JunScience ships with hardened, production-tested scientific database connectors:'}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-text-primary block mb-1">UniProt &amp; PDB Connectors</span>
+                  <p className="text-[12px] text-text-muted">{isZh ? '检索完整氨基酸序列、拓扑结构域、活性口袋位点与 PDB 晶体坐标。' : 'Fetches full protein sequences, domain annotations, and PDB coordinate structures.'}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-text-primary block mb-1">ChEMBL &amp; PubChem Connectors</span>
+                  <p className="text-[12px] text-text-muted">{isZh ? '查询生物活性实验数据（IC50、Ki、Kd）、化合物 SMILES、Lipinski 五规则参数。' : 'Queries bioactivity assay records (IC50, Ki, Kd), chemical structures, and ADMET profiles.'}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-text-primary block mb-1">ClinicalTrials.gov &amp; openFDA</span>
+                  <p className="text-[12px] text-text-muted">{isZh ? '基于 API v2 检索入组排查标准；从 FAERS 提取不良反应并计算 PRR / ROR 信号。' : 'Parses ClinicalTrials.gov v2 protocols and detects FAERS disproportionality signals.'}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13px] text-text-primary block mb-1">Confined FileEditorTool</span>
+                  <p className="text-[12px] text-text-muted">{isZh ? '隔离工作区文件编辑器，支持精确的字符串替换、多行插入与查看，严防宿主逃逸。' : 'Confined workspace editor for inspecting, replacing, and appending script contents safely.'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Evidence Management */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <ShieldCheck size={18} className="text-accent" />
+                <span>{isZh ? '3. 证据锚点与上下文压缩 (/compact)' : '3. Evidence Anchors & Memory Management'}</span>
+              </h2>
+              <p>
+                {isZh
+                  ? '所有被智能体采纳的科学论据都会生成唯一的 EV-xxx 锚点。在长周期研究任务中，如果上下文长度接近模型上限，可以随时执行 /compact：系统将压缩冗余对话，但 100% 完整保留所有证据锚点、原始数据哈希和边界检验结果。'
+                  : 'Every verified data point receives a unique immutable EV-xxx tag. When context window usage increases during long research sessions, the /compact command compresses conversational clutter while preserving all evidence records.'}
+              </p>
+              {renderCodeBlock(
+                `# 在 REPL 中压缩记忆\njunscience > /compact\n\n# 查看当前会话 Token 消耗与缓存命中率\njunscience > /cost`,
+                'bash',
+                'ug-compact'
+              )}
+            </div>
           </div>
         </article>
       )}
@@ -590,138 +466,142 @@ npm run desktop:dev`,
       {/* SECTION: EXAMPLES                                                         */}
       {/* ========================================================================= */}
       {section === 'examples' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Scientific Examples &amp; Workflows</h1>
-            <p className="text-[15px] text-text-secondary">
-              End-to-end research questions, execution logs, and generated artifacts.
-            </p>
-          </div>
-
-          <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2">
-              <h3 className="font-bold text-[15px] text-text-primary">Example 1: Kinase Allosteric Selectivity Profiling</h3>
-              <p className="text-[13px] text-text-muted">
-                <strong>Inquiry:</strong> &quot;Compare TYK2 JH2 pseudokinase domain vs JAK1/2/3 catalytic domains for Deucravacitinib binding.&quot;
-              </p>
-              <div className="text-[12px] text-emerald-600 dark:text-emerald-400 font-mono">
-                Tools called: UniProtTool (P29597, P23458), ChEMBLTool (CHEMBL4297893), PythonRunnerTool (IC50 fold calculation).
-              </div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <FlaskConical size={12} />
+              <span>{isZh ? '科研实战范例' : 'END-TO-END BENCHMARKS'}</span>
             </div>
-
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-2">
-              <h3 className="font-bold text-[15px] text-text-primary">Example 2: FAERS Adverse Event Signal Screening</h3>
-              <p className="text-[13px] text-text-muted">
-                <strong>Inquiry:</strong> &quot;Screen FDA FAERS adverse event reports for GLP-1 receptor agonists and compute Proportional Reporting Ratios (PRR).&quot;
-              </p>
-              <div className="text-[12px] text-emerald-600 dark:text-emerald-400 font-mono">
-                Tools called: openFDATool, PythonRunnerTool (2x2 contingency table &amp; PRR statistics), ClinicalDataGate.
-              </div>
-            </div>
-          </div>
-        </article>
-      )}
-
-      {/* ========================================================================= */}
-      {/* SECTION: USE CASES                                                        */}
-      {/* ========================================================================= */}
-      {section === 'usecases' && (
-        <article className="space-y-6">
-          <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Scientific Use Cases</h1>
-            <p className="text-[15px] text-text-secondary">
-              Where JunScience delivers rigorous, evidence-traceable research acceleration.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <h3 className="font-bold text-[15px] text-text-primary">Target Identification &amp; Validation</h3>
-              <p className="text-[12px] text-text-muted leading-relaxed">
-                Mine PubMed, UniProt, and OpenTargets for target-disease associations and validate druggability with ChEMBL bioactivities.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <h3 className="font-bold text-[15px] text-text-primary">Structural Biology &amp; SAR Mapping</h3>
-              <p className="text-[12px] text-text-muted leading-relaxed">
-                Fetch PDB macromolecular structures, compute active site binding pockets, and plot SAR activity cliffs.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <h3 className="font-bold text-[15px] text-text-primary">Clinical Evidence &amp; Trial Matching</h3>
-              <p className="text-[12px] text-text-muted leading-relaxed">
-                Synthesize ClinicalTrials.gov v2 inclusion criteria, track phase transitions, and audit adverse event reporting.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5">
-              <h3 className="font-bold text-[15px] text-text-primary">Medical Multimodal Research</h3>
-              <p className="text-[12px] text-text-muted leading-relaxed">
-                Run local radiomics on DICOM CT/MRI imaging with strict privacy shielding via <code>ClinicalDataGate</code>.
-              </p>
-            </div>
-          </div>
-        </article>
-      )}
-
-      {/* ========================================================================= */}
-      {/* SECTION: API REFERENCE                                                    */}
-      {/* ========================================================================= */}
-      {section === 'apireference' && (
-        <article className="space-y-6">
-          <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">TypeScript API Reference</h1>
-            <p className="text-[15px] text-text-secondary">
-              Core SDK classes and methods available in <code>@junscience/core</code>.
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? '真实科学研究端到端范例' : 'Scientific Examples & Workflows'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '以下精选了4个跨生物医药、临床流行病学、临床试验入排匹配与多模态影像组学的端到端实际课题案例。'
+                : 'Explore 4 complete, publication-grade scientific research workflows with exact prompts, tool invocation traces, and verified outputs.'}
             </p>
           </div>
 
           <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
-            <div>
-              <h2 className="text-xl font-bold text-text-primary font-mono text-accent">EvidenceVerifier</h2>
-              <p className="text-[13px] text-text-muted mt-1">
-                Codex-style verification middleware for empirical tool outputs.
+            {/* Example 1: Kinase Selectivity */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-blue-500 text-white">CASE 1</span>
+                  <h3 className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '靶点成药性与激酶别构选择性分析 (TYK2 JH2 vs JAK1/2/3)' : 'Target Druggability & Kinase Allosteric Selectivity Profiling'}
+                  </h3>
+                </div>
+                <span className="text-[11px] text-accent font-mono">Molecular Biology</span>
+              </div>
+              <p className="text-[13px] text-text-secondary">
+                <strong>{isZh ? '科学背景与问题：' : 'Scientific Inquiry: '}</strong>
+                {isZh
+                  ? '第一代 JAK 抑制剂（如托法替布）由于靶向高度保守的 ATP 催化活性中心，往往导致贫血和脂质代谢紊乱等泛 JAK 毒性。分析新型口服抑制剂德克伐替尼 (Deucravacitinib) 对 TYK2 调节结构域 (JH2 假激酶) 与 JAK1/2/3 催化域的选择性差异。'
+                  : 'Evaluate the allosteric selectivity of Deucravacitinib binding to the TYK2 JH2 pseudokinase domain versus the ATP catalytic active sites of JAK1, JAK2, and JAK3.'}
               </p>
-              {renderCodeBlock(
-                `import { EvidenceVerifier } from '@junscience/core';
-
-const verifier = new EvidenceVerifier();
-const result = verifier.verify(
-  'python_runner',
-  'computation',
-  'IC50 calculation',
-  { ic50: 12.5, pValue: 0.002 }
-);
-
-// Returns: { verdict: 'ADOPTED' | 'FLAGGED_WITH_WARNING' | 'REJECTED', confidenceScore: 1.0 }`,
-                'typescript',
-                'api-verifier'
-              )}
+              <div className="p-3 rounded-lg bg-bg-elevated/60 font-mono text-[12px] space-y-1">
+                <div className="text-slate-400"># Tool Execution Sequence:</div>
+                <div className="text-accent">&gt; uniprot_fetch(accession: &quot;P29597&quot;) -&gt; Extracts JH2 domain residues (505-779) [EV-001]</div>
+                <div className="text-accent">&gt; chembl_assay(target: &quot;TYK2&quot;, molecule: &quot;CHEMBL4297893&quot;) -&gt; IC50 = 12.8 nM [EV-002]</div>
+                <div className="text-accent">&gt; chembl_assay(target: &quot;JAK1&quot;, molecule: &quot;CHEMBL4297893&quot;) -&gt; IC50 &gt; 10,000 nM [EV-003]</div>
+                <div className="text-emerald-500 font-semibold">&gt; verifier_gate: Fold selectivity = 10000 / 12.8 = 781.25x. Boundaries verified.</div>
+              </div>
+              <p className="text-[12.5px] text-text-muted">
+                {isZh
+                  ? '结论：德克伐替尼通过精确锁定 TYK2 独特的 JH2 假激酶变构口袋，实现了相比 JAK1/2/3 催化域超 700 倍的选择性窗口，避免了造血抑制不良反应。'
+                  : 'Conclusion: Deucravacitinib achieves >700-fold functional selectivity by exclusively stabilizing the inactive JH2 pseudokinase domain of TYK2, eliminating cross-reactivity with JAK1/2/3.'}
+              </p>
             </div>
 
-            <div>
-              <h2 className="text-xl font-bold text-text-primary font-mono text-accent">SubagentTreeEngine</h2>
-              <p className="text-[13px] text-text-muted mt-1">
-                DeepSeek Harness parallel hypothesis branch orchestrator and matrix synthesizer.
+            {/* Example 2: FAERS Pharmacovigilance */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-emerald-600 text-white">CASE 2</span>
+                  <h3 className="font-bold text-[15px] text-text-primary">
+                    {isZh ? 'FDA FAERS 药物警戒信号检测 (GLP-1 受体激动剂)' : 'FDA FAERS Pharmacovigilance & Disproportionality Signal Screening'}
+                  </h3>
+                </div>
+                <span className="text-[11px] text-emerald-500 font-mono">Pharmacovigilance</span>
+              </div>
+              <p className="text-[13px] text-text-secondary">
+                <strong>{isZh ? '科学背景与问题：' : 'Scientific Inquiry: '}</strong>
+                {isZh
+                  ? '从美国 FDA 不良事件报告系统 (FAERS) 抓取数百万份自发报告，构建四格表并评估 GLP-1 受体激动剂（司美格鲁肽、替尔泊肽）与胃轻瘫/消化道梗阻的不良事件比例报告比 (PRR) 及报告比值比 (ROR)。'
+                  : 'Screen FDA FAERS spontaneous reports for GLP-1 receptor agonists and compute Proportional Reporting Ratios (PRR) and Reporting Odds Ratios (ROR) for gastroparesis.'}
               </p>
-              {renderCodeBlock(
-                `import { SubagentTreeEngine, HypothesisNode } from '@junscience/core';
+              <div className="p-3 rounded-lg bg-bg-elevated/60 font-mono text-[12px] space-y-1">
+                <div className="text-slate-400"># Statistical Execution Trace:</div>
+                <div className="text-accent">&gt; openfda_faers(drug: &quot;SEMAGLUTIDE&quot;, reaction: &quot;GASTROPARESIS&quot;) -&gt; n = 412 [EV-010]</div>
+                <div className="text-accent">&gt; python_runner: Contingency table [[412, 38102], [2890, 4210990]]</div>
+                <div className="text-emerald-500 font-semibold">&gt; PRR = 2.84 (95% CI: 2.58 - 3.12), Chi-Square = 289.4 (p &lt; 1e-12) [EV-011]</div>
+              </div>
+              <p className="text-[12.5px] text-text-muted">
+                {isZh
+                  ? '结论：PRR > 2.0 且卡方值远超阈值 4.0，证实存在显著的胃肠动力迟缓药物警戒信号，需在临床处方中给予重点警示。'
+                  : 'Conclusion: PRR > 2.0 with lower 95% CI > 1.0 confirms a statistically robust disproportionality signal warranting clinical monitoring.'}
+              </p>
+            </div>
 
-const engine = new SubagentTreeEngine();
-const { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParallel(
-  sessionId,
-  [
-    { id: 'hyp-1', targetEntity: 'TYK2', statement: 'JH2 allosteric binding' },
-    { id: 'hyp-2', targetEntity: 'JAK1', statement: 'Orthosteric cross-reactivity' },
-  ],
-  evidenceTracker,
-  3 // maxConcurrency
-);`,
-                'typescript',
-                'api-subagent'
-              )}
+            {/* Example 3: Clinical Trial Eligibility */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-purple-600 text-white">CASE 3</span>
+                  <h3 className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '临床试验方案入排智能匹配 (MAESTRO-NASH NCT03900429)' : 'Clinical Trial Protocol Matching & Eligibility Screening'}
+                  </h3>
+                </div>
+                <span className="text-[11px] text-purple-500 font-mono">Clinical Trials</span>
+              </div>
+              <p className="text-[13px] text-text-secondary">
+                <strong>{isZh ? '科学背景与问题：' : 'Scientific Inquiry: '}</strong>
+                {isZh
+                  ? '解析非酒精性脂肪性肝炎 (MASH) 首款获批药物瑞司美替罗 (Resmetirom) 的 III 期核心临床试验 (NCT03900429) 方案，自动将多中心患者队列的实验室生化指标与肝纤维化评分（FibroScan LSM）与入组标准对齐。'
+                  : 'Parse Phase 3 protocol NCT03900429 (Resmetirom in MASH) and match patient cohort liver stiffness measurements against inclusion criteria.'}
+              </p>
+              <div className="p-3 rounded-lg bg-bg-elevated/60 font-mono text-[12px] space-y-1">
+                <div className="text-slate-400"># Matching Engine Trace:</div>
+                <div className="text-accent">&gt; clinicaltrials_v2(nctId: &quot;NCT03900429&quot;) -&gt; Parsed 14 inclusion / 22 exclusion rules [EV-020]</div>
+                <div className="text-accent">&gt; python_runner: Evaluated cohort n=150. LSM threshold &gt;= 8.5 kPa &amp; CAP &gt;= 280 dB/m.</div>
+                <div className="text-emerald-500 font-semibold">&gt; Match Result: 42/150 patients eligible (28.0%). Zero inclusion violations.</div>
+              </div>
+              <p className="text-[12.5px] text-text-muted">
+                {isZh
+                  ? '结论：自动化规则匹配引擎将传统需数周的人工病历复审缩短至秒级，并输出每个候选患者的合格证据卡片。'
+                  : 'Conclusion: Automated eligibility verification drastically accelerates trial cohort recruitment with zero violation risk.'}
+              </p>
+            </div>
+
+            {/* Example 4: Multimodal Radiomics */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-amber-600 text-white">CASE 4</span>
+                  <h3 className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '隐私隔离沙箱内的多模态影像组学定量 (CT 肝脏衰减 HU)' : 'Multimodal Radiomics & Tissue Attenuation in Privacy Sandbox'}
+                  </h3>
+                </div>
+                <span className="text-[11px] text-amber-500 font-mono">Radiomics & Privacy</span>
+              </div>
+              <p className="text-[13px] text-text-secondary">
+                <strong>{isZh ? '科学背景与问题：' : 'Scientific Inquiry: '}</strong>
+                {isZh
+                  ? '针对腹部 CT DICOM 序列提取肝实质 Hounsfield 衰减单位 (HU)，并在严格隔离的沙箱内计算灰度共生矩阵 (GLCM) 纹理特征，全程受 ClinicalDataGate 拦截保护，禁止向公网发送患者敏感影像。'
+                  : 'Extract quantitative hepatic Hounsfield Units (HU) and GLCM texture metrics inside the local sandbox under ClinicalDataGate protection.'}
+              </p>
+              <div className="p-3 rounded-lg bg-bg-elevated/60 font-mono text-[12px] space-y-1">
+                <div className="text-slate-400"># Sandbox Privacy & Computation Trace:</div>
+                <div className="text-accent">&gt; ClinicalDataGate: DICOM image volume intercepted. Public network blocked.</div>
+                <div className="text-accent">&gt; sandbox_exec(python): Computing hepatic attenuation in isolated macOS Seatbelt...</div>
+                <div className="text-emerald-500 font-semibold">&gt; verifier_gate: Mean attenuation = 38.2 HU (HU in [-1024, 3071] valid). Steatosis confirmed.</div>
+              </div>
+              <p className="text-[12.5px] text-text-muted">
+                {isZh
+                  ? '结论：肝实质衰减低于脾脏（<40 HU），精确诊断中度脂肪肝浸润，同时保证了零隐私泄漏风险。'
+                  : 'Conclusion: Hepatic attenuation < 40 HU confirms steatosis while preserving 100% patient radiological privacy.'}
+              </p>
             </div>
           </div>
         </article>
@@ -731,15 +611,24 @@ const { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParal
       {/* SECTION: ARCHITECTURE                                                     */}
       {/* ========================================================================= */}
       {section === 'architecture' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Architecture &amp; Security Sandboxing</h1>
-            <p className="text-[15px] text-text-secondary">
-              Deep dive into OS kernel isolation, multi-harness design, and patient data privacy gates.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Layers size={12} />
+              <span>{isZh ? '底层架构与沙箱' : 'HARDENED RUNTIME'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? '系统架构与操作系统内核安全沙箱' : 'Architecture & Security Sandboxing'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '剖析 JunScience 的分层设计、跨平台操作系统内核沙箱（macOS Seatbelt、Linux Bubblewrap、Windows MIC）以及形式化生命周期守卫。'
+                : 'Deep dive into OS kernel isolation, multi-harness design, formal verification gates, and patient data privacy.'}
             </p>
           </div>
 
-          <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* Architecture Diagram */}
             <div className="rounded-xl overflow-hidden border border-border shadow-xs bg-bg-surface p-2">
               <img
                 src={`${import.meta.env.BASE_URL}screenshots/architecture.png`}
@@ -748,25 +637,91 @@ const { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParal
               />
             </div>
 
-            <h2 className="text-xl font-bold text-text-primary pt-2">1. Multi-Platform OS Kernel Sandboxing</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-2">
-              <div className="p-4 rounded-xl bg-bg-surface border border-border">
-                <span className="font-bold text-[13.5px] text-text-primary block mb-1">macOS Seatbelt</span>
-                <p className="text-[12px] text-text-muted">
-                  Enforces <code>sandbox-exec</code> kernel policies with air-gapped network blocking (<code>(deny default)</code>) for all Python scripts.
-                </p>
+            {/* 1. Layered Architecture */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '1. 分层架构规范' : '1. Layered Architecture Overview'}</span>
+              </h2>
+              <div className="space-y-2">
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13.5px] text-accent block mb-1">
+                    {isZh ? '第1层：交互展示层 (UI & Interaction Layer)' : 'Layer 1: UI & Interaction Layer'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted">
+                    {isZh
+                      ? '包含 Electron 原生学术桌面工作站（多栏工作区、实时计划看板、证据卡片）与高性能终端命令行 REPL（支持 /model、/plan、/act 等斜杠指令）。'
+                      : 'Provides the native Electron desktop application and high-speed CLI REPL with interactive slash commands.'}
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13.5px] text-purple-500 block mb-1">
+                    {isZh ? '第2层：科研调度核心层 (Core Orchestration Engine)' : 'Layer 2: Core Orchestration Engine'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted">
+                    {isZh
+                      ? '由 AutonomousResearchEngine、SubagentTreeEngine、PlanTracker 和 CritiqueEngine 构成，负责多假说并发分支管理与里程碑广播。'
+                      : 'Features AutonomousResearchEngine, SubagentTreeEngine, PlanTracker, and CritiqueEngine for multi-branch hypothesis exploration.'}
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13.5px] text-emerald-500 block mb-1">
+                    {isZh ? '第3层：形式化守卫 Hook 层 (Formal Guardrails Layer)' : 'Layer 3: Formal Guardrails Layer'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted">
+                    {isZh
+                      ? 'HookRegistry 在 PreToolUse、PostToolUse、SessionStart、Stop 生命周期节点执行脱敏、边界验证、隐私审计与完备性检测。'
+                      : 'Deterministic, non-bypassable hooks executing secret redaction, EvidenceVerifier mathematical gates, and completeness checks.'}
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-bg-surface border border-border">
+                  <span className="font-bold text-[13.5px] text-amber-500 block mb-1">
+                    {isZh ? '第4层：工具执行与内核沙箱层 (Execution & Sandbox Layer)' : 'Layer 4: Tools & Kernel Sandbox Layer'}
+                  </span>
+                  <p className="text-[12.5px] text-text-muted">
+                    {isZh
+                      ? '生物医药连接器、工作区安全文件编辑器 (FileEditorTool) 以及基于操作系统原生内核隔离的 Python 执行沙箱。'
+                      : 'Hardened database connectors, workspace file editor, and kernel-isolated Python computation environments.'}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 rounded-xl bg-bg-surface border border-border">
-                <span className="font-bold text-[13.5px] text-text-primary block mb-1">Linux Bubblewrap</span>
-                <p className="text-[12px] text-text-muted">
-                  Unprivileged LSM containerization with <code>bwrap --ro-bind / / --proc /proc --unshare-net</code>.
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-bg-surface border border-border">
-                <span className="font-bold text-[13.5px] text-text-primary block mb-1">Windows MIC</span>
-                <p className="text-[12px] text-text-muted">
-                  Mandatory Integrity Control (<code>Low Integrity Token</code>) + strict workspace ACL directory isolation.
-                </p>
+            </div>
+
+            {/* 2. OS Kernel Sandboxes */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <Lock size={18} className="text-accent" />
+                <span>{isZh ? '2. 跨平台操作系统内核沙箱' : '2. Multi-Platform OS Kernel Sandboxes'}</span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-2">
+                <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5 shadow-2xs">
+                  <span className="font-bold text-[13.5px] text-text-primary block">macOS Seatbelt</span>
+                  <p className="text-[12px] text-text-muted leading-relaxed">
+                    {isZh
+                      ? '基于 sandbox-exec 内核级策略，通过 (deny default) 拦截所有未授权网络通信与工作区外文件读写。'
+                      : 'Enforces sandbox-exec kernel policies denying network and host filesystem access for Python computation.'}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5 shadow-2xs">
+                  <span className="font-bold text-[13.5px] text-text-primary block">Linux Bubblewrap</span>
+                  <p className="text-[12px] text-text-muted leading-relaxed">
+                    {isZh
+                      ? '基于非特权用户命名空间隔离，执行 bwrap --ro-bind / / --proc /proc --unshare-net，杜绝越权风险。'
+                      : 'Unprivileged containerization via bwrap --ro-bind / / --proc /proc --unshare-net with zero host escalation.'}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-bg-surface border border-border space-y-1.5 shadow-2xs">
+                  <span className="font-bold text-[13.5px] text-text-primary block">Windows MIC</span>
+                  <p className="text-[12px] text-text-muted leading-relaxed">
+                    {isZh
+                      ? '通过强制完整性控制 (Low Integrity Token) 结合工作区继承性 ACL 限制，杜绝系统敏感目录访问。'
+                      : 'Mandatory Integrity Control (Low Integrity Token) + restricted workspace ACL directory isolation.'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -777,165 +732,170 @@ const { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParal
       {/* SECTION: AGENT SKILLS                                                     */}
       {/* ========================================================================= */}
       {section === 'skills' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Scientific Skills &amp; SOP Library (19 Total)</h1>
-            <p className="text-[15px] text-text-secondary">
-              Standard Operating Procedures (SOPs) packaged as domain-specific skills with sandboxed execution scripts and empirical evidence verification.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Cpu size={12} />
+              <span>{isZh ? '科学领域技能库' : 'DOMAIN SOP REPOSITORY'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? 'JunScience 科学技能库 (共19项)' : 'Scientific Skills & SOP Library (19 Total)'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '标准化科研操作流程 (SOPs)，内置沙箱执行脚本、数学边界检验与真实数据校验。'
+                : 'Standard Operating Procedures packaged as domain-specific skills with sandboxed scripts and empirical evidence verification.'}
             </p>
           </div>
 
-          {/* Skill Management CLI */}
-          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20 space-y-2">
-            <h3 className="font-bold text-[14px] text-text-primary flex items-center gap-2">
-              <Cpu size={16} className="text-accent" />
-              <span>Skill Security Installer (OpenScience-Compatible)</span>
-            </h3>
-            <p className="text-[13px] text-text-secondary">
-              Install verified third-party scientific skills with pre-adoption static security auditing (RCE, path traversal, and gate tampering detection):
-            </p>
-            {renderCodeBlock(
-              `# List all 19 bundled core skills and user-installed skills
-junscience skill list
-
-# Install third-party skill from Git or local directory with security check
-junscience skill install https://github.com/OpenScience/custom-crispr-screening.git
-
-# Remove user-installed skill
-junscience skill remove custom-crispr-screening`,
-              'bash',
-              'skill-cli'
-            )}
-          </div>
-
-          {/* 6 Categories Grid */}
-          <div className="space-y-6 pt-2">
-            {/* Category 1 */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
-                <span>🧬 1. Molecular &amp; Structural Biology</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">sequence-alignment</h3>
-                  <p className="text-[12px] text-text-muted">Pairwise &amp; multiple sequence alignment with conserved catalytic/allosteric motif scoring (e.g. TYK2 vs JAK1 JH2 pocket).</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">structure-superposition</h3>
-                  <p className="text-[12px] text-text-muted">Kabsch 3D coordinate superposition and C-alpha RMSD calculation across PDB crystal structures (PDB 8Q4O).</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">protein-domain-architect</h3>
-                  <p className="text-[12px] text-text-muted">Deconstructs multidomain protein topological architecture and active site residue annotations from Swiss-Prot.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">pathway-enrichment</h3>
-                  <p className="text-[12px] text-text-muted">Hypergeometric over-representation and FDR-adjusted pathway enrichment across KEGG and Reactome datasets.</p>
-                </div>
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* Skill CLI commands */}
+            <div className="p-4 rounded-xl bg-accent/5 border border-accent/20 space-y-2">
+              <div className="font-bold text-[13.5px] text-text-primary flex items-center gap-2">
+                <Cpu size={16} className="text-accent" />
+                <span>{isZh ? '技能管理与静态安全扫描' : 'Skill Management & Security Auditing'}</span>
               </div>
+              <p className="text-[12.5px] text-text-secondary">
+                {isZh
+                  ? 'JunScience 兼容 OpenScience SKILL.md 标准规范。安装任何第三方技能时，SkillInstaller 均会自动执行针对 RCE、路径穿越与守卫绕过的静态安全代码审计：'
+                  : 'Manage scientific skills via CLI with automated static security checks against code injection and hook bypassing:'}
+              </p>
+              {renderCodeBlock(
+                `# 列出所有已安装技能\njunscience skill list\n\n# 安全安装第三方技能并审计\njunscience skill install https://github.com/OpenScience/custom-crispr-screening.git\n\n# 运行特定领域技能\njunscience skill run pathway-enrichment --input ./genes.txt`,
+                'bash',
+                'skills-cli'
+              )}
             </div>
 
-            {/* Category 2 */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
-                <span>🧪 2. Cheminformatics</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">admet-prediction</h3>
-                  <p className="text-[12px] text-text-muted">Lipinski Rule of 5, Veber bioavailability rules, TPSA, and QED drug-likeness scoring.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">chemical-similarity-search</h3>
-                  <p className="text-[12px] text-text-muted">Morgan / ECFP4 fingerprint hashing and Tanimoto similarity distance matrix calculation.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">sar-pharmacophore-mapping</h3>
-                  <p className="text-[12px] text-text-muted">Correlates chemical substituent modifications with bioactivity and identifies activity cliffs.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Category 3 */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
-                <span>📊 3. Statistics &amp; Bioinformatics</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">differential-expression-analysis</h3>
-                  <p className="text-[12px] text-text-muted">Two-group bulk/single-cell RNA-seq differential gene expression with volcano plot thresholds (MASLD hepatic transcriptome).</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">survival-analysis</h3>
-                  <p className="text-[12px] text-text-muted">Non-parametric Kaplan-Meier survival curves, Log-Rank hypothesis testing, and hazard ratios.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">meta-analysis-forest-plot</h3>
-                  <p className="text-[12px] text-text-muted">Fixed and random-effects clinical trial meta-analysis with Cochran Q and I² heterogeneity statistics.</p>
+            {/* 6 Skill Categories */}
+            <div className="space-y-5 pt-2">
+              {/* Cat 1 */}
+              <div>
+                <h3 className="font-bold text-[15px] text-text-primary mb-2 flex items-center gap-2">
+                  <span>🧬 1. {isZh ? '分子与结构生物学 (Molecular & Structural Biology)' : 'Molecular & Structural Biology'}</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">sequence-alignment</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '双序列与多序列对齐，识别催化与变构口袋保守残基基序。' : 'Pairwise and multiple sequence alignment with motif scoring.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">structure-superposition</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'Kabsch 算法 3D 坐标叠合与 C-alpha RMSD 距离计算。' : 'Kabsch 3D coordinate superposition and C-alpha RMSD.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">protein-domain-architect</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '蛋白质多结构域拓扑架构拆解与 Swiss-Prot 活性位点注释。' : 'Deconstructs domain architecture and catalytic topology.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">pathway-enrichment</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '超几何分布与 FDR 校正的 KEGG / Reactome 通路富集分析。' : 'Hypergeometric over-representation and FDR pathway testing.'}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Category 4 */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
-                <span>🏥 4. Clinical &amp; Pharmacovigilance</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">adverse-event-signal-detection</h3>
-                  <p className="text-[12px] text-text-muted">openFDA FAERS reporting disproportionality (ROR / PRR) with 95% confidence intervals.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">clinical-trial-eligibility-matching</h3>
-                  <p className="text-[12px] text-text-muted">Matches patient clinical parameters against ClinicalTrials.gov Protocol Section criteria (e.g. MAESTRO-NASH NCT03900429).</p>
+              {/* Cat 2 */}
+              <div>
+                <h3 className="font-bold text-[15px] text-text-primary mb-2 flex items-center gap-2">
+                  <span>🧪 2. {isZh ? '化学信息学与成药性 (Cheminformatics)' : 'Cheminformatics'}</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">admet-prediction</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'Lipinski 五规则、Veber 生物利用度、TPSA 与 QED 成药评分。' : 'Lipinski Ro5, Veber bioavailability, TPSA, QED drug-likeness.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">chemical-similarity-search</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'ECFP4 / Morgan 指纹哈希与 Tanimoto 相似度距离矩阵。' : 'ECFP4 Morgan fingerprinting and Tanimoto similarity.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">sar-pharmacophore-mapping</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '构效关系 (SAR) 映射与活性峭壁 (Activity Cliffs) 自动识别。' : 'Structure-Activity Relationship and activity cliff analysis.'}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Category 5 */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
-                <span>📚 5. Literature &amp; Systematic Review</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">systematic-review-prisma</h3>
-                  <p className="text-[12px] text-text-muted">PRISMA 2020 4-phase systematic review flow tracking: Identification, Deduplication, Screening, and Inclusion.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">citation-network-mapping</h3>
-                  <p className="text-[12px] text-text-muted">Directed citation/co-citation graphs and in-degree hub authority identification.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">bibliometric-analysis</h3>
-                  <p className="text-[12px] text-text-muted">Publication velocity trends, journal impact distributions, and collaborative author clusters.</p>
+              {/* Cat 3 */}
+              <div>
+                <h3 className="font-bold text-[15px] text-text-primary mb-2 flex items-center gap-2">
+                  <span>📊 3. {isZh ? '生物统计与生物信息学 (Statistics & Bioinformatics)' : 'Statistics & Bioinformatics'}</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">differential-expression-analysis</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'RNA-seq 转录组两组差异基因分析与火山图阈值计算。' : 'RNA-seq differential gene expression with volcano thresholds.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">survival-analysis</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'Kaplan-Meier 生存曲线、Log-Rank 检验与危险比 (HR)。' : 'Kaplan-Meier survival curves, Log-Rank tests, hazard ratios.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">meta-analysis-forest-plot</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '固定与随机效应荟萃分析、森林图与 I² 异质性检验。' : 'Fixed and random-effects meta-analysis and forest plots.'}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Category 6 */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2.5 flex items-center gap-2">
-                <span>🔬 6. Imaging, Writing &amp; Reproducibility</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">radiomics-feature-extraction</h3>
-                  <p className="text-[12px] text-text-muted">Quantitative abdominal CT hepatic attenuation (HU) and GLCM texture features.</p>
+              {/* Cat 4 */}
+              <div>
+                <h3 className="font-bold text-[15px] text-text-primary mb-2 flex items-center gap-2">
+                  <span>🏥 4. {isZh ? '临床医学与药物警戒 (Clinical & Pharmacovigilance)' : 'Clinical & Pharmacovigilance'}</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">adverse-event-signal-detection</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'openFDA FAERS 比例失衡检测（PRR / ROR 及 95% 置信区间）。' : 'FAERS reporting disproportionality (ROR / PRR) with 95% CIs.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">clinical-trial-eligibility-matching</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'ClinicalTrials.gov 入选与排除标准自动语义匹配与队列筛选。' : 'Matches patient parameters against protocol criteria.'}</p>
+                  </div>
                 </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">manuscript-formatting</h3>
-                  <p className="text-[12px] text-text-muted">Structures trial results into publication-ready manuscripts (e.g. Journal of Hepatology).</p>
+              </div>
+
+              {/* Cat 5 */}
+              <div>
+                <h3 className="font-bold text-[15px] text-text-primary mb-2 flex items-center gap-2">
+                  <span>📚 5. {isZh ? '科学文献与系统评价 (Literature & Systematic Review)' : 'Literature & Systematic Review'}</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">systematic-review-prisma</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'PRISMA 2020 四阶段文献筛选流追踪与排除原因归档。' : 'PRISMA 2020 4-phase systematic review flow tracking.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">citation-network-mapping</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '有向引用与共被引网络图谱、权威核心文献枢纽识别。' : 'Directed citation graphs and in-degree hub identification.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">bibliometric-analysis</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '发文趋势动力学、期刊影响因子分布与学者合作网络。' : 'Publication velocity, journal distributions, author clusters.'}</p>
+                  </div>
                 </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">figure-generation</h3>
-                  <p className="text-[12px] text-text-muted">300 DPI publication-grade vector graphics with Okabe-Ito colorblind palettes.</p>
-                </div>
-                <div className="p-3.5 rounded-xl bg-bg-surface border border-border space-y-1">
-                  <h3 className="font-bold text-[14px] text-text-primary">reproducibility-packaging</h3>
-                  <p className="text-[12px] text-text-muted">Deterministic reproducibility bundles with SHA-256 digests and environment manifests.</p>
+              </div>
+
+              {/* Cat 6 */}
+              <div>
+                <h3 className="font-bold text-[15px] text-text-primary mb-2 flex items-center gap-2">
+                  <span>🔬 6. {isZh ? '医学影像与论文撰写 (Imaging & Reproducibility)' : 'Imaging, Writing & Reproducibility'}</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">radiomics-feature-extraction</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'CT 组织衰减 (HU) 与 GLCM 纹理特征。' : 'Hepatic CT HU attenuation and GLCM features.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">manuscript-formatting</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '结构化整理为顶刊标准论文格式。' : 'Formats findings into publication manuscripts.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">figure-generation</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? '300 DPI 色盲友好色系矢量图。' : '300 DPI publication-grade vector graphics.'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-bg-surface border border-border">
+                    <span className="font-bold text-[13px] text-text-primary block">reproducibility-packaging</span>
+                    <p className="text-[12px] text-text-muted mt-0.5">{isZh ? 'SHA-256 确权的可复现科研归档包。' : 'Reproducibility bundles with SHA-256 manifests.'}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -947,28 +907,59 @@ junscience skill remove custom-crispr-screening`,
       {/* SECTION: CONTRIBUTING                                                     */}
       {/* ========================================================================= */}
       {section === 'contributing' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Contributing to JunScience</h1>
-            <p className="text-[15px] text-text-secondary">
-              How to add scientific tools, write domain skills, and improve the agent runtime.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <GitPullRequest size={12} />
+              <span>{isZh ? '开发者贡献指南' : 'COMMUNITY & DEVELOPMENT'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? '参与贡献 JunScience 核心生态' : 'Contributing to JunScience'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '欢迎开发者与科研工作者为 JunScience 贡献新的科学工具连接器、生命周期守卫 Hook 或领域标准技能。'
+                : 'How to add scientific tools, write formal guardrail hooks, build domain skills, and run core test suites.'}
             </p>
           </div>
 
-          <div className="space-y-4 text-[14px] text-text-secondary leading-relaxed">
-            <h2 className="text-xl font-bold text-text-primary">Development Workflow</h2>
-            {renderCodeBlock(
-              `# 1. Fork and clone the repository
-git clone https://github.com/Benjamin-JHou/JunScience.git
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* 1. Setup */}
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '1. 开发环境配置与代码检出' : '1. Development Workflow & Setup'}</span>
+              </h2>
+              {renderCodeBlock(
+                `# 1. Fork 并克隆代码仓库\ngit clone https://github.com/Benjamin-JHou/JunScience.git\ncd JunScience\n\n# 2. 安装所有 workspace 依赖\nnpm install\n\n# 3. 运行全套核心测试验证\nnpm test\n\n# 4. 单独运行守卫 Hook 自动化测试\nnpx tsx packages/core/tests/test-hooks-system.ts`,
+                'bash',
+                'contrib-setup'
+              )}
+            </div>
 
-# 2. Install dependencies
-npm install
+            {/* 2. Adding a Tool */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '2. 如何添加一个新的科学数据连接器工具' : '2. How to Add a New Scientific Tool'}</span>
+              </h2>
+              <ol className="list-decimal list-inside space-y-2 text-[13px] text-text-secondary">
+                <li>{isZh ? '在 packages/core/src/tools/ 下创建工具类，继承 BaseTool 接口。' : 'Create tool class in packages/core/src/tools/ implementing BaseTool.'}</li>
+                <li>{isZh ? '定义严格的输入参数 JSON Schema 与类型注解。' : 'Define strict JSON Schema arguments and TypeScript input/output types.'}</li>
+                <li>{isZh ? '在 packages/core/src/tools/ToolRegistry.ts 中注册，并导出至 index.ts。' : 'Register in ToolRegistry.ts and export from index.ts.'}</li>
+                <li>{isZh ? '在 packages/core/tests/ 中补充针对真实科学数据的单元测试用例。' : 'Add unit tests in packages/core/tests/ with real-world biological data.'}</li>
+              </ol>
+            </div>
 
-# 3. Run test suites
-npm test`,
-              'bash',
-              'contrib-setup'
-            )}
+            {/* 3. Adding a Hook */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '3. 如何添加一个新的生命周期守卫 Hook' : '3. How to Create a Lifecycle Guardrail Hook'}</span>
+              </h2>
+              <ol className="list-decimal list-inside space-y-2 text-[13px] text-text-secondary">
+                <li>{isZh ? '在 packages/core/src/hooks/builtin/ 创建 Hook 类，实现 HookDefinition 接口。' : 'Create hook in packages/core/src/hooks/builtin/ implementing HookDefinition.'}</li>
+                <li>{isZh ? '指定触发事件：PreToolUse、PostToolUse、SessionStart 或 Stop。' : 'Bind to lifecycle events: PreToolUse, PostToolUse, SessionStart, or Stop.'}</li>
+                <li>{isZh ? '在 packages/core/src/hooks/HookRegistry.ts 中完成注册。' : 'Register in HookRegistry.ts and verify non-bypassable execution.'}</li>
+              </ol>
+            </div>
           </div>
         </article>
       )}
@@ -977,31 +968,94 @@ npm test`,
       {/* SECTION: CHANGELOG                                                        */}
       {/* ========================================================================= */}
       {section === 'changelog' && (
-        <article className="space-y-6">
+        <article className="space-y-8">
           <div className="space-y-2 border-b border-border pb-4">
-            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Changelog &amp; Releases</h1>
-            <p className="text-[15px] text-text-secondary">
-              Official releases, verifiable improvements, and roadmap milestones.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <History size={12} />
+              <span>{isZh ? '版本演进记录' : 'RELEASE HISTORY'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? '版本发布与更新日志 (Changelog)' : 'Changelog & Releases'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? 'JunScience 官方发布日志、里程碑功能与可验证的架构升级。'
+                : 'Official releases, verifiable architectural improvements, and roadmap milestones.'}
             </p>
           </div>
 
           <div className="space-y-6 text-[14px]">
-            {/* Release v1.1.0 */}
-            <div className="p-5 rounded-2xl bg-bg-surface border border-accent/30 space-y-3 shadow-xs">
+            {/* Release v1.3.0 */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-accent/40 space-y-3 shadow-xs">
               <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-accent text-white">v1.1.0</span>
-                  <span className="font-bold text-[15px] text-text-primary">Expanded Scientific Skills &amp; Security Guardrail Release</span>
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-accent text-white">v1.3.0</span>
+                  <span className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '跨平台多目标打包优化与中英双语门户发布' : 'Multi-Target Desktop Release & Bilingual Documentation Portal'}
+                  </span>
+                </div>
+                <span className="text-[12px] text-accent font-mono font-semibold">September 2026</span>
+              </div>
+              <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
+                <li>
+                  <strong>{isZh ? '全平台多目标 Electron 打包支持：' : 'Multi-Target Electron Packaging: '}</strong>
+                  {isZh
+                    ? '规范化 electron-builder 配置与 CI 脚本，支持 macOS Apple Silicon (arm64) / Intel (x64) DMG 及 Windows NSIS / Portable EXE 的自动化流水线构建。'
+                    : 'Standardized electron-builder configuration and GitHub Actions release matrix for macOS DMG (arm64/x64) and Windows (NSIS & Portable exe).'}
+                </li>
+                <li>
+                  <strong>{isZh ? '中英双语文档门户与实时 GitHub 联动：' : 'Bilingual Documentation Portal: '}</strong>
+                  {isZh
+                    ? '全新上线中英双语即时切换系统，全面丰富了文档总览、快速上手、用户指南、4个完整实战案例、系统架构、19项技能库与贡献指南；接入实时 GitHub Star 数据，杜绝虚假计数值。'
+                    : 'Interactive English/Chinese language switcher with comprehensive enrichment across Documentation, Quick Start, User Guide, 4 End-to-End Cases, Architecture, 19 Skills, and Contributing.'}
+                </li>
+                <li>
+                  <strong>{isZh ? '工作区依赖与 CI 构建精简：' : 'Monorepo Workspace Optimization: '}</strong>
+                  {isZh
+                    ? '优化 monorepo 构建流程，确保核心库编译、静态站点打包及发布资产的一致性。'
+                    : 'Streamlined build commands across core runtime, CLI, and desktop workstation workspaces.'}
+                </li>
+              </ul>
+            </div>
+
+            {/* Release v1.2.0 */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-slate-600 text-white">v1.2.0</span>
+                  <span className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '临床连接器强化与多因子假说置信度评分' : 'Clinical Connectors & Multi-Factor Confidence Scoring'}
+                  </span>
                 </div>
                 <span className="text-[12px] text-text-muted font-mono">August 2026</span>
               </div>
               <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
-                <li><strong>Confined Workspace File Editor (<code>FileEditorTool</code>)</strong>: Dedicated workspace text editor with view, str_replace, line insertion, and append with zero host escape.</li>
-                <li><strong>Skill Security Installer (<code>SkillInstaller</code>)</strong>: Automated static security audit against RCE, path traversal, hook bypass, and token snooping with capability cards.</li>
-                <li><strong>19 Domain-Specific Scientific Skills</strong>: Expanded from 4 to 19 skills across Molecular Biology, Cheminformatics, Statistics, Clinical, Literature, and Imaging with 100% real-data verification.</li>
-                <li><strong>Formal Lifecycle Guardrail Hooks (<code>HookRegistry</code>)</strong>: PreToolUse secret redaction, EvidenceVerifier gate, ClinicalDataGate, and evidence completeness checking.</li>
-                <li><strong>Subagent Hypothesis Tree &amp; Explicit Plan Tracker</strong>: Parallel hypothesis exploration with empirical confidence differentiation and 5-stage milestone tracking.</li>
-                <li><strong>Real-World Clinical Grounding</strong>: Direct integration with ClinicalTrials.gov v2 (MAESTRO-NASH NCT03900429), openFDA FAERS, RxNorm, and DailyMed.</li>
+                <li>
+                  <strong>{isZh ? 'ClinicalTrials.gov v2 临床连接器：' : 'ClinicalTrials.gov v2 Connector: '}</strong>
+                  {isZh ? '完整支持协议部分入选与排除条件结构化解析与自动化队列匹配。' : 'Direct integration with ClinicalTrials.gov v2 API and structured eligibility parsing.'}
+                </li>
+                <li>
+                  <strong>{isZh ? '多因子假说置信度评分引擎：' : 'Multi-Factor Hypothesis Confidence: '}</strong>
+                  {isZh ? '综合评估序列同源、生化活性、临床证据与文献支持度，自动识别并标记互斥矛盾。' : 'SubagentTreeEngine computes empirical multi-factor confidence scores (S_seq, S_bio, S_clin, S_lit, P_contradiction).'}
+                </li>
+              </ul>
+            </div>
+
+            {/* Release v1.1.0 */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-border space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-slate-600 text-white">v1.1.0</span>
+                  <span className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '科学技能库扩充与生命周期安全守卫' : 'Expanded Scientific Skills & Security Guardrail Release'}
+                  </span>
+                </div>
+                <span className="text-[12px] text-text-muted font-mono">August 2026</span>
+              </div>
+              <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
+                <li><strong>{isZh ? '19项领域科学技能库：' : '19 Domain-Specific Skills: '}</strong>{isZh ? '扩充并覆盖分子生物学、化学信息学、生物统计、临床医学与影像组学。' : 'Expanded from 4 to 19 skills with 100% real-data verification.'}</li>
+                <li><strong>{isZh ? '隔离工作区文件编辑器 (FileEditorTool)：' : 'Confined Workspace File Editor: '}</strong>{isZh ? '支持安全修改工作区内部代码与配置文件，杜绝宿主机逃逸。' : 'Dedicated workspace editor with view, str_replace, and append with zero host escape.'}</li>
+                <li><strong>{isZh ? '形式化守卫 Hook 机制：' : 'Formal Guardrail Hooks: '}</strong>{isZh ? '在 PreToolUse、PostToolUse 和 Stop 节点强制执行脱敏与物理边界校验。' : 'PreToolUse secret redaction, EvidenceVerifier, and completeness checking.'}</li>
               </ul>
             </div>
 
@@ -1010,15 +1064,322 @@ npm test`,
               <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-slate-500 text-white">v0.1.0</span>
-                  <span className="font-bold text-[15px] text-text-primary">JunScience Initial Architecture Release</span>
+                  <span className="font-bold text-[15px] text-text-primary">
+                    {isZh ? 'JunScience 初始架构发布' : 'JunScience Initial Architecture Release'}
+                  </span>
                 </div>
                 <span className="text-[12px] text-text-muted font-mono">August 2026</span>
               </div>
               <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
-                <li><strong>Interactive CLI Agent with Dual-Mode Execution</strong>: Interactive REPL with <code>/model</code>, <code>/plan</code>, <code>/act</code>, <code>/cost</code>, and streaming tool progress.</li>
-                <li><strong>EvidenceVerifier Gate</strong>: Sanity bounds, numerical limits (p ∈ [0,1], IC50 &gt; 0, HU ∈ [-1024,3071]) and anomaly prevention.</li>
-                <li><strong>Cross-Platform OS Sandboxes</strong>: macOS Seatbelt, Linux Bubblewrap, Windows Low-Integrity verified on GitHub Actions CI.</li>
+                <li>{isZh ? '终端交互式智能体 REPL，支持 /model、/plan、/act。' : 'Interactive CLI REPL with /model, /plan, /act, and streaming tool progress.'}</li>
+                <li>{isZh ? 'EvidenceVerifier 验证网关，支持数学边界与防溢出审计。' : 'EvidenceVerifier gate for numerical limits and anomaly prevention.'}</li>
+                <li>{isZh ? '跨平台内核沙箱（macOS Seatbelt、Linux Bubblewrap、Windows MIC）。' : 'Cross-platform OS sandboxes verified on GitHub Actions CI.'}</li>
               </ul>
+            </div>
+          </div>
+        </article>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION: CLI AGENT MANUAL                                                 */}
+      {/* ========================================================================= */}
+      {section === 'cli' && (
+        <article className="space-y-8">
+          <div className="space-y-2 border-b border-border pb-4">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Terminal size={12} />
+              <span>{isZh ? '终端研究智能体手册' : 'TERMINAL AGENT WORKSTATION'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? 'JunScience CLI 终端智能体操作手册' : 'JunScience CLI Agent Manual'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '面向开发者的高性能命令行科研智能体。支持 Plan 规划模式与 Act 执行模式双向切换、/model 动态换模、实时工具流与密码学证据锚定。'
+                : 'A high-performance, developer-first command-line research agent featuring dual-mode execution (Plan vs Act), model switching with /model, and cryptographic evidence anchoring.'}
+            </p>
+          </div>
+
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* Quick Install */}
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '1. 快速安装' : '1. Quick Installation'}</span>
+              </h2>
+              <div className="space-y-2">
+                <div className="text-[12.5px] font-semibold text-text-primary">{isZh ? '方式 A：一键 Bash 脚本 (macOS & Linux)' : 'Option A: One-Line Bash Installer (macOS & Linux)'}</div>
+                {renderCodeBlock(
+                  `curl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash`,
+                  'bash',
+                  'cli-curl'
+                )}
+
+                <div className="text-[12.5px] font-semibold text-text-primary pt-2">{isZh ? '方式 B：全局 npm 安装' : 'Option B: Global npm Package'}</div>
+                {renderCodeBlock(
+                  `npm install -g @junscience/cli\njunscience`,
+                  'bash',
+                  'cli-npm'
+                )}
+
+                <div className="text-[12.5px] font-semibold text-text-primary pt-2">{isZh ? '方式 C：免安装即时体验 (npx)' : 'Option C: Zero-Install Instant Run (npx)'}</div>
+                {renderCodeBlock(
+                  `npx @junscience/cli`,
+                  'bash',
+                  'cli-npx'
+                )}
+              </div>
+            </div>
+
+            {/* Execution Modes */}
+            <div className="space-y-4 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <Sliders size={20} className="text-accent" />
+                <span>{isZh ? '2. 执行模式：Plan 规划模式 vs Act 执行模式' : '2. Execution Modes: Plan Mode vs Act Mode'}</span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-3">
+                <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-50/50 dark:bg-purple-950/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-purple-500 text-white">/plan Mode</span>
+                    <span className="text-[11px] text-purple-600 dark:text-purple-400 font-mono">{isZh ? '审慎推演' : 'Deliberative'}</span>
+                  </div>
+                  <h3 className="font-bold text-[14px] text-text-primary">{isZh ? '假说树与方案规划' : 'Hypothesis & Protocol Design'}</h3>
+                  <ul className="text-[12px] text-text-secondary space-y-1 list-disc list-inside">
+                    <li>{isZh ? '构建五阶段研究里程碑与多假说树。' : 'Formulates 5-stage research plans and hypothesis trees.'}</li>
+                    <li>{isZh ? '执行只读文献检索与机制综合。' : 'Performs read-only literature searches and syntheses.'}</li>
+                    <li>{isZh ? '草拟 EV 证据检验指标，不改动任何环境状态。' : 'Drafts required EV evidence anchors without mutating state.'}</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-emerald-500 text-white">/act Mode</span>
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono">{isZh ? '自主执行' : 'Autonomous'}</span>
+                  </div>
+                  <h3 className="font-bold text-[14px] text-text-primary">{isZh ? '工具调用与报告输出' : 'Task Execution & Synthesis'}</h3>
+                  <ul className="text-[12px] text-text-secondary space-y-1 list-disc list-inside">
+                    <li>{isZh ? '自主调用 UniProt、ChEMBL、PDB、PubMed 工具。' : 'Autonomously invokes UniProt, ChEMBL, PDB, PubMed tools.'}</li>
+                    <li>{isZh ? '在内核沙箱内运行 Python 统计处理脚本。' : 'Executes Python data analysis scripts in kernel sandboxes.'}</li>
+                    <li>{isZh ? '通过 EvidenceVerifier 进行严格数学与物理边界拦截。' : 'Evaluates mathematical boundaries via EvidenceVerifier.'}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Slash commands */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <Code2 size={20} className="text-accent" />
+                <span>{isZh ? '3. 常用 REPL 斜杠指令清单' : '3. CLI Slash Commands Reference'}</span>
+              </h2>
+              <div className="overflow-x-auto rounded-xl border border-border bg-bg-surface shadow-xs">
+                <table className="w-full text-left text-[12.5px]">
+                  <thead className="bg-bg-elevated/70 border-b border-border text-text-muted font-mono text-[11px]">
+                    <tr>
+                      <th className="p-3">Command</th>
+                      <th className="p-3">Description</th>
+                      <th className="p-3">Example Usage</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">/model</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '查看、切换或配置大模型基座与 API 密钥' : 'List, switch, or configure LLM model and API keys'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/model set --model deepseek-chat --api-key sk-...</code></td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-purple-500">/plan</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '切换至 Plan 规划模式（只读设计与假说树构建）' : 'Switch agent to Plan Mode'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/plan</code></td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-emerald-500">/act</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '切换至 Act 执行模式（自主执行工具与沙箱计算）' : 'Switch agent to Act Mode'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/act</code></td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-yellow-500">/mode</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '在 Plan 与 Act 之间快捷双向切换' : 'Toggle between Plan Mode and Act Mode'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/mode</code></td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">/cost</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '查看会话 Token 统计、Prompt 缓存命中率与估算费用' : 'Display session tokens and estimated API costs'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/cost</code></td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">/compact</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '无损压缩上下文，100% 完整保留所有 EV 证据锚点' : 'Compress context memory while preserving EV anchors'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/compact</code></td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-mono font-bold text-accent">/export</td>
+                      <td className="p-3 text-text-secondary">{isZh ? '将当前研究成果及证据卡片导出为 Markdown / LaTeX 报告' : 'Export current findings to Markdown / LaTeX'}</td>
+                      <td className="p-3 font-mono text-[11.5px] text-text-muted"><code>/export ./report.md</code></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </article>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION: INSTALLATION                                                     */}
+      {/* ========================================================================= */}
+      {section === 'installation' && (
+        <article className="space-y-8">
+          <div className="space-y-2 border-b border-border pb-4">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Download size={12} />
+              <span>{isZh ? '下载与安装' : 'CROSS-PLATFORM DISTRIBUTION'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? 'JunScience 安装部署指南' : 'Installation Guide'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '官方桌面客户端下载 (v1.3.0)、命令行终端一键部署以及源码编译指南。'
+                : 'Desktop application downloads (v1.3.0), CLI one-line installer, prerequisites, and monorepo build setup.'}
+            </p>
+          </div>
+
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            {/* Desktop Downloads v1.3.0 */}
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '1. 下载桌面客户端 (v1.3.0 正式版)' : '1. Download Desktop App (v1.3.0)'}</span>
+              </h2>
+              <p className="text-[13px] text-text-muted">
+                {isZh
+                  ? '官方原生跨平台学术工作站，内置多假说子智能体树、实时计划看板及交互式证据卡片：'
+                  : 'Official native scientific workstations with integrated subagent tree, real-time PlanTracker, and interactive evidence cards:'}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-3">
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience-1.3.0-arm64.dmg"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">macOS Apple Silicon</span>
+                    <span className="text-[11px] text-text-muted">M1/M2/M3/M4 (.dmg)</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience-1.3.0.dmg"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">macOS Intel</span>
+                    <span className="text-[11px] text-text-muted">x86_64 (.dmg)</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience.Setup.1.3.0.exe"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">Windows Setup</span>
+                    <span className="text-[11px] text-text-muted">NSIS Installer (.exe)</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+
+                <a
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience.1.3.0.exe"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
+                >
+                  <div>
+                    <span className="font-bold text-[13.5px] text-text-primary block">Windows Portable</span>
+                    <span className="text-[11px] text-text-muted">Standalone (.exe)</span>
+                  </div>
+                  <Download size={16} className="text-text-muted group-hover:text-accent" />
+                </a>
+              </div>
+            </div>
+
+            {/* CLI Install */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '2. 快速安装 CLI 终端' : '2. Quick Install CLI Agent'}</span>
+              </h2>
+              {renderCodeBlock(
+                `# 方式 A：一键脚本 (macOS & Linux)\ncurl -fsSL https://benjamin-jhou.github.io/JunScience/install.sh | bash\n\n# 方式 B：全局 npm\nnpm install -g @junscience/cli`,
+                'bash',
+                'inst-cli'
+              )}
+            </div>
+
+            {/* Build From Source */}
+            <div className="space-y-3 pt-2">
+              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                <span>{isZh ? '3. 源码编译 (Monorepo)' : '3. Build From Source (Monorepo)'}</span>
+              </h2>
+              {renderCodeBlock(
+                `# 克隆仓库\ngit clone https://github.com/Benjamin-JHou/JunScience.git\ncd JunScience\n\n# 安装依赖\nnpm install\n\n# 编译全工作区包 (@junscience/core, @junscience/cli, @junscience/desktop)\nnpm run build\n\n# 启动客户端\nnpm run desktop:dev`,
+                'bash',
+                'inst-src'
+              )}
+            </div>
+          </div>
+        </article>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION: API REFERENCE                                                    */}
+      {/* ========================================================================= */}
+      {section === 'apireference' && (
+        <article className="space-y-8">
+          <div className="space-y-2 border-b border-border pb-4">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent font-bold text-[11px] font-mono">
+              <Code2 size={12} />
+              <span>{isZh ? 'SDK 与核心接口' : 'TYPESCRIPT API REFERENCE'}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              {isZh ? 'TypeScript 核心 SDK API 参考' : 'TypeScript API Reference'}
+            </h1>
+            <p className="text-[15px] text-text-secondary leading-relaxed">
+              {isZh
+                ? '@junscience/core 核心包对外暴露的主要类、守卫中间件与推演方法。'
+                : 'Core SDK classes and methods available in @junscience/core.'}
+            </p>
+          </div>
+
+          <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
+            <div>
+              <h2 className="text-xl font-bold text-text-primary font-mono text-accent">EvidenceVerifier</h2>
+              <p className="text-[13px] text-text-muted mt-1">
+                {isZh ? 'Codex 风格预采纳验证网关，严格拦截数学异常与物理边界溢出：' : 'Codex-style verification middleware for empirical tool outputs.'}
+              </p>
+              {renderCodeBlock(
+                `import { EvidenceVerifier } from '@junscience/core';\n\nconst verifier = new EvidenceVerifier();\nconst result = verifier.verify(\n  'python_runner',\n  'computation',\n  'IC50 calculation',\n  { ic50: 12.8, pValue: 0.0002 }\n);\n\n// 返回：{ verdict: 'ADOPTED' | 'FLAGGED_WITH_WARNING' | 'REJECTED', confidenceScore: 1.0 }`,
+                'typescript',
+                'api-verifier'
+              )}
+            </div>
+
+            <div className="pt-2">
+              <h2 className="text-xl font-bold text-text-primary font-mono text-accent">SubagentTreeEngine</h2>
+              <p className="text-[13px] text-text-muted mt-1">
+                {isZh ? '多假说分支并发探索与综合矩阵生成器：' : 'Parallel hypothesis branch orchestrator and matrix synthesizer.'}
+              </p>
+              {renderCodeBlock(
+                `import { SubagentTreeEngine, HypothesisNode } from '@junscience/core';\n\nconst engine = new SubagentTreeEngine();\nconst { hypothesisTree, comparisonMatrix } = await engine.exploreHypothesesParallel(\n  sessionId,\n  [\n    { id: 'hyp-1', targetEntity: 'TYK2', statement: 'JH2 allosteric binding' },\n    { id: 'hyp-2', targetEntity: 'JAK1', statement: 'Orthosteric cross-reactivity' },\n  ],\n  evidenceTracker,\n  3 // maxConcurrency\n);`,
+                'typescript',
+                'api-subagent'
+              )}
             </div>
           </div>
         </article>

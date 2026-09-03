@@ -25,14 +25,17 @@ const validSections: PortalSection[] = [
   'cli',
   'architecture',
   'skills',
-  'usecases',
   'contributing',
   'changelog',
 ];
 
 export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const getInitialSection = (): PortalSection => {
-    const hash = window.location.hash.replace('#', '').toLowerCase() as PortalSection;
+    const rawHash = window.location.hash.replace('#', '').toLowerCase();
+    if (rawHash === 'usecases') {
+      return 'examples';
+    }
+    const hash = rawHash as PortalSection;
     if (validSections.includes(hash)) {
       return hash;
     }
@@ -59,7 +62,12 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Sync hash changes (e.g. back/forward button)
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '').toLowerCase() as PortalSection;
+      const rawHash = window.location.hash.replace('#', '').toLowerCase();
+      if (rawHash === 'usecases') {
+        setActiveSectionState('examples');
+        return;
+      }
+      const hash = rawHash as PortalSection;
       if (validSections.includes(hash)) {
         setActiveSectionState(hash);
       } else if (!window.location.hash) {

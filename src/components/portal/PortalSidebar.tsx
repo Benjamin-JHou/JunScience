@@ -10,12 +10,10 @@ import {
   Terminal,
   Layers,
   Cpu,
-  CheckCircle2,
   GitPullRequest,
   History,
   Github,
   MessageSquare,
-  FileText,
   Sun,
   Moon,
   X,
@@ -23,34 +21,36 @@ import {
 import { JunScienceLogo } from '../common/JunScienceLogo';
 import { useNav } from '../../context/NavContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PortalSection } from '../../types/navigation';
 
 interface NavItemConfig {
   id: PortalSection;
-  label: string;
+  labelEn: string;
+  labelZh: string;
   icon: React.ElementType;
   badge?: string;
 }
 
 const navItems: NavItemConfig[] = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'docs', label: 'Documentation', icon: BookOpen },
-  { id: 'installation', label: 'Installation', icon: Download },
-  { id: 'quickstart', label: 'Quick Start', icon: Zap },
-  { id: 'userguide', label: 'User Guide', icon: Compass },
-  { id: 'apireference', label: 'API Reference', icon: Code2 },
-  { id: 'examples', label: 'Examples', icon: FlaskConical },
-  { id: 'cli', label: 'CLI Agent', icon: Terminal },
-  { id: 'architecture', label: 'Architecture', icon: Layers },
-  { id: 'skills', label: 'Agent Skills', icon: Cpu },
-  { id: 'usecases', label: 'Use Cases', icon: CheckCircle2 },
-  { id: 'contributing', label: 'Contributing', icon: GitPullRequest },
-  { id: 'changelog', label: 'Changelog', icon: History, badge: 'v1.1.0' },
+  { id: 'home', labelEn: 'Home', labelZh: '主页', icon: Home },
+  { id: 'docs', labelEn: 'Documentation', labelZh: '文档总览', icon: BookOpen },
+  { id: 'installation', labelEn: 'Installation', labelZh: '安装部署', icon: Download },
+  { id: 'quickstart', labelEn: 'Quick Start', labelZh: '快速上手', icon: Zap },
+  { id: 'userguide', labelEn: 'User Guide', labelZh: '用户指南', icon: Compass },
+  { id: 'apireference', labelEn: 'API Reference', labelZh: 'API 参考', icon: Code2 },
+  { id: 'examples', labelEn: 'Examples', labelZh: '实践案例', icon: FlaskConical },
+  { id: 'cli', labelEn: 'CLI Agent', labelZh: '终端智能体', icon: Terminal },
+  { id: 'architecture', labelEn: 'Architecture', labelZh: '系统架构', icon: Layers },
+  { id: 'skills', labelEn: 'Agent Skills', labelZh: '科学技能库', icon: Cpu },
+  { id: 'contributing', labelEn: 'Contributing', labelZh: '参与贡献', icon: GitPullRequest },
+  { id: 'changelog', labelEn: 'Changelog', labelZh: '更新日志', icon: History, badge: 'v1.3.0' },
 ];
 
 export const PortalSidebar: React.FC = () => {
   const { activeSection, setActiveSection, isMobileSidebarOpen, setIsMobileSidebarOpen } = useNav();
   const { desktopTheme, setDesktopTheme } = useTheme();
+  const { language } = useLanguage();
 
   const isDark = desktopTheme === 'dark';
 
@@ -82,7 +82,7 @@ export const PortalSidebar: React.FC = () => {
                 JunScience
               </span>
               <span className="text-[10px] text-text-muted font-medium tracking-wide">
-                AI for Scientific Discovery
+                {language === 'zh' ? '科学研究自主智能体' : 'AI for Scientific Discovery'}
               </span>
             </div>
           </button>
@@ -101,6 +101,7 @@ export const PortalSidebar: React.FC = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
+            const label = language === 'zh' ? item.labelZh : item.labelEn;
             return (
               <button
                 key={item.id}
@@ -118,7 +119,7 @@ export const PortalSidebar: React.FC = () => {
                       isActive ? 'text-accent' : 'text-text-muted group-hover:text-text-primary'
                     }`}
                   />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{label}</span>
                 </div>
                 {item.badge && (
                   <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-accent/15 text-accent border border-accent/25">
@@ -150,7 +151,7 @@ export const PortalSidebar: React.FC = () => {
               className="flex items-center gap-2 px-2 py-1 rounded hover:text-text-primary hover:bg-bg-hover transition-colors"
             >
               <MessageSquare size={14} />
-              <span>Discord / Community</span>
+              <span>{language === 'zh' ? '讨论社区' : 'Discussions / Community'}</span>
             </a>
           </div>
 
@@ -165,7 +166,7 @@ export const PortalSidebar: React.FC = () => {
               }`}
             >
               <Sun size={12} />
-              <span>Light</span>
+              <span>{language === 'zh' ? '浅色' : 'Light'}</span>
             </button>
             <button
               onClick={() => setDesktopTheme('dark')}
@@ -176,7 +177,7 @@ export const PortalSidebar: React.FC = () => {
               }`}
             >
               <Moon size={12} />
-              <span>Dark</span>
+              <span>{language === 'zh' ? '深色' : 'Dark'}</span>
             </button>
           </div>
 
