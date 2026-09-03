@@ -272,11 +272,29 @@ async function testHooksSystem() {
     evidenceTracker: tracker,
   });
 
-  if (danglingStopRes.verdict !== 'FLAGGED' || !danglingStopRes.issues || danglingStopRes.issues.length === 0) {
+  if (danglingStopRes.proceed || danglingStopRes.verdict !== 'FLAGGED' || !danglingStopRes.issues || danglingStopRes.issues.length === 0) {
     throw new Error('EvidenceCompletenessHook failed to flag dangling EV-999 citation');
   }
   console.log(`  ✔ Dangling citation successfully detected: ${danglingStopRes.message}`);
   console.log(`    Issue: ${danglingStopRes.issues[0]}\n`);
+
+  const ungroundedProvider = {
+    name: 'Ungrounded Local Provider',
+    isExternal: false,
+    listModels: async () => ['ungrounded-model'],
+    generate: async () => ({ content: 'Unsupported conclusion without evidence.', finishReason: 'stop' as const }),
+    stream: async () => ({ content: 'Unsupported conclusion without evidence.', finishReason: 'stop' as const }),
+  };
+  const ungroundedSession = globalSessionManager.createSession('Critique Fail-Closed Test', 'demo-user');
+  const ungroundedEngine = new AutonomousResearchEngine({
+    modelProvider: ungroundedProvider,
+    maxTurns: 1,
+  });
+  const ungroundedTurn = await ungroundedEngine.run(ungroundedSession, 'Make an unsupported scientific claim');
+  if (ungroundedTurn.status !== 'error' || !ungroundedTurn.agentResponse.includes('[Integrity Gate Failed]')) {
+    throw new Error('AutonomousResearchEngine marked a critique-rejected report as completed');
+  }
+  console.log('  ✔ Critique rejection remains fail-closed when the turn budget is exhausted.\n');
 
   console.log('✔ ALL 5 HOOKS SYSTEM TESTS PASSED (100% SUCCESS)\n');
 }

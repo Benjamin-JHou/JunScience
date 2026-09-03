@@ -80,8 +80,8 @@ export class CritiqueEngine {
           checks.push({
             identifier: pmid,
             type: 'PMID',
-            verified: true, // Non-fatal on network timeout
-            title: `Verification timed out (${err?.message || 'Network unreachable'})`,
+            verified: false,
+            error: `PMID verification unavailable: ${err?.message || 'Network unreachable'}`,
           });
         }
       }
@@ -91,7 +91,7 @@ export class CritiqueEngine {
     const doiMatches = Array.from(text.matchAll(/10\.[0-9]{4,9}\/[-._;()/:A-Za-z0-9]+/g)).map((m) => m[0]);
     const uniqueDois = Array.from(new Set(doiMatches));
 
-    for (const doi of uniqueDois.slice(0, 3)) {
+    for (const doi of uniqueDois) {
       try {
         const crossrefUrl = `https://api.crossref.org/works/${encodeURIComponent(doi)}`;
         const crossJson = await getJson(crossrefUrl, { timeoutMs: 6000 });
@@ -113,12 +113,12 @@ export class CritiqueEngine {
             error: `DOI ${doi} returned no metadata in CrossRef registry.`,
           });
         }
-      } catch {
+      } catch (err: any) {
         checks.push({
           identifier: doi,
           type: 'DOI',
-          verified: true,
-          title: 'DOI resolution timed out (assumed present)',
+          verified: false,
+          error: `DOI verification unavailable: ${err?.message || 'Network unreachable'}`,
         });
       }
     }
@@ -133,7 +133,7 @@ export class CritiqueEngine {
     const nctMatches = Array.from(text.matchAll(/NCT[0-9]{8}/gi)).map((m) => m[0].toUpperCase());
     const uniqueNcts = Array.from(new Set(nctMatches));
 
-    for (const nctId of uniqueNcts.slice(0, 4)) {
+    for (const nctId of uniqueNcts) {
       try {
         const ctUrl = `https://clinicaltrials.gov/api/v2/studies/${nctId}`;
         const ctJson = await getJson(ctUrl, { timeoutMs: 8000 });
@@ -173,8 +173,8 @@ export class CritiqueEngine {
         } else {
           checks.push({
             nctId,
-            verified: true, // Non-fatal on transient network error
-            title: `NCT verification timed out (${err?.message})`,
+            verified: false,
+            error: `ClinicalTrials.gov verification unavailable: ${err?.message || 'Network unreachable'}`,
           });
         }
       }

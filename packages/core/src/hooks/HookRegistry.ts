@@ -126,9 +126,13 @@ export class HookRegistry {
     const hooks = this.listByEvent('Stop');
     const allIssues: string[] = [];
     let hasWarning = false;
+    let shouldProceed = true;
 
     for (const hook of hooks) {
       const res = await hook.handler(context, payload);
+      if (!res.proceed) {
+        shouldProceed = false;
+      }
       if (res.issues) {
         allIssues.push(...res.issues);
       }
@@ -138,7 +142,7 @@ export class HookRegistry {
     }
 
     return {
-      proceed: true,
+      proceed: shouldProceed,
       verdict: hasWarning ? 'FLAGGED' : 'PASSED',
       issues: allIssues,
       message: allIssues.length > 0 ? `Stop validation completed with ${allIssues.length} issue(s).` : 'Stop validation passed cleanly.',

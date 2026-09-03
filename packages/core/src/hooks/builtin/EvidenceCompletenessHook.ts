@@ -46,7 +46,7 @@ export class EvidenceCompletenessHook {
 
         if (issues.length > 0) {
           return {
-            proceed: true, // Report issues but allow inspection
+            proceed: false,
             verdict: 'FLAGGED',
             message: `[EvidenceCompleteness Warning]: ${issues.length} citation integrity issue(s) detected: ${issues.join('; ')}`,
             issues,

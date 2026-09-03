@@ -165,6 +165,7 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
     let finalContent = '';
     let critiquePassed = false;
     let critiqueFeedback: string | null = null;
+    let integrityFailure: string | null = null;
 
     // Start Task 1 in Plan
     this.planTracker.startTask(sessionId, 'task-1');
@@ -425,32 +426,56 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
         this.planTracker.startTask(sessionId, 'task-5');
         const critique = await this.critiqueEngine.evaluate(userInquiry, evidenceTracker, finalContent);
 
-        if (critique.passed || currentTurn >= this.maxTurns - 1) {
-          critiquePassed = true;
-          this.planTracker.completeTask(sessionId, 'task-5', [], 'Critique verification gate passed');
-
-          // Append Plan Checklist & Evidence Provenance Table to final report
+        if (critique.passed) {
           const planTable = this.planTracker.formatPlanChecklist(sessionId);
           const evidenceTable = evidenceTracker.formatTraceabilityTable();
-          finalContent = `${finalContent}\n\n${planTable}\n\n${evidenceTable}`;
+          const candidateFinalContent = `${finalContent}\n\n${planTable}\n\n${evidenceTable}`;
 
           // Trigger Stop Hooks (Evidence Completeness Check)
-          await this.hookRegistry.triggerStop(
+          const stopResult = await this.hookRegistry.triggerStop(
             { ...hookContext, event: 'Stop' },
             {
               session,
               turnIndex,
               userInquiry,
-              finalContent,
+              finalContent: candidateFinalContent,
               evidenceTracker,
               planTracker: this.planTracker,
             }
           );
-          break;
-        } else {
+
+          if (stopResult.proceed && stopResult.verdict === 'PASSED') {
+            critiquePassed = true;
+            finalContent = candidateFinalContent;
+            this.planTracker.completeTask(sessionId, 'task-5', [], 'Critique and evidence completeness gates passed');
+            break;
+          }
+
+          const stopFailure = stopResult.message || 'Evidence completeness gate rejected the report';
+          if (currentTurn < this.maxTurns) {
+            critiqueFeedback = `[Evidence Completeness Feedback]: ${stopFailure}. Revise the report so every evidence anchor is valid and every warning is acknowledged.`;
+            continue;
+          }
+          integrityFailure = stopFailure;
+          this.planTracker.failTask(sessionId, 'task-5', integrityFailure);
+        } else if (currentTurn < this.maxTurns) {
           critiqueFeedback = `[Critique Engine Feedback]: Your synthesis draft requires revision. Reasons: ${critique.issues.join('; ')}. Please call relevant tools to verify missing evidence or correct unverified claims before finishing.`;
+        } else {
+          integrityFailure = `Critique gate rejected the report: ${critique.issues.join('; ')}`;
+          this.planTracker.failTask(sessionId, 'task-5', integrityFailure);
+        }
+
+        if (integrityFailure && currentTurn >= this.maxTurns) {
+          finalContent = `${finalContent}\n\n[Integrity Gate Failed] ${integrityFailure}`;
+          break;
         }
       }
+    }
+
+    if (!critiquePassed && !integrityFailure) {
+      integrityFailure = 'Research loop exhausted its turn budget before producing a verified synthesis.';
+      this.planTracker.failTask(sessionId, 'task-5', integrityFailure);
+      finalContent = `${finalContent}\n\n[Integrity Gate Failed] ${integrityFailure}`;
     }
 
     const completedTurn: Turn = {
@@ -459,13 +484,13 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
       toolCalls: accumulatedToolCalls,
       toolResults: accumulatedToolResults,
       agentResponse: finalContent,
-      status: 'completed',
+      status: critiquePassed ? 'completed' : 'error',
       startedAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
     };
 
     this.sessionManager.addTurn(sessionId, completedTurn);
-    this.sessionManager.updateSessionStatus(sessionId, 'completed');
+    this.sessionManager.updateSessionStatus(sessionId, critiquePassed ? 'completed' : 'error');
 
     return completedTurn;
   }
