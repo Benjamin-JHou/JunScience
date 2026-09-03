@@ -142,8 +142,25 @@ Deucravacitinib demonstrated IC50 = 12.5 nM.
   }
   console.log(`    ✔ Secret directory read probe successfully blocked: ${escapeRes3.error}`);
 
-  // 2.4 Error Handling: Ambiguous Non-Unique str_replace
-  console.log('\n  [2.4] Error Handling: Non-unique replacement string');
+  // 2.4 Attempt to follow an in-workspace symlink to an external file
+  console.log('\n  [2.4] Probe Symbolic Link Escape');
+  const outsideTarget = path.join(workspaceRoot, `outside-target-${Date.now()}.txt`);
+  const symlinkPath = path.join(sessionWorkspace, 'external-link.txt');
+  fs.writeFileSync(outsideTarget, 'original', 'utf-8');
+  fs.symlinkSync(outsideTarget, symlinkPath);
+  const symlinkRes = await FileEditorTool.execute(
+    { path: 'external-link.txt', action: 'write', content: 'overwritten' },
+    context
+  );
+  if (symlinkRes.success || fs.readFileSync(outsideTarget, 'utf-8') !== 'original') {
+    throw new Error('CRITICAL SECURITY FAILURE: FileEditorTool followed a symlink outside the workspace');
+  }
+  fs.unlinkSync(symlinkPath);
+  fs.unlinkSync(outsideTarget);
+  console.log(`    ✔ Symbolic link escape blocked: ${symlinkRes.error}`);
+
+  // 2.5 Error Handling: Ambiguous Non-Unique str_replace
+  console.log('\n  [2.5] Error Handling: Non-unique replacement string');
   const nonUniqueRes = await FileEditorTool.execute(
     { path: 'manuscript_draft.tex', action: 'str_replace', oldStr: '\\section', newStr: '\\chapter' },
     context

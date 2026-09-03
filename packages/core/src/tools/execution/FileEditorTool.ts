@@ -38,6 +38,18 @@ function makeExecution(
   };
 }
 
+function findSymlinkComponent(root: string, target: string): string | undefined {
+  const relative = path.relative(root, target);
+  let current = root;
+  for (const component of relative.split(path.sep).filter(Boolean)) {
+    current = path.join(current, component);
+    if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) {
+      return current;
+    }
+  }
+  return undefined;
+}
+
 export const FileEditorTool: ToolDefinition<FileEditorInput> = {
   name: 'file_editor',
   description: 'Confined workspace text file editor. Read, create, replace, insert, or append text files strictly within the session workspace.',
@@ -66,7 +78,18 @@ export const FileEditorTool: ToolDefinition<FileEditorInput> = {
   async execute(input: FileEditorInput, context: ToolContext): Promise<ToolExecutionResult> {
     const startTime = Date.now();
     const workspaceRoot = resolveWorkspaceRoot();
-    const sessionWorkspace = path.resolve(workspaceRoot, 'workspace', context.sessionId || 'default');
+    const sessionId = context.sessionId || 'default';
+    if (path.isAbsolute(sessionId) || sessionId.includes('/') || sessionId.includes('\\') || sessionId.includes('\0')) {
+      const errorMsg = '[SecurityError]: Invalid session identifier for confined file operations.';
+      return {
+        success: false,
+        error: errorMsg,
+        output: null,
+        execution: makeExecution('file_editor', false, errorMsg, Date.now() - startTime),
+      };
+    }
+    const confinementRoot = path.resolve(workspaceRoot);
+    const sessionWorkspace = path.resolve(confinementRoot, 'workspace', sessionId);
 
     // 1. Ensure session workspace directory exists
     if (!fs.existsSync(sessionWorkspace)) {
@@ -77,6 +100,17 @@ export const FileEditorTool: ToolDefinition<FileEditorInput> = {
     const resolvedTarget = path.normalize(path.resolve(sessionWorkspace, input.path));
     if (!resolvedTarget.startsWith(sessionWorkspace + path.sep) && resolvedTarget !== sessionWorkspace) {
       const errorMsg = `[SecurityError]: Access denied: Target path '${input.path}' (resolved: '${resolvedTarget}') escapes session workspace boundary '${sessionWorkspace}'.`;
+      return {
+        success: false,
+        error: errorMsg,
+        output: null,
+        execution: makeExecution('file_editor', false, errorMsg, Date.now() - startTime),
+      };
+    }
+
+    const symlinkComponent = findSymlinkComponent(confinementRoot, resolvedTarget);
+    if (symlinkComponent) {
+      const errorMsg = `[SecurityError]: Symbolic links are not permitted in confined file paths ('${symlinkComponent}').`;
       return {
         success: false,
         error: errorMsg,

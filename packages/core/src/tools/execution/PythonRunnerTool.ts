@@ -126,37 +126,41 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
     fs.writeFileSync(scriptPath, input.scriptContent, { mode: 0o600 });
 
     const platform = process.platform;
-    let sandboxMode = 'Subprocess Workspace Isolation';
+    const sandboxExplicitlyDisabled = process.env.JUNSCIENCE_SANDBOX === 'disabled';
+    let sandboxMode = sandboxExplicitlyDisabled
+      ? 'Unconfined Subprocess (Explicitly Authorized)'
+      : 'Sandbox Unavailable';
+    let isAirGapped = false;
     let execCmd = 'python3';
     let execArgs = [filename, ...(input.arguments || [])];
 
     // 2. Select platform-specific kernel sandbox driver
-    if (platform === 'darwin') {
+    if (sandboxExplicitlyDisabled) {
+      execCmd = platform === 'win32' ? 'python' : 'python3';
+    } else if (platform === 'darwin') {
       // macOS: Seatbelt (sandbox-exec)
       const hasSandboxExec = checkCommandAvailable('sandbox-exec');
       if (hasSandboxExec) {
         const profile = generateSeatbeltProfile(sessionDir, homeDir);
         sandboxMode = 'macOS Seatbelt Sandbox (Kernel Enforced + Air-Gapped)';
+        isAirGapped = true;
         execCmd = 'sandbox-exec';
         execArgs = ['-p', profile, 'python3', filename, ...(input.arguments || [])];
       } else {
-        const strictSandbox = process.env.JUNSCIENCE_REQUIRE_SANDBOX === 'true' || process.env.JUNSCIENCE_SANDBOX === 'strict';
-        if (strictSandbox) {
-          const errorMsg = `[SandboxEnforcementError]: macOS kernel sandbox utility 'sandbox-exec' is unavailable on this host. Execution blocked to prevent un-sandboxed host environment access. Set JUNSCIENCE_SANDBOX=disabled if you explicitly authorize un-sandboxed execution.`;
-          return {
-            success: false,
-            error: errorMsg,
-            output: null,
-            execution: makeExecution('python_runner', false, errorMsg, 0),
-          };
-        }
-        sandboxMode = 'macOS Workspace Subprocess';
+        const errorMsg = `[SandboxEnforcementError]: macOS kernel sandbox utility 'sandbox-exec' is unavailable. Execution was blocked. Set JUNSCIENCE_SANDBOX=disabled only to explicitly authorize unconfined execution.`;
+        return {
+          success: false,
+          error: errorMsg,
+          output: null,
+          execution: makeExecution('python_runner', false, errorMsg, 0),
+        };
       }
     } else if (platform === 'linux') {
       // Linux: Bubblewrap (bwrap) / Landlock
       const hasBwrap = checkCommandAvailable('bwrap');
       if (hasBwrap) {
         sandboxMode = 'Linux Bubblewrap/Landlock Sandbox (Kernel Enforced + Air-Gapped)';
+        isAirGapped = true;
         execCmd = 'bwrap';
         execArgs = [
           '--ro-bind', '/', '/',
@@ -169,19 +173,30 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
           'python3', filename, ...(input.arguments || []),
         ];
       } else {
-        sandboxMode = 'Linux POSIX Workspace Isolation';
+        const errorMsg = `[SandboxEnforcementError]: Linux kernel sandbox utility 'bwrap' is unavailable. Execution was blocked. Set JUNSCIENCE_SANDBOX=disabled only to explicitly authorize unconfined execution.`;
+        return {
+          success: false,
+          error: errorMsg,
+          output: null,
+          execution: makeExecution('python_runner', false, errorMsg, 0),
+        };
       }
     } else if (platform === 'win32') {
-      // Windows: Mandatory Integrity Control (Low Integrity Token)
-      try {
-        // Set Low Integrity ACL on session workspace
-        execSync(`icacls "${sessionDir}" /setintegritylevel (OI)(CI)L`, { stdio: 'ignore' });
-        sandboxMode = 'Windows Low-Integrity Sandbox (Kernel Enforced)';
-      } catch {
-        sandboxMode = 'Windows Workspace Subprocess';
-      }
-      execCmd = 'python';
-      execArgs = [filename, ...(input.arguments || [])];
+      const errorMsg = `[SandboxEnforcementError]: A network-isolated Windows execution token is not available. Execution was blocked. Set JUNSCIENCE_SANDBOX=disabled only to explicitly authorize unconfined execution.`;
+      return {
+        success: false,
+        error: errorMsg,
+        output: null,
+        execution: makeExecution('python_runner', false, errorMsg, 0),
+      };
+    } else {
+      const errorMsg = `[SandboxEnforcementError]: Unsupported platform '${platform}'. Execution was blocked.`;
+      return {
+        success: false,
+        error: errorMsg,
+        output: null,
+        execution: makeExecution('python_runner', false, errorMsg, 0),
+      };
     }
 
     context.reportProgress(`Allocated sandbox workspace: ${sessionDir} [${sandboxMode}]`, 10);
@@ -244,22 +259,6 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
     };
 
     await runProcess(execCmd, execArgs);
-
-    // Fallback if bwrap failed to spawn or create namespaces
-    if (exitCode !== 0 && execCmd === 'bwrap' && (stderr.includes('bwrap:') || stderr.includes('namespace') || stderr.includes('permission') || stderr.includes('No such file'))) {
-      sandboxMode = 'Linux POSIX Workspace Isolation (Fallback)';
-      stdout = '';
-      stderr = '';
-      await runProcess('python3', [filename, ...(input.arguments || [])]);
-    }
-
-    // Fallback if sandbox-exec failed to apply profile (e.g. nested sandbox or restricted CI runner)
-    if (exitCode !== 0 && execCmd === 'sandbox-exec' && (stderr.includes('sandbox_apply') || stderr.includes('Operation not permitted') || stderr.includes('sandbox-exec:'))) {
-      sandboxMode = 'macOS Subprocess Workspace Isolation (Fallback)';
-      stdout = '';
-      stderr = '';
-      await runProcess('python3', [filename, ...(input.arguments || [])]);
-    }
 
     const durationMs = Date.now() - startTime;
     const duration = `${(durationMs / 1000).toFixed(1)}s`;
@@ -328,7 +327,7 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
         duration,
         timedOut,
         sandboxMode,
-        isAirGapped: true,
+        isAirGapped,
         artifactsGenerated: artifacts.length,
         workspace: sessionDir,
       },

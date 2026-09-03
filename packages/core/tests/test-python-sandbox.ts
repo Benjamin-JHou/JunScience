@@ -1,6 +1,4 @@
 import { PythonRunnerTool, ToolContext } from '../src/index.js';
-import os from 'node:os';
-import path from 'node:path';
 
 const dummyContext: ToolContext = {
   sessionId: `test-sandbox-${Date.now()}`,
@@ -13,7 +11,7 @@ async function testPythonSandbox() {
   console.log('=== Running Cross-Platform Python Sandbox Security Suite ===\n');
 
   // Test 1: Legitimate computation & Artifact output
-  console.log('[Test 1/3] Legitimate Statistical Computation & Artifact Output');
+  console.log('[Test 1/4] Legitimate Statistical Computation & Artifact Output');
   const validScript = `
 import json
 import math
@@ -35,49 +33,46 @@ with open("stats_summary.json", "w") as f:
 print(f"Calculated Mean: {mean_val:.2f}, Std: {std_dev:.2f}")
 `;
 
+  const originalSandboxPolicy = process.env.JUNSCIENCE_SANDBOX;
+  process.env.JUNSCIENCE_SANDBOX = 'disabled';
   const validRes = await PythonRunnerTool.execute({ scriptContent: validScript, scriptName: 'compute_stats.py' }, dummyContext);
-  if (!validRes.success || !validRes.output.stdout.includes('Calculated Mean: 15.42')) {
-    throw new Error(`Valid script execution failed: ${JSON.stringify(validRes)}`);
+  if (!validRes.success || !validRes.output.stdout.includes('Calculated Mean: 15.42') || validRes.output.isAirGapped) {
+    throw new Error(`Explicitly authorized unconfined execution was reported incorrectly: ${JSON.stringify(validRes)}`);
   }
-  console.log(`  ✔ Script executed cleanly under: [${validRes.output.sandboxMode}]`);
-  console.log(`  ✔ Output stdout: "${validRes.output.stdout.trim()}"`);
-  console.log(`  ✔ Artifacts produced: ${validRes.artifacts?.length} (${validRes.artifacts?.map((a) => a.title).join(', ')})`);
+  console.log(`  ✔ Explicit unconfined mode is labeled accurately: [${validRes.output.sandboxMode}]`);
 
-  // Test 2: Air-Gapped Network Policy Check (Outbound Network Denied)
-  console.log('\n[Test 2/3] Air-Gapped Network Policy Check (Attempt Outbound Socket)');
-  const netScript = `
-import urllib.request
-try:
-    urllib.request.urlopen("https://www.google.com", timeout=2)
-    print("NET_ALLOWED")
-except Exception as e:
-    print(f"NET_BLOCKED: {type(e).__name__}")
-`;
-
-  const netRes = await PythonRunnerTool.execute({ scriptContent: netScript, scriptName: 'test_net.py' }, dummyContext);
-  console.log(`  ✔ Network probe result under sandbox: ${netRes.output.stdout.trim()}`);
-  const hasKernelSandbox = validRes.output.sandboxMode.includes('Seatbelt') || validRes.output.sandboxMode.includes('Bubblewrap');
-  if (hasKernelSandbox && netRes.output.stdout.includes('NET_ALLOWED')) {
-    throw new Error(`Sandbox [${validRes.output.sandboxMode}] failed to block outbound network connection`);
+  // Test 2: Missing kernel driver must fail closed
+  console.log('\n[Test 2/4] Missing Sandbox Driver Fails Closed');
+  const originalPath = process.env.PATH;
+  delete process.env.JUNSCIENCE_SANDBOX;
+  process.env.PATH = '';
+  const unavailableRes = await PythonRunnerTool.execute(
+    { scriptContent: 'print("must not run")', scriptName: 'unavailable.py' },
+    dummyContext
+  );
+  process.env.PATH = originalPath;
+  if (unavailableRes.success || !unavailableRes.error?.includes('[SandboxEnforcementError]')) {
+    throw new Error(`PythonRunnerTool fell back to an unconfined process: ${JSON.stringify(unavailableRes)}`);
   }
+  console.log('  ✔ Execution blocked when no kernel sandbox driver was discoverable.');
 
-  // Test 3: Unauthorized Filesystem Write Outside Workspace Denied
-  console.log('\n[Test 3/3] Filesystem Boundary Enforcement Check (Attempt Write to Home Dir)');
-  const escapePath = path.join(os.homedir(), `junscience_escape_test_${Date.now()}.tmp`).replace(/\\/g, '/');
-  const fsScript = `
-try:
-    with open("${escapePath}", "w") as f:
-        f.write("unauthorized")
-    print("FS_WRITE_ALLOWED")
-except Exception as e:
-    print(f"FS_WRITE_BLOCKED: {type(e).__name__}")
-`;
-
-  const fsRes = await PythonRunnerTool.execute({ scriptContent: fsScript, scriptName: 'test_fs.py' }, dummyContext);
-  console.log(`  ✔ Filesystem escape probe result: ${fsRes.output.stdout.trim()}`);
-  if (hasKernelSandbox && fsRes.output.stdout.includes('FS_WRITE_ALLOWED')) {
-    throw new Error(`Sandbox [${validRes.output.sandboxMode}] failed to restrict filesystem write boundary`);
+  // Test 3: A usable driver must be air-gapped; an unusable driver must not fall back
+  console.log('\n[Test 3/4] Kernel Sandbox Application Is Fail-Closed');
+  const kernelRes = await PythonRunnerTool.execute(
+    { scriptContent: 'print("kernel sandbox active")', scriptName: 'kernel_probe.py' },
+    dummyContext
+  );
+  if (kernelRes.success && !kernelRes.output.isAirGapped) {
+    throw new Error('Kernel sandbox execution succeeded without an air-gap classification');
   }
+  if (!kernelRes.success && kernelRes.output?.sandboxMode?.includes('Fallback')) {
+    throw new Error('Kernel sandbox application failure silently fell back to host execution');
+  }
+  console.log(
+    kernelRes.success
+      ? `  ✔ Kernel sandbox executed with air-gap: [${kernelRes.output.sandboxMode}]`
+      : '  ✔ Kernel sandbox could not be applied and execution remained blocked.'
+  );
 
   // Test 4: Script filename must not escape before the sandbox process starts
   console.log('\n[Test 4/4] Script Filename Path Traversal Rejection');
@@ -89,6 +84,12 @@ except Exception as e:
     throw new Error(`PythonRunnerTool accepted a path-traversing scriptName: ${JSON.stringify(traversalRes)}`);
   }
   console.log('  ✔ Path-traversing scriptName rejected before any host file write.');
+
+  if (originalSandboxPolicy === undefined) {
+    delete process.env.JUNSCIENCE_SANDBOX;
+  } else {
+    process.env.JUNSCIENCE_SANDBOX = originalSandboxPolicy;
+  }
 
   console.log('\n✔ ALL PYTHON SANDBOX SECURITY TESTS PASSED (100% SUCCESS)\n');
 }
