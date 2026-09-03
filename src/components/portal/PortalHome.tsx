@@ -38,6 +38,7 @@ export const PortalHome: React.FC = () => {
   const { setActiveSection } = useNav();
   const { language } = useLanguage();
   const [activeGalleryTab, setActiveGalleryTab] = useState<'desktop-light' | 'desktop-dark' | 'workspace' | 'cli'>('desktop-light');
+  const [activeCliColor, setActiveCliColor] = useState<'green' | 'blue' | 'purple' | 'amber'>('green');
   const [activeCodeTab, setActiveCodeTab] = useState<'cli-curl' | 'cli-npm' | 'cli-npx' | 'git' | 'desktop' | 'sdk'>('cli-curl');
   const [copiedCode, setCopiedCode] = useState(false);
   const [activeModeDemo, setActiveModeDemo] = useState<'plan' | 'act'>('plan');
@@ -608,59 +609,31 @@ console.log(turn.agentResponse);`,
 
           {activeGalleryTab === 'cli' && (
             <div className="space-y-4">
-              <div className="rounded-xl border border-border bg-[#070A10] text-[#E2E8F0] overflow-hidden shadow-md max-w-4xl mx-auto">
-                <div className="flex items-center justify-between px-4 py-2.5 bg-white/5 border-b border-white/10 text-[11px] font-mono text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-                    </div>
-                    <span className="text-slate-300 ml-2 font-semibold">junscience (Ink Modern TUI Engine)</span>
-                  </div>
-                  <span className="text-slate-500 font-mono">v1.4.0</span>
-                </div>
-                <div className="p-4 sm:p-5 font-mono text-[12px] leading-relaxed space-y-2 text-left bg-[#050811]">
-                  <div className="text-cyan-400 font-bold">
-                    &nbsp;&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_____&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
-                    &nbsp;&nbsp;&nbsp;/&nbsp;/_&nbsp;&nbsp;______&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;___/_____(_)__&nbsp;&nbsp;____&nbsp;&nbsp;________&nbsp;&nbsp;<br/>
-                    &nbsp;&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;__&nbsp;\______&nbsp;\__&nbsp;\/&nbsp;___/&nbsp;/&nbsp;_&nbsp;\/&nbsp;__&nbsp;\/&nbsp;___/&nbsp;_&nbsp;\&nbsp;<br/>
-                    &nbsp;/&nbsp;/&nbsp;/_/&nbsp;/&nbsp;/&nbsp;/&nbsp;/_____/___/&nbsp;/&nbsp;/__/&nbsp;/&nbsp;&nbsp;__/&nbsp;/&nbsp;/&nbsp;/&nbsp;/__/&nbsp;&nbsp;__/&nbsp;<br/>
-                    /_/\__,_/_/&nbsp;/_/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/____/\___/_/\___/_/&nbsp;/_/\___/\___/&nbsp;&nbsp;
-                  </div>
-                  <div className="text-slate-400 text-[11px] pt-1">
-                    ── Scientific AI Workstation & Autonomous Research Engine ──
-                  </div>
-                  <div className="text-slate-300 text-[11px]">
-                    Version: <span className="text-cyan-400 font-bold">v1.4.0</span> • Active Model: <span className="text-yellow-400 font-bold">deepseek-chat</span> • Mode: <span className="text-emerald-400 font-bold">[ACT MODE]</span>
-                  </div>
-                  <div className="text-slate-500 text-[11px] pb-2 border-b border-slate-800">
-                    Hotkeys: <span className="text-white font-bold">[Shift+Tab]</span> Toggle Mode • <span className="text-white font-bold">[/]</span> Slash Commands • <span className="text-white font-bold">[/model]</span> Config Wizard
-                  </div>
-                  <div className="text-slate-300 pt-1">
-                    <span className="text-emerald-400 font-bold">[ACT] junscience &gt;</span> Investigate TYK2 allosteric selectivity vs JAK family kinases
-                  </div>
-                  <div className="text-yellow-400 text-[11px] flex items-center gap-1.5">
-                    <span>✦ [Reasoning]</span> <span className="text-slate-400">Evaluating bioactivity data from ChEMBL and Swiss-Prot structural domains...</span>
-                  </div>
-                  <div className="p-2 rounded bg-slate-900/60 border border-slate-800 text-[11px] text-slate-300">
-                    <div className="text-cyan-400 font-semibold">⚙ Tool Calling: chembl_bioactivity_search [████████████░░░░░░░░] 60%</div>
-                    <div className="text-slate-400 pl-2">↳ Filtered 48 assays for Deucravacitinib (IC50 &lt; 50 nM, JH2 pseudokinase domain target)</div>
-                  </div>
-                  <div className="p-2 rounded-lg border border-emerald-500/40 bg-emerald-950/20 text-emerald-300 text-[11px] flex justify-between items-center mt-2">
-                    <div>
-                      <span className="font-bold text-emerald-400">[ACT] deepseek-chat</span> │ Turns: 1 │ Tokens: ~1,850 toks ($0.0005)
-                    </div>
-                    <div className="text-slate-400">
-                      <span className="text-yellow-400 font-bold">[Shift+Tab]</span> Mode  <span className="text-yellow-400 font-bold">[/]</span> Cmds  <span className="text-yellow-400 font-bold">[/model]</span> Config
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-[12px] text-text-muted">{isZh ? '终端配色：' : 'Terminal Theme:'}</span>
+                {(['green', 'blue', 'purple', 'amber'] as const).map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setActiveCliColor(color)}
+                    className={`px-2.5 py-0.5 rounded text-[11px] font-mono capitalize border transition-all ${
+                      activeCliColor === color
+                        ? 'bg-accent/15 border-accent text-accent font-bold shadow-xs'
+                        : 'border-border text-text-muted hover:text-text-primary'
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
               </div>
+              <img
+                src={`${import.meta.env.BASE_URL}screenshots/screenshot_cli_${activeCliColor}.png`}
+                alt={`JunScience CLI ${activeCliColor} theme`}
+                className="w-full max-w-4xl mx-auto rounded-xl border border-border/80 shadow-sm"
+              />
               <p className="text-[12px] text-text-muted text-center">
                 {isZh
-                  ? 'JunScience CLI 终端智能体 — 基于 Ink (React for CLI) 打造，支持 Shift+Tab 即时切换模式、/model 交互配置向导与无闪烁双视口。'
-                  : 'JunScience CLI Agent — Built with Ink (React for CLI), featuring Shift+Tab mode toggling, interactive /model wizard, and zero-flicker dual viewports.'}
+                  ? 'JunScience CLI 终端智能体 (v1.4.0) — 基于 Ink 架构与全新量子轨道科学图腾，支持三向模式切换（Act/Plan/Hypothesis）、实时任务清单与多假说思考流。'
+                  : 'JunScience CLI Agent (v1.4.0) — Built with Ink engine and clean quantum orbital typography, featuring tri-mode execution, live To-Do checklist, and verified scientific synthesis.'}
               </p>
             </div>
           )}
