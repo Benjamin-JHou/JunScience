@@ -1,1 +1,0 @@
-{"version":3,"file":"FigureGeneratorTool.d.ts","sourceRoot":"","sources":["FigureGeneratorTool.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAoC,MAAM,mBAAmB,CAAC;AAGrF,MAAM,WAAW,oBAAoB;IACnC,UAAU,EAAE,SAAS,GAAG,UAAU,GAAG,SAAS,GAAG,oBAAoB,CAAC;IACtE,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,aAAa,CAAC,EAAE,MAAM,CAAC;CACxB;AAED,eAAO,MAAM,mBAAmB,EAAE,cAAc,CAAC,oBAAoB,CAsDpE,CAAC"}

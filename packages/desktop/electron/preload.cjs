@@ -25,7 +25,11 @@ const api = {
   session: {
     list: () => ipcRenderer.invoke('session:list'),
     get: (id) => ipcRenderer.invoke('session:get', id),
-    create: (title, agentId) => ipcRenderer.invoke('session:create', { title, agentId }),
+    create: (title, agentId, profileId, modelName) =>
+      ipcRenderer.invoke('session:create', { title, agentId, profileId, modelName }),
+    delete: (id) => ipcRenderer.invoke('session:delete', id),
+    rename: (id, title) => ipcRenderer.invoke('session:rename', { id, title }),
+    export: (id) => ipcRenderer.invoke('session:export', id),
   },
 };
 

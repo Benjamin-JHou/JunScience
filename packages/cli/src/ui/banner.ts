@@ -22,7 +22,7 @@ export const colors = {
   gray: '\x1b[90m',
 };
 
-export function renderBanner(version: string = '1.0.0', activeModel?: string, mode: 'plan' | 'act' = 'act'): void {
+export function renderBanner(version: string = '1.4.0', activeModel?: string, mode: 'plan' | 'act' = 'act'): void {
   const c = colors;
   const modeTag = mode === 'plan' 
     ? `${c.brightPurple}${c.bold}[PLAN MODE]${c.reset}`

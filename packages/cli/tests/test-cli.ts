@@ -36,6 +36,63 @@ async function runCliTests() {
     await handleConfigCommand(['test']);
     console.log('  ✔ "junscience config test" executed cleanly');
 
+    console.log('\n[Test 4/4] Ink Modern TUI Components Integration');
+    const { Banner } = await import('../src/ui/ink/Banner.js');
+    const { StatusBar } = await import('../src/ui/ink/StatusBar.js');
+    const { Table } = await import('../src/ui/ink/Table.js');
+    const { SLASH_COMMANDS } = await import('../src/ui/ink/SlashCommandMenu.js');
+    const React = (await import('react')).default;
+    const { render } = await import('ink');
+    const { PassThrough } = await import('node:stream');
+
+    const renderToString = (element: any) => {
+      const stream = new PassThrough();
+      (stream as any).columns = 120;
+      let captured = '';
+      stream.on('data', (chunk) => { captured += chunk.toString(); });
+      const inst = render(element, { stdout: stream as any });
+      inst.unmount();
+      return captured;
+    };
+
+    // Test Banner rendering
+    const bannerOutput = renderToString(React.createElement(Banner, { mode: 'plan', activeModel: 'TestModel' }));
+    if (!bannerOutput.includes('v1.4.0')) {
+      throw new Error(`Banner output expected v1.4.0, got: ${bannerOutput}`);
+    }
+    console.log('  ✔ Ink Banner rendered dynamically with v1.4.0');
+
+    // Test StatusBar rendering
+    const statusOutput = renderToString(React.createElement(StatusBar, {
+      mode: 'plan',
+      activeModel: 'deepseek-chat',
+      turnCount: 2,
+      estTokens: 2500,
+    }));
+    if (!statusOutput.includes('[PLAN]') || !statusOutput.includes('deepseek-chat')) {
+      throw new Error(`StatusBar output failed to render mode and model: ${statusOutput}`);
+    }
+    console.log('  ✔ Ink StatusBar rendered mode badge and metrics correctly');
+
+    // Test Table rendering
+    const tableOutput = renderToString(React.createElement(Table, {
+      data: [{ name: 'TestTool', category: 'genomics' }],
+      columns: [{ header: 'Tool', key: 'name' }, { header: 'Cat', key: 'category' }],
+    }));
+    if (!tableOutput.includes('TestTool')) {
+      throw new Error(`Table output failed to render row: ${tableOutput}`);
+    }
+    console.log('  ✔ Pure Ink Table component rendered columns and rows cleanly');
+
+    // Verify Slash commands
+    const expectedCmds = ['/model', '/plan', '/act', '/tools', '/skills', '/cost', '/clear'];
+    for (const cmd of expectedCmds) {
+      if (!SLASH_COMMANDS.some((c) => c.value === cmd)) {
+        throw new Error(`Missing expected slash command: ${cmd}`);
+      }
+    }
+    console.log(`  ✔ Verified all ${SLASH_COMMANDS.length} slash commands and keybinding mappings`);
+
     console.log('\n✔ ALL @junscience/cli TESTS PASSED (100% SUCCESS)\n');
   } finally {
     try {

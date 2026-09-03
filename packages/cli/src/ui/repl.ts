@@ -20,7 +20,7 @@ export async function startInteractiveRepl(): Promise<void> {
     return activeProfile ? `${activeProfile.name} (${activeProfile.model})` : 'Demo Mode (Mock)';
   };
 
-  renderBanner('1.0.0', getModelDisplayName(), activeMode);
+  renderBanner('1.4.0', getModelDisplayName(), activeMode);
 
   console.log(`${c.dim}Type your scientific inquiry, or type /help for commands, /exit to quit.${c.reset}\n`);
 
@@ -108,7 +108,7 @@ export async function startInteractiveRepl(): Promise<void> {
     // 2. CLEAR COMMAND
     if (input === '/clear') {
       console.clear();
-      renderBanner('1.0.0', getModelDisplayName(), activeMode);
+      renderBanner('1.4.0', getModelDisplayName(), activeMode);
       rl.setPrompt(getPromptString());
       rl.prompt();
       continue;

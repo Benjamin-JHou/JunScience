@@ -176,10 +176,15 @@ export const SettingsModal: React.FC = () => {
         : [...profiles, editingProfile];
       setProfiles(updatedList);
       try {
-        localStorage.setItem(LOCAL_STORAGE_PROFILES_KEY, JSON.stringify(updatedList));
+        // Strip out plaintext API keys before persisting to browser localStorage
+        const sanitizedStorageList = updatedList.map((p) => ({
+          ...p,
+          apiKey: p.apiKey ? '••••••••' : '',
+        }));
+        localStorage.setItem(LOCAL_STORAGE_PROFILES_KEY, JSON.stringify(sanitizedStorageList));
         localStorage.setItem(LOCAL_STORAGE_ACTIVE_PROFILE_KEY, editingProfile.id);
       } catch {}
-      setSaveMessage('Profile saved to local storage!');
+      setSaveMessage('Profile saved! (API keys kept in secure memory, not persisted to localStorage)');
       setTimeout(() => setSaveMessage(''), 3000);
     }
   };
@@ -199,7 +204,11 @@ export const SettingsModal: React.FC = () => {
         setSelectedProfileId(nextList[0].id);
         setEditingProfile(nextList[0]);
         try {
-          localStorage.setItem(LOCAL_STORAGE_PROFILES_KEY, JSON.stringify(nextList));
+          const sanitizedStorageList = nextList.map((p) => ({
+            ...p,
+            apiKey: p.apiKey ? '••••••••' : '',
+          }));
+          localStorage.setItem(LOCAL_STORAGE_PROFILES_KEY, JSON.stringify(sanitizedStorageList));
           localStorage.setItem(LOCAL_STORAGE_ACTIVE_PROFILE_KEY, nextList[0].id);
         } catch {}
       }

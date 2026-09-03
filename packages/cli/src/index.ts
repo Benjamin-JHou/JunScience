@@ -3,6 +3,7 @@ import { handleResearchCommand } from './commands/research.js';
 import { handleHooksCommand } from './commands/hooks.js';
 import { handleSkillCommand } from './commands/skill.js';
 import { startInteractiveRepl } from './ui/repl.js';
+import { startInkRepl } from './ui/inkRepl.js';
 
 export async function main() {
   const args = process.argv.slice(2);
@@ -10,7 +11,12 @@ export async function main() {
 
   if (!command) {
     // Start interactive REPL when invoked with no args (e.g. `junscience`)
-    await startInteractiveRepl();
+    const isInteractive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
+    if (isInteractive) {
+      await startInkRepl();
+    } else {
+      await startInteractiveRepl();
+    }
     return;
   }
 

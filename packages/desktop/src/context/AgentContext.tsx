@@ -249,8 +249,12 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const trimmed = newTitle.trim();
     if (!trimmed) return;
 
-    if (window.junscience?.session) {
-      await window.junscience.session.rename(sessionId, trimmed);
+    if (window.junscience?.session?.rename) {
+      try {
+        await window.junscience.session.rename(sessionId, trimmed);
+      } catch (err) {
+        console.error('Failed to rename session over IPC:', err);
+      }
     }
 
     setSessions((prev) =>
@@ -261,8 +265,12 @@ export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteSession = async (sessionId: string) => {
-    if (window.junscience?.session) {
-      await window.junscience.session.delete(sessionId);
+    if (window.junscience?.session?.delete) {
+      try {
+        await window.junscience.session.delete(sessionId);
+      } catch (err) {
+        console.error('Failed to delete session over IPC:', err);
+      }
     }
 
     setSessions((prev) => prev.filter((s) => s.id !== sessionId));

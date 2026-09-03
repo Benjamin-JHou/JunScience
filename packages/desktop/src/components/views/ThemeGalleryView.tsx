@@ -1,158 +1,92 @@
 import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { DesktopTheme, CliTheme } from '../../types/theme';
-import { Check } from 'lucide-react';
+import { DesktopTheme } from '../../types/theme';
+import { Check, Moon, Sun } from 'lucide-react';
 
 export const ThemeGalleryView: React.FC = () => {
-  const {
-    desktopTheme,
-    setDesktopTheme,
-    cliTheme,
-    setCliTheme,
-    viewMode,
-    setViewMode,
-  } = useTheme();
+  const { desktopTheme, setDesktopTheme } = useTheme();
 
   const themes: {
     id: string;
-    mode: 'desktop' | 'cli';
     name: string;
     description: string;
-    desktop?: DesktopTheme;
-    cli?: CliTheme;
+    desktop: DesktopTheme;
+    icon: typeof Moon;
     bgPreview: string;
     accentPreview: string;
   }[] = [
     {
       id: 'd-dark',
-      mode: 'desktop',
       name: 'Desktop Dark',
       description: 'Futuristic scientific workstation (#090D16, cyan & electric blue glow)',
       desktop: 'dark',
+      icon: Moon,
       bgPreview: '#090D16',
       accentPreview: '#38BDF8',
     },
     {
       id: 'd-light',
-      mode: 'desktop',
       name: 'Desktop Light',
       description: 'Minimalist clean academic science (crisp white/slate, royal blue)',
       desktop: 'light',
+      icon: Sun,
       bgPreview: '#F8FAFC',
       accentPreview: '#2563EB',
     },
-    {
-      id: 'c-green',
-      mode: 'cli',
-      name: 'CLI Green',
-      description: 'Matrix-inspired terminal (#020603, phosphor green #22C55E)',
-      cli: 'green',
-      bgPreview: '#020603',
-      accentPreview: '#22C55E',
-    },
-    {
-      id: 'c-blue',
-      mode: 'cli',
-      name: 'CLI Blue',
-      description: 'Cyberpunk developer terminal (#030814, electric blue #38BDF8)',
-      cli: 'blue',
-      bgPreview: '#030814',
-      accentPreview: '#38BDF8',
-    },
-    {
-      id: 'c-purple',
-      mode: 'cli',
-      name: 'CLI Purple',
-      description: 'Neon AI terminal (#070312, neon magenta/violet #D946EF)',
-      cli: 'purple',
-      bgPreview: '#070312',
-      accentPreview: '#D946EF',
-    },
-    {
-      id: 'c-amber',
-      mode: 'cli',
-      name: 'CLI Amber',
-      description: 'Retro scientific workstation (#0A0501, amber gold #F59E0B)',
-      cli: 'amber',
-      bgPreview: '#0A0501',
-      accentPreview: '#F59E0B',
-    },
   ];
 
-  const handleSelect = (item: typeof themes[0]) => {
-    if (item.mode === 'desktop' && item.desktop) {
-      setDesktopTheme(item.desktop);
-      setViewMode('desktop');
-    } else if (item.mode === 'cli' && item.cli) {
-      setCliTheme(item.cli);
-      setViewMode('cli');
-    }
-  };
-
   return (
-    <div className="flex-1 overflow-y-auto p-8 max-w-[960px] mx-auto w-full">
-      <div className="pb-6 border-b border-border">
-        <h2 className="text-2xl font-bold text-text-primary">Theme & Environment Showcase</h2>
-        <p className="text-sm text-text-secondary mt-1">
-          Select any of the 6 official JunScience visual specifications to inspect live.
+    <div className="p-8 max-w-5xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-text-primary">Desktop Workstation Themes</h1>
+        <p className="text-sm text-text-muted mt-1">
+          High-contrast, scientific workstation color themes optimized for research and data analysis.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {themes.map((t) => {
-          const isCurrent =
-            (t.mode === 'desktop' && viewMode === 'desktop' && desktopTheme === t.desktop) ||
-            (t.mode === 'cli' && viewMode === 'cli' && cliTheme === t.cli);
-
+          const isSelected = desktopTheme === t.desktop;
+          const Icon = t.icon;
           return (
             <div
               key={t.id}
-              onClick={() => handleSelect(t)}
-              className={`p-4 rounded-xl border cursor-pointer transition-all shadow-sm relative group ${
-                isCurrent
-                  ? 'border-accent ring-2 ring-accent/30 bg-bg-surface'
-                  : 'border-border bg-bg-surface hover:border-accent/40 hover:bg-bg-hover'
+              onClick={() => setDesktopTheme(t.desktop)}
+              className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                isSelected
+                  ? 'border-accent bg-accent/5 ring-1 ring-accent/30 shadow-sm'
+                  : 'border-border bg-bg-surface hover:bg-bg-hover hover:border-border-hover'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-text-muted">
-                  {t.mode.toUpperCase()}
-                </span>
-                {isCurrent && (
-                  <span className="flex items-center gap-1 text-xs text-accent font-semibold">
-                    <Check size={13} />
-                    <span>Active</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Color Swatch Preview */}
-              <div
-                className="h-16 rounded-lg mt-3 border border-border flex items-center justify-center relative overflow-hidden"
-                style={{ backgroundColor: t.bgPreview }}
-              >
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-md"
-                  style={{
-                    backgroundColor: t.accentPreview,
-                    color: t.id === 'd-light' ? '#FFF' : '#000',
-                  }}
-                >
-                  J
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center border"
+                    style={{ backgroundColor: t.bgPreview, borderColor: t.accentPreview }}
+                  >
+                    <Icon size={16} style={{ color: t.accentPreview }} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary text-sm">{t.name}</h3>
+                  </div>
                 </div>
+                {isSelected && <Check size={18} className="text-accent" />}
               </div>
 
-              <h4 className="text-[14px] font-semibold text-text-primary mt-3">
-                {t.name}
-              </h4>
-              <p className="text-xs text-text-secondary mt-1 leading-relaxed">
-                {t.description}
-              </p>
+              <p className="text-xs text-text-muted mb-4">{t.description}</p>
 
-              <div className="mt-4 pt-3 border-t border-border-subtle flex justify-end">
-                <span className="text-xs font-medium text-accent group-hover:translate-x-0.5 transition-transform">
-                  Launch View →
-                </span>
+              <div
+                className="h-20 rounded-xl border p-3 flex flex-col justify-between"
+                style={{ backgroundColor: t.bgPreview, borderColor: 'rgba(255,255,255,0.08)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: t.accentPreview }} />
+                  <span className="text-[11px] font-mono text-slate-400">Preview: {t.name}</span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-4 w-16 rounded" style={{ backgroundColor: t.accentPreview, opacity: 0.3 }} />
+                  <div className="h-4 w-24 rounded bg-slate-700/30" />
+                </div>
               </div>
             </div>
           );

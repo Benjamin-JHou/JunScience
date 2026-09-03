@@ -69,6 +69,12 @@ Download pre-built installers directly from [GitHub Releases](https://github.com
 - **macOS Intel (x86_64)**: [`JunScience-1.1.0.dmg`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0.dmg) (98.0 MB)
 - **Windows x64**: [`JunScience.Setup.1.1.0.exe`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.Setup.1.1.0.exe) (NSIS Installer, 73.9 MB) / [`JunScience.1.1.0.exe`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.1.1.0.exe) (Portable, 73.7 MB)
 
+> [!NOTE]
+> **First-Launch Security Notice (macOS Gatekeeper & Windows SmartScreen):**  
+> Because JunScience is a community open-source project without commercial code-signing certificates, your operating system will display a standard security warning on first launch:
+> - **macOS**: If you see *"JunScience cannot be opened because Apple cannot check it for malicious software"*, simply **Right-Click (or Control-Click) the application in `/Applications` and select "Open"**, then click **"Open"** in the confirmation dialog. Alternatively, navigate to *System Settings → Privacy & Security* and click *"Open Anyway"*.
+> - **Windows**: If Windows SmartScreen displays *"Windows protected your PC"*, click **"More info"** and then select **"Run anyway"**.
+
 #### 2. CLI Execution via Monorepo
 
 ```bash
@@ -168,6 +174,19 @@ npx tsx packages/core/tests/test-clinical-research-loop.ts # Pure clinical ReAct
 - **📋 显式科学规划与流式任务追踪器 (`PlanTracker`)**：推理之初显式制定 5 阶段调研计划，全双工广播每一步任务流转与挂载的证据勋章。
 - **🔒 跨平台操作系统级内核沙盒**：macOS `sandbox-exec` 物理断网隔离、Linux `bwrap` LSM 容器化、Windows Low-Integrity MIC 访问控制，全量通过 GitHub Actions CI 验证。
 - **🔌 双向 MCP 协议支持**：所有科研工具原生暴露为标准 Model Context Protocol (MCP) Server，亦可自由挂载第三方 MCP 工具。
+
+### 💻 原生桌面端下载与安装 (v1.1.0)
+
+从 [GitHub Releases](https://github.com/Benjamin-JHou/JunScience/releases/tag/v1.1.0) 获取预编译安装包：
+- **macOS Apple Silicon (M1/M2/M3/M4)**: [`JunScience-1.1.0-arm64.dmg`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0-arm64.dmg) (93.2 MB)
+- **macOS Intel (x86_64)**: [`JunScience-1.1.0.dmg`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience-1.1.0.dmg) (98.0 MB)
+- **Windows x64**: [`JunScience.Setup.1.1.0.exe`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.Setup.1.1.0.exe) (NSIS 安装包) / [`JunScience.1.1.0.exe`](https://github.com/Benjamin-JHou/JunScience/releases/download/v1.1.0/JunScience.1.1.0.exe) (便携免安装版)
+
+> [!NOTE]
+> **首次运行安全提示（macOS Gatekeeper 与 Windows SmartScreen 放行）：**  
+> JunScience 作为开源学术科研工作站，暂未购买商业企业数字签名。首次打开时系统会弹出安全拦截提示，请按以下说明快速放行：
+> - **macOS 系统**：若提示 *“无法打开 JunScience，因为 Apple 无法检查其是否包含恶意软件”*，请在访达 `/Applications` 文件夹中**右键（或按住 Control 键）点击 JunScience 图标选择「打开」**，在弹窗中点击**「打开」**即可；或在 *「系统设置 → 隐私与安全性」* 页面点击 *「仍要打开」*。
+> - **Windows 系统**：若弹出 SmartScreen *“Windows 已保护你的电脑”* 提示，请点击文字链接 **「更多信息」**，再点击出现的 **「仍要运行」** 按钮即可。
 
 ### 🌐 本地 Web 模式（无需 `.exe`）
 
