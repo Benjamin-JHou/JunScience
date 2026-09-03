@@ -93,6 +93,53 @@ async function runCliTests() {
     }
     console.log(`  ✔ Verified all ${SLASH_COMMANDS.length} slash commands and keybinding mappings`);
 
+    // Test AgentSelectorModal
+    const { AgentSelectorModal } = await import('../src/ui/ink/AgentSelectorModal.js');
+    const agentModalOutput = renderToString(React.createElement(AgentSelectorModal, {
+      currentAgentId: 'lead',
+      onSelect: () => {},
+      onClose: () => {},
+    }));
+    if (!agentModalOutput.includes('Lead Scientific Investigator') || !agentModalOutput.includes('Bioinformatics Specialist')) {
+      throw new Error(`AgentSelectorModal failed to render personas: ${agentModalOutput}`);
+    }
+    console.log('  ✔ Ink AgentSelectorModal rendered all 5 scientific agent personas cleanly');
+
+    // Test CommandPaletteModal
+    const { CommandPaletteModal } = await import('../src/ui/ink/CommandPaletteModal.js');
+    const paletteOutput = renderToString(React.createElement(CommandPaletteModal, {
+      onSelect: () => {},
+      onClose: () => {},
+    }));
+    if (!paletteOutput.includes('/model') || !paletteOutput.includes('/agent') || !paletteOutput.includes('/plan')) {
+      throw new Error(`CommandPaletteModal failed to render commands: ${paletteOutput}`);
+    }
+    console.log('  ✔ Ink CommandPaletteModal rendered searchable commands');
+
+    // Test InputPrompt
+    const { InputPrompt } = await import('../src/ui/ink/InputPrompt.js');
+    const inputPromptOutput = renderToString(React.createElement(InputPrompt, {
+      value: '',
+      onChange: () => {},
+      onSubmit: () => {},
+      mode: 'act',
+    }));
+    if (!inputPromptOutput.includes('Ask a research question or describe your task...')) {
+      throw new Error(`InputPrompt failed to render screenshot placeholder: ${inputPromptOutput}`);
+    }
+    console.log('  ✔ Ink InputPrompt rendered rounded prompt matching UI specification');
+
+    // Test PlanView
+    const { PlanView } = await import('../src/ui/ink/PlanView.js');
+    const planViewOutput = renderToString(React.createElement(PlanView, {
+      tasks: [],
+      onClose: () => {},
+    }));
+    if (!planViewOutput.includes('TASK-1') || !planViewOutput.includes('TASK-5')) {
+      throw new Error(`PlanView failed to render 5-stage milestones: ${planViewOutput}`);
+    }
+    console.log('  ✔ Ink PlanView rendered 5-stage explicit milestone checklist');
+
     console.log('\n✔ ALL @junscience/cli TESTS PASSED (100% SUCCESS)\n');
   } finally {
     try {

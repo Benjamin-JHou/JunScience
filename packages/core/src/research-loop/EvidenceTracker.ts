@@ -125,3 +125,5 @@ export class EvidenceTracker {
     return table;
   }
 }
+
+export const globalEvidenceTracker = new EvidenceTracker();

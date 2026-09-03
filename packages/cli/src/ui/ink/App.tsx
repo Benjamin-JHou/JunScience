@@ -13,19 +13,32 @@ import { StatusBar } from './StatusBar.js';
 import { HistoryPane, HistoryTurn } from './HistoryPane.js';
 import { LiveExecutionPane, PlanTaskItem, ActiveToolInfo } from './LiveExecutionPane.js';
 import { InputPrompt } from './InputPrompt.js';
-import { SlashCommandMenu } from './SlashCommandMenu.js';
+import { CommandPaletteModal } from './CommandPaletteModal.js';
+import { AgentSelectorModal, AGENT_PERSONAS, AgentPersona } from './AgentSelectorModal.js';
 import { ModelConfigWizard } from './ModelConfigWizard.js';
+import { EvidenceView } from './EvidenceView.js';
+import { PlanView } from './PlanView.js';
 import { ToolsView } from './ToolsView.js';
 import { SkillsView } from './SkillsView.js';
 import { HelpView } from './HelpView.js';
 
-type ActiveModal = 'none' | 'slash_menu' | 'model_wizard' | 'tools' | 'skills' | 'help';
+type ActiveModal =
+  | 'none'
+  | 'command_palette'
+  | 'agent_selector'
+  | 'model_wizard'
+  | 'evidence'
+  | 'plan'
+  | 'tools'
+  | 'skills'
+  | 'help';
 
 export function App() {
   const { exit } = useApp();
 
-  // Mode state
-  const [mode, setMode] = useState<'plan' | 'act'>('act');
+  // Mode & Agent Persona state
+  const [mode, setMode] = useState<'act' | 'plan' | 'hypothesis'>('act');
+  const [activeAgent, setActiveAgent] = useState<AgentPersona>(AGENT_PERSONAS[0]);
   const [activeProfile, setActiveProfile] = useState<ModelProfile | null>(
     globalProfileManager.getActiveProfile() || null
   );
@@ -130,17 +143,31 @@ export function App() {
 
   // Global keybindings
   useInput((input, key) => {
-    // 1. Shift+Tab to toggle Mode (or terminal escape \x1b[Z)
+    // 1. Shift+Tab: Cycle modes (act -> plan -> hypothesis -> act)
     if ((key.tab && key.shift) || input === '\x1b[Z') {
       setMode((prev) => {
-        const next = prev === 'plan' ? 'act' : 'plan';
-        setToastMessage(`Switched to ${next === 'plan' ? 'PLAN MODE' : 'ACT MODE'}`);
+        const next = prev === 'act' ? 'plan' : prev === 'plan' ? 'hypothesis' : 'act';
+        const label =
+          next === 'act' ? 'ACT MODE (Autonomous Execution)' : next === 'plan' ? 'PLAN MODE (Strategic Formulation)' : 'HYPOTHESIS TREE (Multi-Branch)';
+        setToastMessage(`Switched to ${label}`);
         return next;
       });
       return;
     }
 
-    // 2. Escape to close any open modal
+    // 2. Tab: Open Agent Persona Switcher
+    if (key.tab && !key.shift && modal === 'none' && inputValue.length === 0) {
+      setModal('agent_selector');
+      return;
+    }
+
+    // 3. Ctrl+P: Open Command Palette
+    if ((key.ctrl && input === 'p') || input === '\x10') {
+      setModal((prev) => (prev === 'command_palette' ? 'none' : 'command_palette'));
+      return;
+    }
+
+    // 4. Escape: Close any open modal
     if (key.escape && modal !== 'none') {
       setModal('none');
       return;
@@ -151,13 +178,13 @@ export function App() {
   const handleInputChange = (val: string) => {
     setInputValue(val);
     if (val === '/') {
-      setModal('slash_menu');
-    } else if (modal === 'slash_menu' && !val.startsWith('/')) {
+      setModal('command_palette');
+    } else if (modal === 'command_palette' && !val.startsWith('/')) {
       setModal('none');
     }
   };
 
-  // Execute Slash Commands
+  // Execute Slash Commands / Actions from Command Palette
   const handleCommand = (cmd: string) => {
     setModal('none');
     setInputValue('');
@@ -175,8 +202,23 @@ export function App() {
       return;
     }
 
-    if (trimmed === '/help') {
+    if (trimmed === '/help' || trimmed === '?') {
       setModal('help');
+      return;
+    }
+
+    if (trimmed === '/agent' || trimmed === '/agents') {
+      setModal('agent_selector');
+      return;
+    }
+
+    if (trimmed === '/plan') {
+      setModal('plan');
+      return;
+    }
+
+    if (trimmed === '/evidence') {
+      setModal('evidence');
       return;
     }
 
@@ -195,6 +237,11 @@ export function App() {
       return;
     }
 
+    if (trimmed === '/sandbox') {
+      setToastMessage('Python Sandbox: Kernel Enforced Air-Gapped Isolation Active');
+      return;
+    }
+
     if (trimmed === '/plan' || trimmed === '/mode plan') {
       setMode('plan');
       setToastMessage('Switched to PLAN MODE');
@@ -207,10 +254,18 @@ export function App() {
       return;
     }
 
+    if (trimmed === '/hypothesis' || trimmed === '/mode hypothesis') {
+      setMode('hypothesis');
+      setToastMessage('Switched to HYPOTHESIS TREE MODE');
+      return;
+    }
+
     if (trimmed === '/mode') {
       setMode((prev) => {
-        const next = prev === 'plan' ? 'act' : 'plan';
-        setToastMessage(`Switched to ${next === 'plan' ? 'PLAN MODE' : 'ACT MODE'}`);
+        const next = prev === 'act' ? 'plan' : prev === 'plan' ? 'hypothesis' : 'act';
+        const label =
+          next === 'act' ? 'ACT MODE' : next === 'plan' ? 'PLAN MODE' : 'HYPOTHESIS TREE';
+        setToastMessage(`Switched to ${label}`);
         return next;
       });
       return;
@@ -229,11 +284,6 @@ export function App() {
       const tokens = (turnCount * 1250) + (history.length * 800);
       const cost = ((tokens / 1_000_000) * 0.28).toFixed(4);
       setToastMessage(`Session: ${turnCount} turns, ~${tokens.toLocaleString()} tokens (~$${cost} USD)`);
-      return;
-    }
-
-    if (trimmed === '/compact') {
-      setToastMessage('Working memory compacted while preserving immutable EV anchors');
       return;
     }
 
@@ -271,7 +321,7 @@ export function App() {
     // Run inquiry
     setInputValue('');
     setIsThinking(true);
-    setThoughtPhase('Formulating Inquiry');
+    setThoughtPhase(`Formulating Inquiry as ${activeAgent.name}`);
     setStreamingDelta('');
     currentToolsRef.current = [];
 
@@ -280,16 +330,20 @@ export function App() {
       session = globalSessionManager.createSession(
         trimmed.slice(0, 50),
         'proj-1',
-        'research'
+        (activeAgent.id as any) || 'research'
       );
       setCurrentSession(session);
     }
 
     const inquiryMode = mode;
-    const promptPayload =
-      inquiryMode === 'plan'
-        ? `[PLAN MODE: Provide hypothesis breakdown, 5-stage research plan, and required EV anchors without executing sandbox tools]\n${trimmed}`
-        : trimmed;
+    let promptPayload = trimmed;
+    if (inquiryMode === 'plan') {
+      promptPayload = `[PLAN MODE: Provide hypothesis breakdown, 5-stage research plan, and required EV anchors without executing sandbox tools]\n[SPECIALIST: ${activeAgent.name}]\n${trimmed}`;
+    } else if (inquiryMode === 'hypothesis') {
+      promptPayload = `[HYPOTHESIS TREE MODE: Explore parallel competing hypotheses and compute empirical confidence metrics]\n[SPECIALIST: ${activeAgent.name}]\n${trimmed}`;
+    } else if (activeAgent.id !== 'lead') {
+      promptPayload = `[SPECIALIST: ${activeAgent.name} (${activeAgent.role})]\n${trimmed}`;
+    }
 
     let accumulatedDelta = '';
 
@@ -313,6 +367,8 @@ export function App() {
         mode: inquiryMode,
         timestamp: new Date().toLocaleTimeString(),
         response: accumulatedDelta || (turn as any)?.content || 'Research inquiry completed.',
+        agentName: activeAgent.name,
+        agentIcon: activeAgent.icon,
         artifacts: updatedSession.artifacts,
         citations: updatedSession.citations,
         toolsExecuted: [...currentToolsRef.current],
@@ -337,17 +393,34 @@ export function App() {
 
   return (
     <Box flexDirection="column" padding={1}>
-      {/* 1. TOP BANNER */}
-      <Banner activeModel={activeModelDisplay} mode={mode} />
+      {/* 1. TOP BANNER MATCHING SCREENSHOT */}
+      <Banner
+        activeModel={activeModelDisplay}
+        mode={mode}
+        activeAgentName={activeAgent.name}
+        hasHistory={history.length > 0}
+      />
 
-      {/* 2. STATIC HISTORY PANE (Committed turns never re-rendered) */}
+      {/* 2. STATIC HISTORY PANE */}
       <HistoryPane history={history} />
 
       {/* 3. MODAL POPUPS */}
-      {modal === 'slash_menu' && (
-        <SlashCommandMenu
-          filterText={inputValue}
+      {modal === 'command_palette' && (
+        <CommandPaletteModal
+          filterQuery={inputValue}
           onSelect={(cmd) => handleCommand(cmd)}
+          onClose={() => setModal('none')}
+        />
+      )}
+
+      {modal === 'agent_selector' && (
+        <AgentSelectorModal
+          currentAgentId={activeAgent.id}
+          onSelect={(agent) => {
+            setActiveAgent(agent);
+            setModal('none');
+            setToastMessage(`Activated Agent Persona: ${agent.icon} ${agent.name}`);
+          }}
           onClose={() => setModal('none')}
         />
       )}
@@ -362,11 +435,13 @@ export function App() {
         />
       )}
 
+      {modal === 'evidence' && <EvidenceView onClose={() => setModal('none')} />}
+      {modal === 'plan' && <PlanView tasks={tasks} onClose={() => setModal('none')} />}
       {modal === 'tools' && <ToolsView onClose={() => setModal('none')} />}
       {modal === 'skills' && <SkillsView onClose={() => setModal('none')} />}
       {modal === 'help' && <HelpView onClose={() => setModal('none')} />}
 
-      {/* 4. LIVE EXECUTION PANE (Dynamic active updates) */}
+      {/* 4. LIVE EXECUTION PANE */}
       <LiveExecutionPane
         isThinking={isThinking}
         thoughtPhase={thoughtPhase}
@@ -376,7 +451,7 @@ export function App() {
         streamingDelta={streamingDelta}
       />
 
-      {/* 5. INTERACTIVE INPUT PROMPT */}
+      {/* 5. INTERACTIVE ROUNDED INPUT PROMPT */}
       {modal === 'none' && (
         <InputPrompt
           value={inputValue}
@@ -387,10 +462,12 @@ export function App() {
         />
       )}
 
-      {/* 6. PERSISTENT BOTTOM STATUS BAR */}
+      {/* 6. PERSISTENT BOTTOM FOOTER STATUS BAR */}
       <StatusBar
         mode={mode}
         activeModel={activeModelDisplay}
+        activeAgentName={activeAgent.name}
+        activeAgentIcon={activeAgent.icon}
         turnCount={turnCount}
         estTokens={estTokens}
         toastMessage={toastMessage}

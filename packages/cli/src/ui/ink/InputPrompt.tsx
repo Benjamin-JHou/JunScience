@@ -6,7 +6,7 @@ interface InputPromptProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  mode: 'plan' | 'act';
+  mode: 'act' | 'plan' | 'hypothesis';
   disabled?: boolean;
 }
 
@@ -17,30 +17,39 @@ export function InputPrompt({
   mode,
   disabled = false,
 }: InputPromptProps) {
-  return (
-    <Box marginTop={1} flexDirection="column">
-      <Box alignItems="center">
-        {mode === 'plan' ? (
-          <Text bold color="magenta">
-            [PLAN] junscience &gt;{' '}
-          </Text>
-        ) : (
-          <Text bold color="green">
-            [ACT] junscience &gt;{' '}
-          </Text>
-        )}
+  let borderColor = 'cyan';
+  let promptColor = 'cyan';
+  if (mode === 'plan') {
+    borderColor = 'magenta';
+    promptColor = 'magenta';
+  } else if (mode === 'hypothesis') {
+    borderColor = 'yellow';
+    promptColor = 'yellow';
+  }
 
-        {!disabled ? (
-          <TextInput
-            value={value}
-            onChange={onChange}
-            onSubmit={onSubmit}
-            placeholder="Ask a scientific inquiry, or type / for commands..."
-          />
-        ) : (
-          <Text color="gray">Processing inquiry...</Text>
-        )}
-      </Box>
+  return (
+    <Box
+      borderStyle="round"
+      borderColor={borderColor}
+      paddingX={1}
+      paddingY={0}
+      marginTop={1}
+    >
+      <Text color={promptColor} bold>
+        {'> '}
+      </Text>
+
+      {!disabled ? (
+        <TextInput
+          value={value}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          placeholder="Ask a research question or describe your task..."
+          focus={!disabled}
+        />
+      ) : (
+        <Text color="gray">Processing inquiry across scientific tools...</Text>
+      )}
     </Box>
   );
 }

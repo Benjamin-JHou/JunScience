@@ -1,53 +1,89 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import Gradient from 'ink-gradient';
 import cliPkg from '../../../package.json' with { type: 'json' };
-
-const ASCII_LOGO = `
-    __                  _____                             
-   / /_  ______        / ___/_____(_)__  ____  ________  
-  / / / / / __ \\______ \\__ \\/ ___/ / _ \\/ __ \\/ ___/ _ \\ 
- / / /_/ / / / /_____/___/ / /__/ /  __/ / / / /__/  __/ 
-/_/\\__,_/_/ /_/      /____/\\___/_/\\___/_/ /_/\\___/\\___/  
-`;
 
 interface BannerProps {
   activeModel?: string;
-  mode: 'plan' | 'act';
+  mode: 'act' | 'plan' | 'hypothesis';
+  activeAgentName?: string;
+  hasHistory?: boolean;
 }
 
-export function Banner({ activeModel = 'Demo Mode (Mock)', mode }: BannerProps) {
+export function Banner({
+  activeModel = 'Demo Mode (Mock)',
+  mode,
+  activeAgentName = 'Lead Investigator',
+  hasHistory = false,
+}: BannerProps) {
   const version = cliPkg.version || '1.4.0';
+
+  if (hasHistory) {
+    return (
+      <Box flexDirection="row" justifyContent="space-between" paddingBottom={1} borderStyle="single" borderColor="gray">
+        <Box>
+          <Text color="cyan" bold>⚛ JunScience</Text>
+          <Text color="dim"> v{version} │ </Text>
+          <Text color="cyan">Agent: </Text>
+          <Text color="white" bold>{activeAgentName} │ </Text>
+          <Text color="cyan">Model: </Text>
+          <Text color="yellow" bold>{activeModel}</Text>
+        </Box>
+        <Box>
+          {mode === 'act' && <Text color="cyan" bold>[ACT MODE]</Text>}
+          {mode === 'plan' && <Text color="magenta" bold>[PLAN MODE]</Text>}
+          {mode === 'hypothesis' && <Text color="yellow" bold>[HYPOTHESIS TREE]</Text>}
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box flexDirection="column" marginY={1}>
-      <Gradient name="cristal">
-        <Text bold>{ASCII_LOGO}</Text>
-      </Gradient>
-
-      <Box flexDirection="column" marginTop={0} paddingLeft={1}>
-        <Text color="gray">
-          ── <Text color="cyan" bold>Scientific AI Workstation</Text> & Autonomous Research Engine ──
-        </Text>
-
-        <Box marginTop={1}>
-          <Text color="dim">Version: </Text>
-          <Text color="cyan" bold>v{version}</Text>
-          <Text color="dim">  •  Active Model: </Text>
-          <Text color="yellow" bold>{activeModel}</Text>
-          <Text color="dim">  •  Mode: </Text>
-          {mode === 'plan' ? (
-            <Text color="magenta" bold>[PLAN MODE]</Text>
-          ) : (
-            <Text color="green" bold>[ACT MODE]</Text>
-          )}
+      {/* 1. ATOMIC ORBITAL ICON & JUNSCIENCE TITLE */}
+      <Box flexDirection="row" alignItems="center">
+        {/* Orbital Atom Icon */}
+        <Box flexDirection="column" marginRight={3}>
+          <Text color="cyan">    ⢀⣀⣤⠤⠶⠶⠤⣤⣀⡀   </Text>
+          <Text color="cyan"> ⢀⡴⠋  ⢀⣠⠤⣄⡀  ⠉⠲⣄ </Text>
+          <Text color="cyan">⡴⠁  ⢀⡴⠋    ⠉⠲⣄   ⠈⢧</Text>
+          <Text color="cyan">⣸⠁  ⢠⠏   <Text color="cyanBright" bold>▟███</Text>   ⠈⢧   ⠈⣇</Text>
+          <Text color="cyan">⣿    ⡿     <Text color="cyanBright" bold>██</Text>     ⢿    ⣿</Text>
+          <Text color="cyan">⢹⡀  ⠸⣄   <Text color="cyanBright" bold>████</Text>   ⢀⡟   ⢀⡏</Text>
+          <Text color="cyan"> ⠹⣄   ⠉⠲⣄⡀⢀⣠⠴⠊   ⣠⠏ </Text>
+          <Text color="cyan">  ⠈⠳⣤⣀  ⠈⠉⠉  ⣀⣤⠖⠋  </Text>
+          <Text color="cyan">      ⠉⠉⠛⠒⠒⠛⠉⠉     </Text>
         </Box>
 
-        <Box marginTop={0}>
-          <Text color="gray">
-            Hotkeys: <Text color="white" bold>[Shift+Tab]</Text> Toggle Mode  •  <Text color="white" bold>[/]</Text> Slash Commands  •  <Text color="white" bold>[/model]</Text> Config Wizard
+        {/* Title & Subtitle */}
+        <Box flexDirection="column">
+          <Text color="cyanBright" bold>
+            ╦╦ ╦╔╗╔╔═╗╔═╗╦╔═╗╔╗╔╔═╗╔═╗
           </Text>
+          <Text color="cyanBright" bold>
+            ║║ ║║║║╚═╗║  ║║╣ ║║║║  ║╣ 
+          </Text>
+          <Text color="cyanBright" bold>
+            ╚╩═╝╝╚╝╚═╝╚═╝╩╚═╝╝╚╝╚═╝╚═╝
+          </Text>
+          <Box marginTop={1}>
+            <Text color="white" bold>
+              AI for Scientific Discovery
+            </Text>
+          </Box>
         </Box>
+      </Box>
+
+      {/* 2. WELCOME STATEMENT MATCHING SCREENSHOT */}
+      <Box flexDirection="column" marginTop={1}>
+        <Text color="cyan" bold>
+          {'> '}
+          <Text color="white" bold>
+            Welcome to JunScience CLI <Text color="dim">(v{version})</Text>
+          </Text>
+        </Text>
+        <Text color="gray">
+          {'  '}Your AI research agent for real scientific discovery.
+        </Text>
       </Box>
     </Box>
   );
