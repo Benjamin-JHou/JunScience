@@ -3,13 +3,13 @@ import { HookDefinition, HookContext, PreToolUsePayload, HookResult } from '../t
 export class SecretRedactionHook {
   // Regex patterns for sensitive secrets and tokens
   private patterns: { name: string; regex: RegExp }[] = [
-    { name: 'OpenAI/DeepSeek/API Key', regex: /\b(?:sk|pk)-[a-zA-Z0-9_-]{20,}\b/g },
-    { name: 'Bearer Token', regex: /\bBearer\s+[a-zA-Z0-9_\-\.]{24,}\b/gi },
-    { name: 'GitHub Personal Access Token', regex: /\bgh[pousr]_[a-zA-Z0-9]{36}\b/g },
-    { name: 'AWS Access Key ID', regex: /\bAKIA[0-9A-Z]{16}\b/g },
+    { name: 'OpenAI/DeepSeek/API Key', regex: /\b(?:sk|pk)-[a-zA-Z0-9_-]{20,}\b/ },
+    { name: 'Bearer Token', regex: /\bBearer\s+[a-zA-Z0-9_\-\.]{24,}\b/i },
+    { name: 'GitHub Personal Access Token', regex: /\bgh[pousr]_[a-zA-Z0-9]{36}\b/ },
+    { name: 'AWS Access Key ID', regex: /\bAKIA[0-9A-Z]{16}\b/ },
     { name: 'RSA/EC Private Key Header', regex: /-----BEGIN\s+(?:RSA|EC|DSA|OPENSSH|ENCRYPTED|PRIVATE)?\s*KEY-----/i },
-    { name: 'Chinese Resident ID Number', regex: /\b[1-9]\d{5}(?:18|19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b/g },
-    { name: 'Credit Card Number', regex: /\b(?:\d{4}[ -]?){3}\d{4}\b/g },
+    { name: 'Chinese Resident ID Number', regex: /\b[1-9]\d{5}(?:18|19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b/ },
+    { name: 'Credit Card Number', regex: /\b(?:\d{4}[ -]?){3}\d{4}\b/ },
   ];
 
   public getDefinition(): HookDefinition {

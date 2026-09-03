@@ -61,6 +61,18 @@ async function testHooksSystem() {
   }
   console.log(`  ✔ API Key leak successfully intercepted: ${leakedKeyRes.message}`);
 
+  const repeatedLeakedKeyRes = await globalHookRegistry.triggerPreToolUse(secretContext, {
+    toolName: 'python_runner',
+    toolArguments: {
+      scriptName: 'test.py',
+      code: 'import os; openai_key = "sk-1234567890abcdef1234567890abcdef12345678"',
+    },
+  });
+  if (repeatedLeakedKeyRes.proceed || repeatedLeakedKeyRes.verdict !== 'BLOCKED') {
+    throw new Error('SecretRedactionHook leaked a repeated API key due to stateful RegExp.lastIndex');
+  }
+  console.log('  ✔ Repeated identical API key was blocked without stateful regex bypass.');
+
   // Case C: ID Card leak in tool arguments -> Must be BLOCKED
   const idLeakRes = await globalHookRegistry.triggerPreToolUse(secretContext, {
     toolName: 'clinical_nlp_analyze',
