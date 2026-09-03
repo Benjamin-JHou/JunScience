@@ -34,6 +34,7 @@ export const ArXivTool: ToolDefinition<ArXivInput> = {
   description: 'Search arXiv for scientific publications in Medical AI, computer vision, multimodal foundation models, radiological deep learning, and computational biology.',
   category: 'literature',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://export.arxiv.org'],
   inputSchema: {
     type: 'object',
     properties: {

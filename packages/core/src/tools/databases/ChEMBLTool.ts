@@ -82,6 +82,7 @@ export const ChEMBLTool: ToolDefinition<ChEMBLInput> = {
   description: 'Query EMBL-EBI ChEMBL database for bioactive small molecules, target mechanisms of action, approved drug clinical phases, and bioactivity measurements (IC50, Ki, Kd).',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://www.ebi.ac.uk/chembl'],
   inputSchema: {
     type: 'object',
     properties: {

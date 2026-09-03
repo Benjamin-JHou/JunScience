@@ -2,6 +2,7 @@ import { ToolDefinition, ToolContext, ToolExecutionResult } from '../types/tools
 import { globalPermissionManager } from '../sandbox/PermissionManager.js';
 import { globalEventBus } from '../core/EventBus.js';
 import { ToolExecution } from '../types/runtime.js';
+import { globalHookRegistry } from '../hooks/HookRegistry.js';
 
 export class ToolRegistry {
   private tools: Map<string, ToolDefinition> = new Map();
@@ -37,13 +38,45 @@ export class ToolRegistry {
     const toolId = `tool-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const startTime = Date.now();
 
-    // Permission check
-    const allowed = await globalPermissionManager.checkPermission(
+    const hookContext = {
       sessionId,
-      tool.requiredPermission,
-      name,
-      `Execute tool ${name}`
-    );
+      turnIndex,
+      agentId,
+      event: 'PreToolUse' as const,
+      timestamp: new Date().toISOString(),
+    };
+
+    const preHookResult = await globalHookRegistry.triggerPreToolUse(hookContext, {
+      toolName: name,
+      toolArguments: input,
+      isExternalApi: tool.requiredPermission === 'NETWORK',
+    });
+    if (!preHookResult.proceed) {
+      const errorMsg = preHookResult.message || `Tool '${name}' was blocked by a mandatory pre-execution hook.`;
+      return {
+        success: false,
+        output: null,
+        error: errorMsg,
+        execution: {
+          id: toolId,
+          toolName: name,
+          category: tool.category,
+          description: tool.description,
+          status: 'failed',
+          logs: [errorMsg],
+        },
+      };
+    }
+
+    // Permission check
+    const permissionTargets = tool.permissionTargets?.length ? tool.permissionTargets : [name];
+    let allowed = true;
+    for (const target of permissionTargets) {
+      if (!(await globalPermissionManager.checkPermission(sessionId, tool.requiredPermission, target, `Execute tool ${name}`))) {
+        allowed = false;
+        break;
+      }
+    }
 
     if (!allowed) {
       const errorMsg = `Permission denied for ${tool.requiredPermission} on ${name}`;
@@ -111,6 +144,31 @@ export class ToolRegistry {
         duration,
         logs: [...logs, ...(result.execution.logs || [])],
       };
+
+      if (result.success) {
+        const postHookResult = await globalHookRegistry.triggerPostToolUse(
+          { ...hookContext, event: 'PostToolUse' },
+          {
+            toolName: name,
+            toolArguments: input,
+            result: { callId: toolId, name, output: result.output, error: result.error, execution },
+            artifacts: result.artifacts,
+            citations: result.citations,
+          }
+        );
+        if (!postHookResult.proceed || postHookResult.verdict === 'REJECTED') {
+          const errorMsg = postHookResult.message || `Tool '${name}' output was rejected by the evidence verifier.`;
+          return {
+            ...result,
+            success: false,
+            output: null,
+            error: errorMsg,
+            execution: { ...execution, status: 'failed', logs: [...execution.logs, errorMsg] },
+            evidenceVerification: postHookResult.evidenceVerification,
+          };
+        }
+        result.evidenceVerification = postHookResult.evidenceVerification;
+      }
 
       globalEventBus.emit({
         type: 'tool.completed',

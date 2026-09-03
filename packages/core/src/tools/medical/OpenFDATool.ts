@@ -52,6 +52,7 @@ export const OpenFDATool: ToolDefinition<OpenFDAInput> = {
   description: 'Query official US FDA regulatory data (openFDA API) for approved drug package inserts, black box warnings (boxed_warning), clinical indications, contraindications, and FAERS post-marketing adverse event safety signals.',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://api.fda.gov'],
   inputSchema: {
     type: 'object',
     properties: {

@@ -306,23 +306,6 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           }
           this.planTracker.startTask(sessionId, activeTaskId);
 
-          // Trigger PreToolUse Hooks (Secret Redaction, Clinical Data Gate)
-          const preHookRes = await this.hookRegistry.triggerPreToolUse(
-            { ...hookContext, event: 'PreToolUse' },
-            { toolName: call.name, toolArguments: call.arguments }
-          );
-
-          if (!preHookRes.proceed) {
-            this.planTracker.failTask(sessionId, activeTaskId, preHookRes.message || 'Blocked by PreToolUse security hook');
-            messages.push({
-              role: 'tool',
-              name: call.name,
-              content: preHookRes.message || 'Execution blocked by security hook.',
-              toolCallId: call.id,
-            });
-            continue;
-          }
-
           // Execute real tool
           const result = await this.toolRegistry.execute(
             call.name,
@@ -353,18 +336,6 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
             continue;
           }
 
-          // Trigger PostToolUse Hooks (Evidence Verifier Gate)
-          const postHookRes = await this.hookRegistry.triggerPostToolUse(
-            { ...hookContext, event: 'PostToolUse' },
-            {
-              toolName: call.name,
-              toolArguments: call.arguments,
-              result: toolResult,
-              artifacts: result.artifacts,
-              citations: result.citations,
-            }
-          );
-
           const queryStr =
             call.arguments?.query ||
             call.arguments?.accessionOrGene ||
@@ -374,31 +345,18 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
             call.arguments?.scriptName ||
             JSON.stringify(call.arguments);
 
-          if (!postHookRes.proceed || postHookRes.verdict === 'REJECTED') {
-            // Reject from evidence tracker, warn model
-            this.planTracker.failTask(sessionId, activeTaskId, postHookRes.message || 'Evidence verification failed');
-            messages.push({
-              role: 'tool',
-              name: call.name,
-              content: postHookRes.message || '[Evidence Verification REJECTED]',
-              toolCallId: call.id,
-            });
-            continue;
-          } else {
-            // Adopted or Flagged with Warning
-            const recordedEv = evidenceTracker.record(
-              call.name,
-              result.execution?.category || 'databases',
-              String(queryStr),
-              result.execution?.resultSummary || 'Tool executed successfully',
-              result.output,
-              result.citations,
-              result.artifacts,
-              postHookRes.evidenceVerification
-            );
-            const evId = recordedEv.id;
-            this.planTracker.completeTask(sessionId, activeTaskId, [evId], recordedEv.summary);
-          }
+          const recordedEv = evidenceTracker.record(
+            call.name,
+            result.execution?.category || 'databases',
+            String(queryStr),
+            result.execution?.resultSummary || 'Tool executed successfully',
+            result.output,
+            result.citations,
+            result.artifacts,
+            result.evidenceVerification
+          );
+          const evId = recordedEv.id;
+          this.planTracker.completeTask(sessionId, activeTaskId, [evId], recordedEv.summary);
 
           // Register artifacts & citations in session
           if (result.artifacts) {

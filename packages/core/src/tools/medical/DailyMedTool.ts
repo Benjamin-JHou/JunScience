@@ -33,6 +33,7 @@ export const DailyMedTool: ToolDefinition<DailyMedInput> = {
   description: 'Query NLM DailyMed database for official FDA Structured Product Labels (SPL), package inserts, labeler/manufacturer information, and package insert publication history.',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://dailymed.nlm.nih.gov'],
   inputSchema: {
     type: 'object',
     properties: {

@@ -15,6 +15,7 @@ import { EvidenceCompletenessHook } from './builtin/EvidenceCompletenessHook.js'
 
 export class HookRegistry {
   private hooks: Map<string, HookDefinition> = new Map();
+  private mandatoryHookIds: Set<string> = new Set();
 
   constructor(autoRegisterBuiltins: boolean = true) {
     if (autoRegisterBuiltins) {
@@ -28,26 +29,38 @@ export class HookRegistry {
     const evidenceVerifier = new EvidenceVerifierHook();
     const evidenceCompleteness = new EvidenceCompletenessHook();
 
-    this.register(secretRedaction.getDefinition());
-    this.register(clinicalGate.getDefinition());
-    this.register(evidenceVerifier.getDefinition());
-    this.register(evidenceCompleteness.getDefinition());
+    for (const definition of [
+      secretRedaction.getDefinition(),
+      clinicalGate.getDefinition(),
+      evidenceVerifier.getDefinition(),
+      evidenceCompleteness.getDefinition(),
+    ]) {
+      this.register(definition);
+      this.mandatoryHookIds.add(definition.id);
+    }
   }
 
   public register(hook: HookDefinition): void {
-    this.hooks.set(hook.id, hook);
+    if (this.mandatoryHookIds.has(hook.id)) {
+      throw new Error(`Mandatory hook '${hook.id}' cannot be replaced.`);
+    }
+    this.hooks.set(hook.id, { ...hook, events: [...hook.events] });
   }
 
   public unregister(hookId: string): boolean {
+    if (this.mandatoryHookIds.has(hookId)) return false;
     return this.hooks.delete(hookId);
   }
 
   public get(hookId: string): HookDefinition | undefined {
-    return this.hooks.get(hookId);
+    const hook = this.hooks.get(hookId);
+    return hook ? { ...hook, events: [...hook.events] } : undefined;
   }
 
   public list(): HookDefinition[] {
-    return Array.from(this.hooks.values()).sort((a, b) => (a.priority || 50) - (b.priority || 50));
+    return Array.from(this.hooks.values())
+      .map((hook) => ({ ...hook, events: [...hook.events] }))
+      .sort((a, b) => (a.priority || 50) - (b.priority || 50));
   }
 
   public listByEvent(event: HookEventType): HookDefinition[] {
@@ -64,6 +77,7 @@ export class HookRegistry {
   }
 
   public disableHook(hookId: string): boolean {
+    if (this.mandatoryHookIds.has(hookId)) return false;
     const hook = this.hooks.get(hookId);
     if (hook) {
       hook.enabled = false;

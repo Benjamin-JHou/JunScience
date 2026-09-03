@@ -108,6 +108,11 @@ export const PDBTool: ToolDefinition<PDBInput> = {
   description: 'Query 3D macromolecular crystal/cryo-EM structures from RCSB Protein Data Bank (RCSB Search API v2) and deep-learning predicted structures from AlphaFold DB.',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: [
+    'https://data.rcsb.org',
+    'https://search.rcsb.org',
+    'https://alphafold.ebi.ac.uk',
+  ],
   inputSchema: {
     type: 'object',
     properties: {

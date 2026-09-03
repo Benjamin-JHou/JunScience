@@ -50,6 +50,7 @@ export const PubChemTool: ToolDefinition<PubChemInput> = {
   description: 'Query NCBI PubChem chemical database via 2-stage PUG REST API for 2D/3D chemical structures, Canonical SMILES, InChIKey, molecular weights, and Lipinski physicochemical properties.',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://pubchem.ncbi.nlm.nih.gov'],
   inputSchema: {
     type: 'object',
     properties: {

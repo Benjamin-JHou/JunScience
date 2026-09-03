@@ -53,6 +53,7 @@ export const LiteratureSearchTool: ToolDefinition<LiteratureSearchInput> = {
   description: 'Search primary peer-reviewed scientific literature and preprints across live PubMed (NCBI Entrez E-utilities) and OpenAlex with polite rate-limiting and deduplication.',
   category: 'literature',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://eutils.ncbi.nlm.nih.gov', 'https://api.openalex.org'],
   inputSchema: {
     type: 'object',
     properties: {

@@ -29,6 +29,7 @@ export const HuggingFaceHubTool: ToolDefinition<HuggingFaceHubInput> = {
   description: 'Search Hugging Face Hub for pre-trained Medical AI models (e.g. RadImageNet, BiomedCLIP, LLaVA-Med, Med-Flamingo, ClinicalBERT) and medical datasets (e.g. MIMIC, CheXpert, MedQA, RSNA).',
   category: 'literature',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://huggingface.co'],
   inputSchema: {
     type: 'object',
     properties: {

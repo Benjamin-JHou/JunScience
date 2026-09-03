@@ -13,6 +13,11 @@ export const PapersWithCodeTool: ToolDefinition<PapersWithCodeInput> = {
   description: 'Search Papers With Code and open-source benchmarks for Medical AI datasets (e.g. CheXpert, MIMIC-CXR, RSNA, BraTS), SOTA evaluation tasks, methods, and GitHub code repositories.',
   category: 'literature',
   requiredPermission: 'NETWORK',
+  permissionTargets: [
+    'https://paperswithcode.com',
+    'https://huggingface.co',
+    'https://api.github.com',
+  ],
   inputSchema: {
     type: 'object',
     properties: {

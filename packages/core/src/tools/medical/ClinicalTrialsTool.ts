@@ -87,6 +87,7 @@ export const ClinicalTrialsTool: ToolDefinition<ClinicalTrialsInput> = {
   description: 'Search ClinicalTrials.gov API v2 for clinical studies, recruiting status, interventional arms, primary trial outcomes, phases, and eligibility criteria by condition, drug, or direct NCT ID.',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://clinicaltrials.gov'],
   inputSchema: {
     type: 'object',
     properties: {

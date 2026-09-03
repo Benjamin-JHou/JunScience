@@ -134,6 +134,7 @@ export const UniProtTool: ToolDefinition<UniProtInput> = {
   description: 'Query canonical Swiss-Prot reviewed UniProt Knowledgebase entries (UniProtKB REST API) with multi-tier gene/alias resolution, functional domains, active sites, and disease associations.',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://rest.uniprot.org'],
   inputSchema: {
     type: 'object',
     properties: {

@@ -35,6 +35,7 @@ export const BioRxivTool: ToolDefinition<BioRxivInput> = {
   description: 'Search bioRxiv & medRxiv for preprints in clinical AI, digital health, epidemiology, bioinformatics, and computational medicine.',
   category: 'literature',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://api.biorxiv.org', 'https://www.ebi.ac.uk/europepmc'],
   inputSchema: {
     type: 'object',
     properties: {

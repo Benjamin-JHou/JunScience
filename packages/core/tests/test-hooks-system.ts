@@ -6,6 +6,8 @@ import {
   ScientificMockProvider,
   globalSessionManager,
   EvidenceTracker,
+  PermissionManager,
+  ToolRegistry,
 } from '../src/index.js';
 
 async function testHooksSystem() {
@@ -26,7 +28,40 @@ async function testHooksSystem() {
   if (!hookIds.includes('secret-redaction') || !hookIds.includes('evidence-verifier') || !hookIds.includes('clinical-data-gate') || !hookIds.includes('evidence-completeness-check')) {
     throw new Error(`Missing expected built-in hooks. Found: ${hookIds.join(', ')}`);
   }
+  if (globalHookRegistry.disableHook('secret-redaction') || globalHookRegistry.unregister('evidence-verifier')) {
+    throw new Error('Mandatory security hooks can be disabled or unregistered');
+  }
+  const exposedHook = globalHookRegistry.get('secret-redaction');
+  if (!exposedHook) throw new Error('Mandatory secret-redaction hook is unavailable');
+  exposedHook.enabled = false;
+  if (!globalHookRegistry.get('secret-redaction')?.enabled) {
+    throw new Error('HookRegistry exposed a mutable mandatory hook definition');
+  }
   console.log('  ✔ All 4 mandatory security and scientific hooks registered with correct event bindings.\n');
+
+  const permissionManager = new PermissionManager();
+  const trustedNetwork = await permissionManager.checkPermission(
+    'permission-test',
+    'NETWORK',
+    'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi',
+    'Query PubMed'
+  );
+  const spoofedNetwork = await permissionManager.checkPermission(
+    'permission-test',
+    'NETWORK',
+    'https://eutils.ncbi.nlm.nih.gov.attacker.example/steal',
+    'Spoof allowlisted host'
+  );
+  const unknownInstall = await permissionManager.checkPermission(
+    'permission-test',
+    'INSTALL',
+    'unknown-package',
+    'Install untrusted package'
+  );
+  if (!trustedNetwork || spoofedNetwork || unknownInstall) {
+    throw new Error('PermissionManager did not enforce exact allowlists and fail-closed prompts');
+  }
+  console.log('  ✔ Permission checks allow exact trusted origins and fail closed otherwise.\n');
 
   // [Test 2/5] PreToolUse Hook: Secret & Credential Redaction Guard
   console.log('[Test 2/5] PreToolUse Hook: Secret & Credential Redaction Guard');
@@ -72,6 +107,41 @@ async function testHooksSystem() {
     throw new Error('SecretRedactionHook leaked a repeated API key due to stateful RegExp.lastIndex');
   }
   console.log('  ✔ Repeated identical API key was blocked without stateful regex bypass.');
+
+  let bypassToolExecuted = false;
+  const isolatedRegistry = new ToolRegistry();
+  isolatedRegistry.register({
+    name: 'hook_bypass_probe',
+    description: 'Probe mandatory pre-tool hooks',
+    category: 'execution',
+    requiredPermission: 'READ',
+    inputSchema: { type: 'object' },
+    execute: async () => {
+      bypassToolExecuted = true;
+      return {
+        success: true,
+        output: 'unexpected',
+        execution: {
+          id: 'probe',
+          toolName: 'hook_bypass_probe',
+          category: 'execution',
+          description: 'Unexpected execution',
+          status: 'completed',
+          logs: [],
+        },
+      };
+    },
+  });
+  const bypassProbe = await isolatedRegistry.execute(
+    'hook_bypass_probe',
+    { token: 'sk-abcdefghijklmnopqrstuvwxyz123456' },
+    'hook-bypass-session',
+    'research'
+  );
+  if (bypassProbe.success || bypassToolExecuted) {
+    throw new Error('ToolRegistry allowed direct execution to bypass mandatory hooks');
+  }
+  console.log('  ✔ ToolRegistry enforces mandatory hooks for every execution path.');
 
   // Case C: ID Card leak in tool arguments -> Must be BLOCKED
   const idLeakRes = await globalHookRegistry.triggerPreToolUse(secretContext, {

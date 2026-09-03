@@ -31,14 +31,23 @@ export class PermissionManager {
         'https://eutils.ncbi.nlm.nih.gov',
         'https://rest.uniprot.org',
         'https://www.ebi.ac.uk/chembl',
+        'https://www.ebi.ac.uk/europepmc',
         'https://pubchem.ncbi.nlm.nih.gov',
         'https://data.rcsb.org',
+        'https://search.rcsb.org',
+        'https://alphafold.ebi.ac.uk',
         'https://rest.ensembl.org',
         'https://api.openalex.org',
+        'https://export.arxiv.org',
+        'https://api.biorxiv.org',
+        'https://paperswithcode.com',
+        'https://api.github.com',
+        'https://huggingface.co',
         'https://clinicaltrials.gov',
         'https://api.fda.gov',
         'https://rxnav.nlm.nih.gov',
         'https://dailymed.nlm.nih.gov',
+        'https://wsearch.nlm.nih.gov',
         'https://api.semanticscholar.org',
         'https://europepmc.org',
       ],
@@ -63,12 +72,12 @@ export class PermissionManager {
     const policy = this.policies.get(operation) || { defaultAction: 'ask' };
 
     // 1. Explicit denial checks
-    if (policy.deniedPrefixes?.some((prefix) => target.startsWith(prefix))) {
+    if (policy.deniedPrefixes?.some((prefix) => this.matchesTarget(target, prefix))) {
       return false;
     }
 
     // 2. Explicit whitelist checks
-    if (policy.allowedPrefixes?.some((prefix) => target.startsWith(prefix))) {
+    if (policy.allowedPrefixes?.some((prefix) => this.matchesTarget(target, prefix))) {
       return true;
     }
 
@@ -111,7 +120,35 @@ export class PermissionManager {
       return allowed;
     }
 
-    return true;
+    request.decision = 'deny';
+    this.pendingRequests.delete(requestId);
+    return false;
+  }
+
+  private matchesTarget(target: string, configuredPrefix: string): boolean {
+    if (configuredPrefix === 'http://') {
+      try {
+        return new URL(target).protocol === 'http:';
+      } catch {
+        return false;
+      }
+    }
+
+    if (/^https?:\/\//i.test(configuredPrefix)) {
+      try {
+        const targetUrl = new URL(target);
+        const allowedUrl = new URL(configuredPrefix);
+        if (targetUrl.protocol !== allowedUrl.protocol || targetUrl.hostname !== allowedUrl.hostname) {
+          return false;
+        }
+        const allowedPath = allowedUrl.pathname.replace(/\/+$/, '');
+        return !allowedPath || targetUrl.pathname === allowedPath || targetUrl.pathname.startsWith(`${allowedPath}/`);
+      } catch {
+        return false;
+      }
+    }
+
+    return target === configuredPrefix || target.startsWith(`${configuredPrefix}/`) || target.startsWith(`${configuredPrefix}\\`);
   }
 }
 

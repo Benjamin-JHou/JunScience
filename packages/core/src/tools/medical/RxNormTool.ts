@@ -38,6 +38,7 @@ export const RxNormTool: ToolDefinition<RxNormInput> = {
   description: 'Query NLM RxNorm / RxNav REST API for standardized clinical drug nomenclature, canonical RxCUI concept identifiers, active ingredients, and drug-drug interactions (DDIs).',
   category: 'databases',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://rxnav.nlm.nih.gov'],
   inputSchema: {
     type: 'object',
     properties: {

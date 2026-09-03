@@ -12,6 +12,7 @@ export const MedlinePlusTool: ToolDefinition<MedlinePlusInput> = {
   description: 'Query NIH / NLM MedlinePlus for trusted patient health education summaries, disease pathophysiology overviews, symptoms, causes, and patient guidance.',
   category: 'literature',
   requiredPermission: 'NETWORK',
+  permissionTargets: ['https://wsearch.nlm.nih.gov'],
   inputSchema: {
     type: 'object',
     properties: {
