@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { registerModelIpcHandlers } from './ipc/modelIpc.js';
 import { registerAgentIpcHandlers } from './ipc/agentIpc.js';
 import { registerSessionIpcHandlers } from './ipc/sessionIpc.js';
+import { resolveStaticAssetPath } from './staticAssetPath.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,11 +28,9 @@ function createInternalServer(distDir: string): Promise<number> {
 
   return new Promise((resolve) => {
     staticServer = http.createServer((req, res) => {
-      let reqPath = (req.url || '/').split('?')[0];
-      if (reqPath === '/') reqPath = '/index.html';
-      const filePath = path.join(distDir, reqPath);
+      const filePath = resolveStaticAssetPath(distDir, req.url || '/');
 
-      if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
         const ext = path.extname(filePath);
         res.writeHead(200, {
           'Content-Type': mimeTypes[ext] || 'application/octet-stream',
