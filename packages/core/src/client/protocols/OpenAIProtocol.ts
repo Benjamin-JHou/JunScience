@@ -170,7 +170,7 @@ export class OpenAIProtocol {
             state.toolCallsMap.set(index, {
               id: tc.id || `call_${Date.now()}_${index}`,
               name: tc.function?.name || '',
-              argsStr: '',
+              argsStr: tc.function?.arguments || '',
             });
           } else {
             const existing = state.toolCallsMap.get(index)!;

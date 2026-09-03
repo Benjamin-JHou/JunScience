@@ -280,6 +280,31 @@ async function runProtocolVerificationSuite() {
     throw new Error(`OpenAI tool message 2 formatting error: ${JSON.stringify(toolMsg2)}`);
   }
 
+  const streamedToolState = {
+    content: '',
+    toolCallsMap: new Map<number, { id: string; name: string; argsStr: string }>(),
+    finishReason: 'stop' as 'stop' | 'tool_calls' | 'length' | 'error',
+  };
+  const firstChunkArguments = JSON.stringify({ accessionOrGene: 'TYK2' });
+  OpenAIProtocol.processSseChunk(
+    JSON.stringify({
+      choices: [{
+        delta: {
+          tool_calls: [{
+            index: 0,
+            id: 'call_streamed_1',
+            function: { name: 'uniprot_lookup', arguments: firstChunkArguments },
+          }],
+        },
+      }],
+    }),
+    streamedToolState
+  );
+  if (streamedToolState.toolCallsMap.get(0)?.argsStr !== firstChunkArguments) {
+    throw new Error('OpenAI SSE parser discarded tool arguments carried by the first delta chunk');
+  }
+
+  console.log('  ✔ First SSE tool-call delta preserved its argument fragment.');
   console.log('  ✔ Assistant tool_calls correctly serialized with function.name and stringified arguments.');
   console.log('  ✔ Tool results strictly mapped to tool_call_id without orphan or mismatched calls.');
   console.log('  ✔ Strict OpenAI Schema Validation: 100% PASSED.\n');
