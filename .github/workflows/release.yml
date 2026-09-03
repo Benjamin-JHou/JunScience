@@ -47,9 +47,9 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
-            npx --yes electron-builder --mac -c packages/desktop/electron-builder.json --publish never
+            node node_modules/electron-builder/cli.js --mac --project packages/desktop -c electron-builder.json --publish never
           else
-            npx --yes electron-builder --win -c packages/desktop/electron-builder.json --publish never
+            node node_modules/electron-builder/cli.js --win --project packages/desktop -c electron-builder.json --publish never
           fi
         shell: bash
 

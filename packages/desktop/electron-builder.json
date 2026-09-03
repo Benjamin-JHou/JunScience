@@ -4,8 +4,7 @@
   "executableName": "junscience",
   "electronVersion": "28.3.3",
   "directories": {
-    "app": "packages/desktop",
-    "output": "packages/desktop/release"
+    "output": "release"
   },
   "publish": {
     "provider": "github",
