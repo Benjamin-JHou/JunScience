@@ -109,6 +109,34 @@ async function testHooksSystem() {
   }
   console.log(`  ✔ Local sandbox processing authorized without external privacy leakage.\n`);
 
+  let externalProviderCalls = 0;
+  const externalProvider = {
+    name: 'External Capture Provider',
+    isExternal: true,
+    listModels: async () => ['capture-model'],
+    generate: async () => {
+      externalProviderCalls++;
+      return { content: 'unexpected', finishReason: 'stop' as const };
+    },
+    stream: async () => {
+      externalProviderCalls++;
+      return { content: 'unexpected', finishReason: 'stop' as const };
+    },
+  };
+  const privacySession = globalSessionManager.createSession('Privacy Gate Test', 'demo-user');
+  const privacyEngine = new AutonomousResearchEngine({
+    modelProvider: externalProvider,
+    maxTurns: 1,
+  });
+  const privacyTurn = await privacyEngine.run(
+    privacySession,
+    'Patient name: John Doe; MRN: 123456. Patient presented with chest pain and was admitted yesterday.'
+  );
+  if (externalProviderCalls !== 0 || privacyTurn.status !== 'cancelled') {
+    throw new Error('Raw clinical inquiry reached the external model provider before authorization');
+  }
+  console.log('  ✔ Raw clinical inquiry blocked before the external model provider was called.\n');
+
   // [Test 4/5] PostToolUse Hook: Evidence Verifier Boundary & Anomaly Gate
   console.log('[Test 4/5] PostToolUse Hook: Evidence Verifier Boundary & Anomaly Gate');
   const postContext: HookContext = {

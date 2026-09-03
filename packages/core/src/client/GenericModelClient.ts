@@ -5,6 +5,7 @@ import { AnthropicProtocol } from './protocols/AnthropicProtocol.js';
 
 export class GenericModelClient implements ModelProvider {
   public name: string;
+  public readonly isExternal = true;
   private profile: ModelProfile;
 
   constructor(profile: ModelProfile) {

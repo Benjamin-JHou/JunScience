@@ -233,6 +233,35 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
         tools: toolDefinitions,
       };
 
+      // Raw clinical content and secrets must be intercepted before an external
+      // provider receives the request. Tool-time checks are already too late.
+      const outboundHookRes = await this.hookRegistry.triggerPreToolUse(
+        { ...hookContext, event: 'PreToolUse' },
+        {
+          toolName: 'model_provider_request',
+          toolArguments: { messages: modelRequest.messages },
+          isExternalApi: this.modelProvider.isExternal !== false,
+        }
+      );
+
+      if (!outboundHookRes.proceed) {
+        const blockedMessage = outboundHookRes.message || 'External model request blocked by privacy gate.';
+        this.planTracker.failTask(sessionId, 'task-1', blockedMessage);
+        const blockedTurn: Turn = {
+          index: turnIndex,
+          userInput: userInquiry,
+          toolCalls: accumulatedToolCalls,
+          toolResults: accumulatedToolResults,
+          agentResponse: blockedMessage,
+          status: 'cancelled',
+          startedAt: new Date().toISOString(),
+          completedAt: new Date().toISOString(),
+        };
+        this.sessionManager.addTurn(sessionId, blockedTurn);
+        this.sessionManager.updateSessionStatus(sessionId, 'cancelled');
+        return blockedTurn;
+      }
+
       let response;
       if (onDelta) {
         response = await this.modelProvider.stream(modelRequest, onDelta);

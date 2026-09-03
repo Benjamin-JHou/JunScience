@@ -1,5 +1,9 @@
 import { HookDefinition, HookContext, PreToolUsePayload, HookResult } from '../types.js';
-import { ClinicalDataGate, globalClinicalDataGate } from '../../privacy/ClinicalDataGate.js';
+import {
+  ClinicalDataGate,
+  containsLikelyRawClinicalData,
+  globalClinicalDataGate,
+} from '../../privacy/ClinicalDataGate.js';
 
 export class ClinicalDataGateHook {
   private gate: ClinicalDataGate;
@@ -18,6 +22,28 @@ export class ClinicalDataGateHook {
       enabled: true,
       handler: async (context: HookContext, payload: PreToolUsePayload): Promise<HookResult> => {
         const { toolName, toolArguments, isExternalApi } = payload;
+
+        if (toolName === 'model_provider_request' && isExternalApi) {
+          const outboundPayload = JSON.stringify(toolArguments?.messages || toolArguments || {});
+          if (containsLikelyRawClinicalData(outboundPayload)) {
+            const decision = await this.gate.requestTransmission(
+              'clinical_text',
+              'model_provider_request',
+              `Transmission of likely raw clinical content (${outboundPayload.length} chars) to external model endpoint`,
+              outboundPayload.length,
+              'external_model_provider',
+              false
+            );
+
+            if (!decision.approved) {
+              return {
+                proceed: false,
+                verdict: 'BLOCKED',
+                message: `[ClinicalDataGate BLOCKED]: ${decision.reason}`,
+              };
+            }
+          }
+        }
 
         // Check if invoking clinical tools with raw sensitive content
         if (toolName === 'clinical_nlp_analyze') {

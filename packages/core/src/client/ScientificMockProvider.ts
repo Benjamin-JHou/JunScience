@@ -3,6 +3,7 @@ import { ModelRequest, ModelResponse, ConnectionTestResult } from '../types/mode
 
 export class ScientificMockProvider implements ModelProvider {
   public name = 'Demo Mode (Mock)';
+  public readonly isExternal = false;
 
   public async listModels(): Promise<string[]> {
     return ['JunScience-Research-v1 (Demo Mock)'];

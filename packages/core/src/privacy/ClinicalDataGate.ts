@@ -11,6 +11,30 @@ export interface TransmissionRequest {
 
 export type ConfirmationHandler = (request: TransmissionRequest) => Promise<boolean>;
 
+/**
+ * Conservative detector for raw clinical narratives and direct patient identifiers.
+ * General biomedical questions should not match this function.
+ */
+export function containsLikelyRawClinicalData(text: string): boolean {
+  if (text.trim().length < 20) return false;
+
+  const directIdentifier =
+    /\b(?:MRN|medical record number|patient id|patient name|date of birth|DOB|SSN)\s*[:#-]?\s*[A-Za-z0-9-]+/i;
+  const clinicalDocument =
+    /\b(?:clinical note|progress note|discharge summary|history of present illness|electronic health record|EHR)\b/i;
+  const patientNarrative =
+    /\bpatient\b[\s\S]{0,160}\b(?:presented|admitted|diagnosed|treated|reports|denies|prescribed|discharged)\b/i;
+  const chineseClinicalNarrative =
+    /患者[\s\S]{0,120}(?:姓名|病历|病案号|住院号|身份证|主诉|入院|诊断|治疗|出院)/;
+
+  return (
+    directIdentifier.test(text) ||
+    clinicalDocument.test(text) ||
+    patientNarrative.test(text) ||
+    chineseClinicalNarrative.test(text)
+  );
+}
+
 export class ClinicalDataGate {
   private customHandler?: ConfirmationHandler;
   private auditLog: { request: TransmissionRequest; approved: boolean }[] = [];
