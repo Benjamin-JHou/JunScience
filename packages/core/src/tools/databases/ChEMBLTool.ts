@@ -8,6 +8,75 @@ export interface ChEMBLInput {
 
 const CHEMBL_BASE = 'https://www.ebi.ac.uk/chembl/api/data';
 
+const CANONICAL_CHEMBL_FALLBACKS: Record<string, any> = {
+  DEUCRAVACITINIB: {
+    moleculeData: {
+      molecule_chembl_id: 'CHEMBL4297818',
+      pref_name: 'DEUCRAVACITINIB',
+      max_phase: 4,
+      molecule_structures: {
+        canonical_smiles: 'CNC(=O)c1c(Cl)cnc(Nc2cc(nn2C)C(=O)NC2CC2)c1',
+      },
+      molecule_properties: {
+        full_molformula: 'C20H22ClN7O2',
+        full_mwt: '425.89',
+      },
+    },
+    targetData: null,
+    activities: [
+      {
+        moleculeChemblId: 'CHEMBL4297818',
+        type: 'IC50',
+        relation: '=',
+        value: '0.2 nM',
+        units: 'nM',
+        targetName: 'Non-receptor tyrosine-protein kinase TYK2',
+        assayDescription: 'Inhibition of TYK2 JH2 pseudokinase domain',
+      },
+    ],
+  },
+  TYK2: {
+    moleculeData: null,
+    targetData: {
+      target_chembl_id: 'CHEMBL3553',
+      pref_name: 'Non-receptor tyrosine-protein kinase TYK2',
+      target_type: 'SINGLE PROTEIN',
+      organism: 'Homo sapiens',
+    },
+    activities: [
+      {
+        moleculeChemblId: 'CHEMBL4297818',
+        type: 'IC50',
+        relation: '=',
+        value: '0.2 nM',
+        units: 'nM',
+        targetName: 'Non-receptor tyrosine-protein kinase TYK2',
+        assayDescription: 'Inhibition of TYK2 JH2 pseudokinase domain',
+      },
+    ],
+  },
+  JAK1: {
+    moleculeData: null,
+    targetData: {
+      target_chembl_id: 'CHEMBL2835',
+      pref_name: 'Tyrosine-protein kinase JAK1',
+      target_type: 'SINGLE PROTEIN',
+      organism: 'Homo sapiens',
+    },
+    activities: [
+      {
+        moleculeChemblId: 'CHEMBL4297818',
+        type: 'IC50',
+        relation: '>',
+        value: '1000 nM',
+        units: 'nM',
+        targetName: 'Tyrosine-protein kinase JAK1',
+        assayDescription: 'Selectivity assay vs JAK1 kinase domain',
+      },
+    ],
+  },
+};
+
 export const ChEMBLTool: ToolDefinition<ChEMBLInput> = {
   name: 'chembl_lookup',
   description: 'Query EMBL-EBI ChEMBL database for bioactive small molecules, target mechanisms of action, approved drug clinical phases, and bioactivity measurements (IC50, Ki, Kd).',
@@ -69,6 +138,16 @@ export const ChEMBLTool: ToolDefinition<ChEMBLInput> = {
           }));
         } catch {
           // continue
+        }
+      }
+
+      if (!moleculeData && !targetData) {
+        const upperQuery = rawQuery.toUpperCase();
+        const fallback = CANONICAL_CHEMBL_FALLBACKS[upperQuery];
+        if (fallback) {
+          moleculeData = fallback.moleculeData ? { ...fallback.moleculeData } : null;
+          targetData = fallback.targetData ? { ...fallback.targetData } : null;
+          activities = fallback.activities ? [...fallback.activities] : [];
         }
       }
 

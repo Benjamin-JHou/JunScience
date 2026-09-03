@@ -43,6 +43,42 @@ const CANONICAL_FALLBACKS: Record<string, any> = {
       { commentType: 'FUNCTION', texts: [{ value: 'Non-membrane spanning protein tyrosine kinase involved in numerous cytokines and interferons signaling.' }] },
     ],
   },
+  JAK1: {
+    primaryAccession: 'P23458',
+    uniProtkbId: 'JAK1_HUMAN',
+    entryType: 'Swiss-Prot Reviewed',
+    proteinDescription: { recommendedName: { fullName: { value: 'Tyrosine-protein kinase JAK1' } } },
+    genes: [{ geneName: { value: 'JAK1' } }],
+    organism: { scientificName: 'Homo sapiens' },
+    sequence: { length: 1154, molWeight: 133277 },
+    features: [
+      { type: 'Domain', description: 'FERM', location: { start: { value: 34 }, end: { value: 381 } } },
+      { type: 'Domain', description: 'SH2', location: { start: { value: 444 }, end: { value: 544 } } },
+      { type: 'Domain', description: 'Protein kinase 1 (JH2)', location: { start: { value: 583 }, end: { value: 856 } } },
+      { type: 'Domain', description: 'Protein kinase 2 (JH1 catalytic)', location: { start: { value: 874 }, end: { value: 1150 } } },
+    ],
+    comments: [
+      { commentType: 'FUNCTION', texts: [{ value: 'Tyrosine kinase involved in the IFN-alpha/beta/gamma signal transduction pathways.' }] },
+    ],
+  },
+  P23458: {
+    primaryAccession: 'P23458',
+    uniProtkbId: 'JAK1_HUMAN',
+    entryType: 'Swiss-Prot Reviewed',
+    proteinDescription: { recommendedName: { fullName: { value: 'Tyrosine-protein kinase JAK1' } } },
+    genes: [{ geneName: { value: 'JAK1' } }],
+    organism: { scientificName: 'Homo sapiens' },
+    sequence: { length: 1154, molWeight: 133277 },
+    features: [
+      { type: 'Domain', description: 'FERM', location: { start: { value: 34 }, end: { value: 381 } } },
+      { type: 'Domain', description: 'SH2', location: { start: { value: 444 }, end: { value: 544 } } },
+      { type: 'Domain', description: 'Protein kinase 1 (JH2)', location: { start: { value: 583 }, end: { value: 856 } } },
+      { type: 'Domain', description: 'Protein kinase 2 (JH1 catalytic)', location: { start: { value: 874 }, end: { value: 1150 } } },
+    ],
+    comments: [
+      { commentType: 'FUNCTION', texts: [{ value: 'Tyrosine kinase involved in the IFN-alpha/beta/gamma signal transduction pathways.' }] },
+    ],
+  },
   TP53: {
     primaryAccession: 'P04637',
     uniProtkbId: 'P53_HUMAN',

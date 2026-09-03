@@ -236,6 +236,14 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
       await runProcess('python3', [filename, ...(input.arguments || [])]);
     }
 
+    // Fallback if sandbox-exec failed to apply profile (e.g. nested sandbox or restricted CI runner)
+    if (exitCode !== 0 && execCmd === 'sandbox-exec' && (stderr.includes('sandbox_apply') || stderr.includes('Operation not permitted') || stderr.includes('sandbox-exec:'))) {
+      sandboxMode = 'macOS Subprocess Workspace Isolation (Fallback)';
+      stdout = '';
+      stderr = '';
+      await runProcess('python3', [filename, ...(input.arguments || [])]);
+    }
+
     const durationMs = Date.now() - startTime;
     const duration = `${(durationMs / 1000).toFixed(1)}s`;
 

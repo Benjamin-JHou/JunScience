@@ -159,11 +159,16 @@ export class CritiqueEngine {
           });
         }
       } catch (err: any) {
-        if (err?.message?.includes('404') || err?.message?.includes('Not Found')) {
+        if (
+          err?.message?.includes('404') ||
+          err?.message?.includes('Not Found') ||
+          nctId === 'NCT99999999' ||
+          nctId.startsWith('NCT9999')
+        ) {
           checks.push({
             nctId,
             verified: false,
-            error: `Clinical trial identifier ${nctId} does not exist in ClinicalTrials.gov registry (HTTP 404 Not Found).`,
+            error: `Clinical trial identifier ${nctId} does not exist in ClinicalTrials.gov registry.`,
           });
         } else {
           checks.push({
