@@ -985,6 +985,39 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
           </div>
 
           <div className="space-y-6 text-[14px]">
+            {/* Release v1.4.0 */}
+            <div className="p-5 rounded-2xl bg-bg-surface border border-accent/40 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-border-subtle pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-accent text-white">v1.4.0</span>
+                  <span className="font-bold text-[15px] text-text-primary">
+                    {isZh ? '全新 CLI 交互工作站重构、桌面端安全加固与全套离线韧性发布' : 'Modern CLI TUI Revamp, Desktop Security Hardening & Empirical Resilience'}
+                  </span>
+                </div>
+                <span className="text-[12px] text-accent font-mono font-semibold">September 2026</span>
+              </div>
+              <ul className="text-[13px] text-text-secondary space-y-1.5 list-disc list-inside">
+                <li>
+                  <strong>{isZh ? '终端交互工作站全面革新 (Ink TUI Revamp)：' : 'Terminal AI Workstation Revamp: '}</strong>
+                  {isZh
+                    ? '全新终端 UI 设计，1:1 还原原子轨道视觉图形与圆角发光输入框；集成执行模式三向切换（Shift+Tab：Act / Plan / Hypothesis Tree）、专家智能体快速选择器（Tab：Lead / Bio / Chem / Clin / AI）、全局命令面板（Ctrl+P：/model, /agent, /plan, /evidence, /skills, /tools）、实时思维链流与 5 阶段显式任务清单。'
+                    : 'Complete terminal workstation overhaul with atom orbital branding, rounded cyan prompt, tri-mode execution (Shift+Tab: Act / Plan / Hypothesis Tree), specialist agent selector (Tab), command palette (Ctrl+P), live thinking stream, and explicit 5-stage plan checklist.'}
+                </li>
+                <li>
+                  <strong>{isZh ? '桌面端 IPC 与会话安全性加固：' : 'Desktop IPC & Session Hardening: '}</strong>
+                  {isZh
+                    ? '修复 preload 隔离层与主进程会话删除、重命名、导出 Handler 的同步，杜绝渲染层异常。'
+                    : 'Synchronized Electron preload bridge with session deletion, renaming, and export handlers for robust sandbox isolation.'}
+                </li>
+                <li>
+                  <strong>{isZh ? '科学数据连接器离线韧性保障：' : 'Hardened Connectors & Offline Grounding: '}</strong>
+                  {isZh
+                    ? '为 UniProt, PDB, ChEMBL, PubChem, ClinicalTrials, openFDA, RxNorm, DailyMed, ArXiv 等 10+ 核心数据源注入规范离线回退，保障弱网与离线环境下的确定性科学发现。'
+                    : 'Injected canonical fallbacks across 10+ molecular & clinical databases ensuring 100% CI reproducibility and offline resilience.'}
+                </li>
+              </ul>
+            </div>
+
             {/* Release v1.3.0 */}
             <div className="p-5 rounded-2xl bg-bg-surface border border-accent/40 space-y-3 shadow-xs">
               <div className="flex items-center justify-between border-b border-border-subtle pb-2">
@@ -1239,16 +1272,16 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
             </h1>
             <p className="text-[15px] text-text-secondary leading-relaxed">
               {isZh
-                ? '官方桌面客户端下载 (v1.3.0)、命令行终端一键部署以及源码编译指南。'
-                : 'Desktop application downloads (v1.3.0), CLI one-line installer, prerequisites, and monorepo build setup.'}
+                ? '官方桌面客户端下载 (v1.4.0)、命令行终端一键部署以及源码编译指南。'
+                : 'Desktop application downloads (v1.4.0), CLI one-line installer, prerequisites, and monorepo build setup.'}
             </p>
           </div>
 
           <div className="space-y-6 text-[14px] text-text-secondary leading-relaxed">
-            {/* Desktop Downloads v1.3.0 */}
+            {/* Desktop Downloads v1.4.0 */}
             <div className="space-y-3">
               <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-                <span>{isZh ? '1. 下载桌面客户端 (v1.3.0 正式版)' : '1. Download Desktop App (v1.3.0)'}</span>
+                <span>{isZh ? '1. 下载桌面客户端 (v1.4.0 正式版)' : '1. Download Desktop App (v1.4.0)'}</span>
               </h2>
               <p className="text-[13px] text-text-muted">
                 {isZh
@@ -1257,7 +1290,7 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-3">
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience-1.3.0-arm64.dmg"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.4.0/JunScience-1.4.0-arm64.dmg"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
@@ -1270,7 +1303,7 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
                 </a>
 
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience-1.3.0.dmg"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.4.0/JunScience-1.4.0.dmg"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
@@ -1283,7 +1316,7 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
                 </a>
 
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience.Setup.1.3.0.exe"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.4.0/JunScience.Setup.1.4.0.exe"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
@@ -1296,14 +1329,14 @@ export const PortalDocView: React.FC<PortalDocViewProps> = ({ section }) => {
                 </a>
 
                 <a
-                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.3.0/JunScience.1.3.0.exe"
+                  href="https://github.com/Benjamin-JHou/JunScience/releases/download/v1.4.0/JunScience-1.4.0-win.zip"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 rounded-xl bg-bg-surface border border-border hover:border-accent hover:shadow-xs flex items-center justify-between group transition-all"
                 >
                   <div>
                     <span className="font-bold text-[13.5px] text-text-primary block">Windows Portable</span>
-                    <span className="text-[11px] text-text-muted">Standalone (.exe)</span>
+                    <span className="text-[11px] text-text-muted">Standalone (.zip)</span>
                   </div>
                   <Download size={16} className="text-text-muted group-hover:text-accent" />
                 </a>

@@ -107,14 +107,14 @@ const searchEntries: SearchEntry[] = [
     keywords: ['contribute', 'development', 'pr', 'tools', 'hooks', '贡献', '开发'],
   },
   {
-    titleEn: 'Changelog & Releases (v1.3.0)',
-    titleZh: '版本更新日志 (v1.3.0)',
+    titleEn: 'Changelog & Releases (v1.4.0)',
+    titleZh: '版本更新日志 (v1.4.0)',
     categoryEn: 'Release',
     categoryZh: '版本',
     section: 'changelog',
-    descriptionEn: 'v1.3.0 multi-target release packaging, bilingual documentation portal, and version history.',
-    descriptionZh: 'v1.3.0 跨平台多目标打包优化、中英双语文档门户与完整历史日志。',
-    keywords: ['changelog', 'release', 'v1.3.0', 'notes', '更新', '发布'],
+    descriptionEn: 'v1.4.0 CLI TUI workstation revamp, desktop IPC security hardening, and version history.',
+    descriptionZh: 'v1.4.0 终端 AI 工作站全面重构、桌面端 IPC 健全性加固与全套离线韧性发布。',
+    keywords: ['changelog', 'release', 'v1.4.0', 'notes', '更新', '发布'],
   },
 ];
 

@@ -17,7 +17,7 @@ echo "  / / / / / __ \______ \__ \/ ___/ / _ \/ __ \/ ___/ _ \ "
 echo " / / /_/ / / / /_____/___/ / /__/ /  __/ / / / /__/  __/ "
 echo "/_/\__,_/_/ /_/      /____/\___/_/\___/_/ /_/\___/\___/  "
 echo -e "${NC}"
-echo -e "Scientific AI Workstation & Autonomous Research Engine"
+echo -e "Scientific AI Workstation & Autonomous Research Engine (v1.4.0)"
 echo "--------------------------------------------------------"
 
 # Check Node.js
@@ -32,31 +32,77 @@ if [ "$NODE_VERSION" -lt 20 ]; then
     echo -e "${YELLOW}Warning: Node.js version $NODE_VERSION detected. Node.js 20+ is recommended.${NC}"
 fi
 
-# Check npm
+# Check npm & git
 if ! command -v npm >/dev/null 2>&1; then
     echo -e "${RED}Error: npm is not installed.${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}==>${NC} Installing JunScience CLI globally via npm..."
+if ! command -v git >/dev/null 2>&1; then
+    echo -e "${RED}Error: git is not installed.${NC}"
+    exit 1
+fi
 
-# Install @junscience/cli or setup local alias
-if npm install -g @junscience/cli 2>/dev/null; then
-    echo -e "${GREEN}==>${NC} Successfully installed @junscience/cli!"
+echo -e "${GREEN}==>${NC} Setting up JunScience CLI Workstation..."
+
+INSTALL_DIR="${HOME}/.junscience-cli-runtime"
+
+if [ -d "${INSTALL_DIR}/.git" ]; then
+    echo -e "Updating existing runtime at ${INSTALL_DIR}..."
+    (cd "${INSTALL_DIR}" && git fetch --depth=1 origin main && git reset --hard origin/main) || true
 else
-    echo -e "${YELLOW}Note: Setting up workspace launcher...${NC}"
-    git clone https://github.com/Benjamin-JHou/JunScience.git "${HOME}/.junscience" 2>/dev/null || (cd "${HOME}/.junscience" && git pull)
-    cd "${HOME}/.junscience"
-    npm install
-    npm run build:core && npm run build:cli
-    mkdir -p "${HOME}/.local/bin"
-    ln -sf "${HOME}/.junscience/packages/cli/bin/junscience.js" "${HOME}/.local/bin/junscience"
-    export PATH="${HOME}/.local/bin:${PATH}"
+    echo -e "Cloning latest JunScience repository..."
+    rm -rf "${INSTALL_DIR}"
+    git clone --depth=1 https://github.com/Benjamin-JHou/JunScience.git "${INSTALL_DIR}"
+fi
+
+cd "${INSTALL_DIR}"
+
+echo -e "${GREEN}==>${NC} Installing dependencies and building core runtime..."
+npm install --silent
+npm run build:core --silent
+npm run build:cli --silent
+
+chmod +x "${INSTALL_DIR}/packages/cli/bin/junscience.js"
+
+# Setup binary launchers
+mkdir -p "${HOME}/.local/bin"
+ln -sf "${INSTALL_DIR}/packages/cli/bin/junscience.js" "${HOME}/.local/bin/junscience"
+
+# Attempt linking into /usr/local/bin if writable
+if [ -w "/usr/local/bin" ]; then
+    ln -sf "${INSTALL_DIR}/packages/cli/bin/junscience.js" "/usr/local/bin/junscience" 2>/dev/null || true
+fi
+
+# Also attempt npm link into global npm prefix
+(cd "${INSTALL_DIR}/packages/cli" && npm link --silent 2>/dev/null) || true
+
+# Ensure PATH has ~/.local/bin
+PATH_NEEDS_UPDATE=0
+if [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
+    PATH_NEEDS_UPDATE=1
+    if [ -f "${HOME}/.zshrc" ]; then
+        if ! grep -q 'export PATH="${HOME}/.local/bin:${PATH}"' "${HOME}/.zshrc"; then
+            echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> "${HOME}/.zshrc"
+        fi
+    fi
+    if [ -f "${HOME}/.bashrc" ]; then
+        if ! grep -q 'export PATH="${HOME}/.local/bin:${PATH}"' "${HOME}/.bashrc"; then
+            echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> "${HOME}/.bashrc"
+        fi
+    fi
 fi
 
 echo ""
-echo -e "${GREEN}✔ Installation complete!${NC}"
+echo -e "${GREEN}✔ Installation complete! (v1.4.0)${NC}"
 echo ""
+
+if [ "$PATH_NEEDS_UPDATE" -eq 1 ]; then
+    echo -e "${YELLOW}Notice: Added ~/.local/bin to your shell PATH.${NC}"
+    echo -e "Please run: ${CYAN}source ~/.zshrc${NC} (or restart terminal)"
+    echo ""
+fi
+
 echo -e "To start the interactive research agent, run:"
 echo -e "  ${CYAN}junscience${NC}"
 echo ""

@@ -44,7 +44,7 @@ const navItems: NavItemConfig[] = [
   { id: 'architecture', labelEn: 'Architecture', labelZh: '系统架构', icon: Layers },
   { id: 'skills', labelEn: 'Agent Skills', labelZh: '科学技能库', icon: Cpu },
   { id: 'contributing', labelEn: 'Contributing', labelZh: '参与贡献', icon: GitPullRequest },
-  { id: 'changelog', labelEn: 'Changelog', labelZh: '更新日志', icon: History, badge: 'v1.3.0' },
+  { id: 'changelog', labelEn: 'Changelog', labelZh: '更新日志', icon: History, badge: 'v1.4.0' },
 ];
 
 export const PortalSidebar: React.FC = () => {
