@@ -39,31 +39,32 @@ export function Banner({
 
   return (
     <Box flexDirection="column" marginY={1}>
-      {/* 1. ATOMIC ORBITAL ICON & JUNSCIENCE TITLE */}
+      {/* 1. ATOMIC QUANTUM ORBITAL & CLEAN JUNSCIENCE TITLE */}
       <Box flexDirection="row" alignItems="center">
-        {/* Orbital Atom Icon */}
-        <Box flexDirection="column" marginRight={3}>
-          <Text color="cyan">    ⢀⣀⣤⠤⠶⠶⠤⣤⣀⡀   </Text>
-          <Text color="cyan"> ⢀⡴⠋  ⢀⣠⠤⣄⡀  ⠉⠲⣄ </Text>
-          <Text color="cyan">⡴⠁  ⢀⡴⠋    ⠉⠲⣄   ⠈⢧</Text>
-          <Text color="cyan">⣸⠁  ⢠⠏   <Text color="cyanBright" bold>▟███</Text>   ⠈⢧   ⠈⣇</Text>
-          <Text color="cyan">⣿    ⡿     <Text color="cyanBright" bold>██</Text>     ⢿    ⣿</Text>
-          <Text color="cyan">⢹⡀  ⠸⣄   <Text color="cyanBright" bold>████</Text>   ⢀⡟   ⢀⡏</Text>
-          <Text color="cyan"> ⠹⣄   ⠉⠲⣄⡀⢀⣠⠴⠊   ⣠⠏ </Text>
-          <Text color="cyan">  ⠈⠳⣤⣀  ⠈⠉⠉  ⣀⣤⠖⠋  </Text>
-          <Text color="cyan">      ⠉⠉⠛⠒⠒⠛⠉⠉     </Text>
+        {/* Quantum Orbital Science Icon */}
+        <Box flexDirection="column" marginRight={2}>
+          <Text color="cyan">      ╷ ╭─╮ ╷      </Text>
+          <Text color="cyan">    ╭─┴─╯ │ ╰─┴─╮  </Text>
+          <Text color="cyan">   ╭╯  ╲  │  ╱  ╰╮ </Text>
+          <Text color="cyan">  ──<Text color="yellow">●</Text>───<Text color="white">[ </Text><Text color="cyanBright" bold>J</Text><Text color="white"> ]</Text>───<Text color="yellow">●</Text>──</Text>
+          <Text color="cyan">   ╰╮  ╱  │  ╲  ╭╯ </Text>
+          <Text color="cyan">    ╰─┬─╮ │ ╭─┬─╯  </Text>
+          <Text color="cyan">      ╵ ╰─╯ ╵      </Text>
         </Box>
 
-        {/* Title & Subtitle */}
+        {/* Crisp Unambiguous Typography */}
         <Box flexDirection="column">
           <Text color="cyanBright" bold>
-            ╦╦ ╦╔╗╔╔═╗╔═╗╦╔═╗╔╗╔╔═╗╔═╗
+            {'  █ █ █ █▄ █  ███  ███ █ ███ █▄ █ ███ ███'}
           </Text>
           <Text color="cyanBright" bold>
-            ║║ ║║║║╚═╗║  ║║╣ ║║║║  ║╣ 
+            {'  █ █ █ █ ▀█  █▄▄ █    █ █▄▄ █ ▀█ █   █▄▄'}
           </Text>
           <Text color="cyanBright" bold>
-            ╚╩═╝╝╚╝╚═╝╚═╝╩╚═╝╝╚╝╚═╝╚═╝
+            {'█ █ █ █ █  █    █ █    █ █   █  █ █   █  '}
+          </Text>
+          <Text color="cyanBright" bold>
+            {'▀█▀ ▀█▀ ▀  ▀  ███  ███ ▀ ███ ▀  ▀ ███ ███'}
           </Text>
           <Box marginTop={1}>
             <Text color="white" bold>
