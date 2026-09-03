@@ -79,6 +79,17 @@ except Exception as e:
     throw new Error(`Sandbox [${validRes.output.sandboxMode}] failed to restrict filesystem write boundary`);
   }
 
+  // Test 4: Script filename must not escape before the sandbox process starts
+  console.log('\n[Test 4/4] Script Filename Path Traversal Rejection');
+  const traversalRes = await PythonRunnerTool.execute(
+    { scriptContent: 'print("should not run")', scriptName: '../../../escape.py' },
+    dummyContext
+  );
+  if (traversalRes.success || !traversalRes.error?.includes('scriptName must be a plain filename')) {
+    throw new Error(`PythonRunnerTool accepted a path-traversing scriptName: ${JSON.stringify(traversalRes)}`);
+  }
+  console.log('  ✔ Path-traversing scriptName rejected before any host file write.');
+
   console.log('\n✔ ALL PYTHON SANDBOX SECURITY TESTS PASSED (100% SUCCESS)\n');
 }
 

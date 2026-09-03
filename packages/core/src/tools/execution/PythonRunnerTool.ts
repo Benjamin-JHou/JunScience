@@ -93,6 +93,23 @@ export const PythonRunnerTool: ToolDefinition<PythonRunnerInput> = {
   },
   async execute(input: PythonRunnerInput, context: ToolContext): Promise<ToolExecutionResult> {
     const filename = input.scriptName || 'analysis.py';
+    if (
+      filename === '.' ||
+      filename === '..' ||
+      path.isAbsolute(filename) ||
+      filename.includes('/') ||
+      filename.includes('\\') ||
+      filename.includes('\0') ||
+      path.basename(filename) !== filename
+    ) {
+      const errorMsg = '[SecurityError]: scriptName must be a plain filename inside the allocated sandbox workspace.';
+      return {
+        success: false,
+        error: errorMsg,
+        output: null,
+        execution: makeExecution('python_runner', false, errorMsg, 0),
+      };
+    }
     const workspaceRoot = resolveWorkspaceRoot();
     let sessionDir = path.join(workspaceRoot, 'workspace', context.sessionId || 'default', `run-${Date.now()}`);
     const homeDir = os.homedir();
