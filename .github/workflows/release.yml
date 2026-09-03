@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-release:
     name: Build Desktop Release (${{ matrix.os }})
@@ -40,14 +43,13 @@ jobs:
 
       - name: Build Desktop Binaries (macOS DMG / Windows EXE)
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
-          cd packages/desktop
-          npm run build
           if [ "${{ runner.os }}" = "macOS" ]; then
-            node ../../node_modules/electron-builder/cli.js --mac --publish never
+            npx --yes electron-builder --mac -c packages/desktop/electron-builder.json --publish never
           else
-            node ../../node_modules/electron-builder/cli.js --win nsis zip --publish never || node ../../node_modules/electron-builder/cli.js --win zip --publish never
+            npx --yes electron-builder --win nsis zip -c packages/desktop/electron-builder.json --publish never || npx --yes electron-builder --win zip -c packages/desktop/electron-builder.json --publish never
           fi
         shell: bash
 
@@ -56,6 +58,10 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ github.ref_name }}
+          name: JunScience Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
           fail_on_unmatched_files: false
           files: |
             packages/desktop/release/*.dmg
