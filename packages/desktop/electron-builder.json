@@ -3,6 +3,9 @@
   "productName": "JunScience",
   "executableName": "junscience",
   "electronVersion": "28.3.3",
+  "npmRebuild": false,
+  "nodeGypRebuild": false,
+  "beforeBuild": "./scripts/beforeBuild.cjs",
   "directories": {
     "output": "release"
   },

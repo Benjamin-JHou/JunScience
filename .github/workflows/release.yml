@@ -47,9 +47,10 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           if [ "${{ runner.os }}" = "macOS" ]; then
-            node node_modules/electron-builder/cli.js --mac --project packages/desktop -c electron-builder.json --publish never
+            chmod -R +x node_modules/7zip-bin/mac/ 2>/dev/null || true
+            node node_modules/electron-builder/cli.js --mac --project packages/desktop -c electron-builder.json --config.npmRebuild=false --publish never
           else
-            node node_modules/electron-builder/cli.js --win --project packages/desktop -c electron-builder.json --publish never
+            node node_modules/electron-builder/cli.js --win --project packages/desktop -c electron-builder.json --config.npmRebuild=false --publish never
           fi
         shell: bash
 
