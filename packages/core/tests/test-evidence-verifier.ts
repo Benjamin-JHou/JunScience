@@ -37,6 +37,27 @@ async function testEvidenceVerifier() {
     throw new Error(`Expected REJECTED for p=1.35 & IC50=-4.2, got ${invalidRes.verdict}`);
   }
 
+  const rejectedTracker = new EvidenceTracker();
+  let rejectedRecordBlocked = false;
+  try {
+    rejectedTracker.record(
+      'python_runner',
+      'computation',
+      'bad stats',
+      'Invalid calculation',
+      invalidPValueOutput,
+      undefined,
+      undefined,
+      invalidRes
+    );
+  } catch {
+    rejectedRecordBlocked = true;
+  }
+  if (!rejectedRecordBlocked || rejectedTracker.count() !== 0) {
+    throw new Error('EvidenceTracker admitted a verifier-rejected record');
+  }
+  console.log('  ✔ EvidenceTracker refused to persist rejected evidence.');
+
   // Test 3: Computational Anomalies: NaN / Division by Zero (Rejected)
   console.log('\n[Test 3/4] Computational Anomaly: NaN / ZeroDivision (REJECTED)');
   const nanOutput = {

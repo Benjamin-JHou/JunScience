@@ -340,6 +340,18 @@ ${skillInjectionPrompt ? `\n${skillInjectionPrompt}` : ''}`;
           };
           accumulatedToolResults.push(toolResult);
 
+          if (!result.success) {
+            const failureMessage = result.error || result.execution?.resultSummary || 'Tool execution failed';
+            this.planTracker.failTask(sessionId, activeTaskId, failureMessage);
+            messages.push({
+              role: 'tool',
+              name: call.name,
+              content: `[Tool Execution Failed]: ${failureMessage}`,
+              toolCallId: call.id,
+            });
+            continue;
+          }
+
           // Trigger PostToolUse Hooks (Evidence Verifier Gate)
           const postHookRes = await this.hookRegistry.triggerPostToolUse(
             { ...hookContext, event: 'PostToolUse' },

@@ -30,20 +30,19 @@ export class EvidenceTracker {
     artifacts?: Artifact[],
     precomputedVerification?: EvidenceVerificationResult
   ): EvidenceRecord {
-    this.counter++;
-    const id = `EV-${this.counter}`;
-
     // Execute verification gate
     const verification =
       precomputedVerification ||
       globalEvidenceVerifier.verify(toolName, category, query, rawOutput, artifacts, citations);
 
-    const verificationStatus =
-      verification.verdict === 'ADOPTED'
-        ? 'verified'
-        : verification.verdict === 'FLAGGED_WITH_WARNING'
-        ? 'flagged'
-        : 'rejected';
+    if (verification.verdict === 'REJECTED') {
+      throw new Error(`Rejected evidence cannot be recorded: ${verification.reasonSummary}`);
+    }
+
+    this.counter++;
+    const id = `EV-${this.counter}`;
+
+    const verificationStatus = verification.verdict === 'ADOPTED' ? 'verified' : 'flagged';
 
     let finalSummary = summary;
     if (verificationStatus === 'flagged') {

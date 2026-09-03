@@ -210,6 +210,29 @@ async function testHooksSystem() {
   }
   console.log(`  ✔ Physically impossible IC50 (-5.2 nM) successfully intercepted: ${negativeIc50Res.message}\n`);
 
+  const failedToolRes = await globalHookRegistry.triggerPostToolUse(postContext, {
+    toolName: 'uniprot_lookup',
+    toolArguments: { accessionOrGene: 'TYK2' },
+    result: {
+      callId: 'call-failed',
+      name: 'uniprot_lookup',
+      output: null,
+      error: 'Upstream database unavailable',
+      execution: {
+        id: 'exec-failed',
+        toolName: 'uniprot_lookup',
+        category: 'databases',
+        description: 'Lookup failed',
+        status: 'failed',
+        logs: [],
+      },
+    },
+  });
+  if (failedToolRes.proceed || failedToolRes.verdict !== 'REJECTED') {
+    throw new Error('EvidenceVerifierHook adopted a failed tool execution');
+  }
+  console.log('  ✔ Failed tool execution rejected before evidence adoption.\n');
+
   // [Test 5/5] Stop Hook: Evidence Completeness & Integrity Check
   console.log('[Test 5/5] Stop Hook: Evidence Completeness & Integrity Check');
   const stopContext: HookContext = {

@@ -19,6 +19,15 @@ export class EvidenceVerifierHook {
       handler: async (context: HookContext, payload: PostToolUsePayload): Promise<HookResult> => {
         const { toolName, toolArguments, result, artifacts, citations } = payload;
 
+        if (result.error || result.execution?.status === 'failed' || result.output === null || result.output === undefined) {
+          return {
+            proceed: false,
+            verdict: 'REJECTED',
+            message: `[Evidence Verification REJECTED]: Tool execution failed or returned no output: ${result.error || result.execution?.resultSummary || 'empty result'}`,
+            issues: [result.error || 'Tool execution failed or returned no output'],
+          };
+        }
+
         const queryStr =
           toolArguments?.query ||
           toolArguments?.accessionOrGene ||
